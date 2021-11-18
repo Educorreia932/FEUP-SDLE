@@ -59,8 +59,15 @@ class Subscriber(
     }
 }
 
-fun main() {
-    val subscriber = Subscriber("1")
+fun main(args: Array<String>) {
+
+    var subscriber : Subscriber
+    if(args == null || args.isEmpty()) {
+        subscriber = Subscriber("1")
+    }
+    else{
+        subscriber = Subscriber(args[0])
+    }
     
     // subscriber.subscribe("Sapos")
     subscriber.get("Sapos")
