@@ -16,9 +16,10 @@ class Publisher {
     fun put(/*topic: String,*/ message: String) {
         val frame = ZFrame(message)
         
-        frame.send(socket, 0)
-        
+        //frame.send(socket, 0)
+        socket.send(message, 0)
         println("Put message: $message")
+        socket.recv(0)
     }
 }
 
