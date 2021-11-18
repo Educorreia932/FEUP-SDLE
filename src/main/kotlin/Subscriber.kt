@@ -16,32 +16,52 @@ class Subscriber(
     }
     
     fun subscribe(topic: String) {
+        println("SUBSCRIBE|$topic|$id")
+
         val message = ZMsg()
         
-        message.addString("Subscribe")
+        message.addString("SUBSCRIBE")
         message.addString(topic)
         message.addString(id)
         
         message.send(socket)
         
-        socket.recv(0)
+        val reply = ZMsg.recvMsg(socket)
+        
+        println(reply)
     }
     
     fun unsubscribe(topic: String) {
-        socket.send("Unsubscribe|$topic|$id", 0)
+        val message = ZMsg()
+
+        message.addString("SUBSCRIBE")
+        message.addString(topic)
+        message.addString(id)
+        
+        message.send(socket)
+
+        socket.recv(0)
     }
     
     fun get(topic: String) {
-        socket.send("Get|$topic")
+        println("GET|$topic")
+
+        val message = ZMsg()
+
+        message.addString("GET")
+        message.addString(topic)
         
-        val message = socket.recv()
-        println("Subscriber with ID $id")
+        message.send(socket)
+        
+        val reply = socket.recv(0)
+        
+        println(reply)
     }
 }
 
 fun main() {
     val subscriber = Subscriber("1")
     
-    subscriber.subscribe("Sapos")
-    // subscriber.get("Sapos")
+    // subscriber.subscribe("Sapos")
+    subscriber.get("Sapos")
 }
