@@ -1,6 +1,7 @@
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
+import org.zeromq.ZMsg
 
 class Subscriber(
     private val id: String
@@ -15,18 +16,32 @@ class Subscriber(
     }
     
     fun subscribe(topic: String) {
-        socket.send("Subscribe: $topic $id", 0)
+        val message = ZMsg()
+        
+        message.addString("Subscribe")
+        message.addString(topic)
+        message.addString(id)
+        
+        message.send(socket)
+        
+        socket.recv(0)
     }
     
     fun unsubscribe(topic: String) {
-        socket.send("Unsubscribe: $topic $id", 0)
+        socket.send("Unsubscribe|$topic|$id", 0)
     }
     
     fun get(topic: String) {
-        socket.recv()
+        socket.send("Get|$topic")
+        
+        val message = socket.recv()
+        println("Subscriber with ID $id")
     }
 }
 
 fun main() {
+    val subscriber = Subscriber("1")
     
+    subscriber.subscribe("Sapos")
+    // subscriber.get("Sapos")
 }

@@ -5,42 +5,55 @@ import org.zeromq.ZMsg
 
 class Broker {
     private val topics = mutableMapOf<String, Topic>()
+    private val context = ZContext()
+    private val subscriberSocket = context.createSocket(SocketType.ROUTER)
+    private val publisherSocket = context.createSocket(SocketType.ROUTER)
+    private val poller: ZMQ.Poller
 
     init {
-        val context = ZContext()
-
-        val subscriberSocket = context.createSocket(SocketType.ROUTER)
-        val publisherSocket = context.createSocket(SocketType.ROUTER)
-
         subscriberSocket.bind("tcp://*:5555")
         publisherSocket.bind("tcp://*:5556")
 
-        val poller = context.createPoller(2)
+        poller = context.createPoller(2)
 
         poller.register(subscriberSocket, ZMQ.Poller.POLLIN)
         poller.register(publisherSocket, ZMQ.Poller.POLLIN)
-        
+    }
+
+    fun mediate() {
         while (true) {
             val rc = poller.poll(-1)
-            
-            //  Poll frontend only if we have available workers
+
+            // Poll subscribers only if we have available workers
             if (rc == -1) {
                 println("rc == -1")
-                break //  Interrupted
+
+                break
             }
-            
+
+            // Poll subscribers
             if (poller.pollin(0)) {
-                val message = ZMsg.recvMsg(publisherSocket);
-
-                println(message)
+                val message = ZMsg.recvMsg(subscriberSocket).toArray()
+                
+                val action = message[2].toString()
+                val topic = message[3].toString()
+                val subscriberID = message[4].toString()
+                
+                when (action) {
+                    "Subscribe" -> subscribe(topic, subscriberID)
+                    "Unsubscribe" -> unsubscribe(topic, subscriberID)
+                    "Get" -> TODO()
+                }
             }
 
+            // Poll publishers
             if (poller.pollin(1)) {
-                val message = ZMsg.recvMsg(publisherSocket);
+                val message = ZMsg.recvMsg(publisherSocket)
 
                 println(message)
             }
         }
+
     }
 
     fun subscribe(topicName: String, subscriberID: String) {
@@ -51,7 +64,7 @@ class Broker {
         // Create topic if it doesn't exist and add subscriber
         else {
             topics[topicName] = Topic()
-            
+
             topics[topicName]?.addSubscriber(subscriberID)
         }
     }
@@ -64,4 +77,6 @@ class Broker {
 
 fun main() {
     val broker = Broker()
+    
+    broker.mediate()
 }
