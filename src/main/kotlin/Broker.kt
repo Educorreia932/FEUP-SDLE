@@ -29,19 +29,42 @@ class Broker {
 
             // Poll subscribers
             if (poller.pollin(0)) {
-                val message = ZMsg.recvMsg(subscriberSocket).toArray()
+                var msgFrame = ZMsg.recvMsg(subscriberSocket)
+                val message = msgFrame.toArray()
 
                 val action = message[2].toString()
                 val topic = message[3].toString()
                 val subscriberID = if (message.size > 4) message[4].toString() else ""
 
                 when (action) {
-                    "SUBSCRIBE" -> subscribe(topic, subscriberID)
+                    "SUBSCRIBE" -> {
+                        subscribe(topic, subscriberID)
+                        val msg = ZMsg()
+                        msg.add(msgFrame.first)
+                        msg.addString("")
+                        msg.addString("Subscribed")
+                        msg.addString("Sapos")
+
+                        msg.send(subscriberSocket)
+                    }
                     "UNSUBSCRIBE" -> unsubscribe(topic, subscriberID)
                     "GET" -> {
-                        val content = topics[topic]?.messages?.last
-                        
-                        subscriberSocket.send(content)
+                        val contents = topics[topic]?.messages
+                        var content = ""
+                        if(contents != null && contents.isNotEmpty()){
+                            content = contents.last
+                        }
+
+                        var msg = ZMsg()
+                        msg.add(msgFrame.first)
+                        msg.add("")
+                        if(content.equals("")){
+                            msg.addString("No_content")
+                        }
+                        else{
+                            msg.addString("Success")
+                        }
+                        msg.send(subscriberSocket)
                     }
                 }
             }
@@ -81,7 +104,8 @@ class Broker {
     
     private fun put(topic: String, content: String) {
         if (!topics.containsKey(topic))
-            topics[topic] = Topic()
+            return
+            //topics[topic] = Topic()
         
         topics[topic]?.addMessage(content)
     }
