@@ -40,7 +40,9 @@ class Subscriber(
         
         message.send(socket)
 
-        socket.recv(0)
+        //socket.recv(0)
+
+        //println(reply)
     }
     
     fun get(topic: String) {
@@ -50,11 +52,11 @@ class Subscriber(
 
         message.addString("GET")
         message.addString(topic)
-        
+
         message.send(socket)
-        
-        val reply = socket.recv(0)
-        
+
+        val reply = ZMsg.recvMsg(socket)
+
         println(reply)
     }
 }
@@ -69,6 +71,6 @@ fun main(args: Array<String>) {
         subscriber = Subscriber(args[0])
     }
     
-    // subscriber.subscribe("Sapos")
+    subscriber.subscribe("Sapos")
     subscriber.get("Sapos")
 }
