@@ -4,7 +4,7 @@ import org.zeromq.ZMQ
 import org.zeromq.ZMsg
 
 class Broker {
-    private var subscribers: MutableMap<String, MutableSet<Subscriber>> = hashMapOf()
+    private val topics = mutableMapOf<String, Topic>()
 
     init {
         val context = ZContext()
@@ -21,7 +21,6 @@ class Broker {
         poller.register(publisherSocket, ZMQ.Poller.POLLIN)
         
         while (true) {
-//            val message = ZMsg.recvMsg(publisherSocket)
             val rc = poller.poll(-1)
             
             //  Poll frontend only if we have available workers
@@ -44,19 +43,22 @@ class Broker {
         }
     }
 
-    fun subscribe(topic: String, subscriberID: Subscriber) {
+    fun subscribe(topicName: String, subscriberID: String) {
         // Add subscriber to existing topic
-        if (subscribers.containsKey(topic))
-            subscribers[topic]?.add(subscriberID)
+        if (topics.containsKey(topicName))
+            topics[topicName]?.addSubscriber(subscriberID)
 
         // Create topic if it doesn't exist and add subscriber
-        else
-            subscribers[topic] = mutableSetOf(subscriberID)
+        else {
+            topics[topicName] = Topic()
+            
+            topics[topicName]?.addSubscriber(subscriberID)
+        }
     }
 
-    fun unsubscribe(topic: String, subscriberID: Subscriber) {
+    fun unsubscribe(topic: String, subscriberID: String) {
         // Remove subscriber from topic
-        subscribers[topic]?.remove(subscriberID)
+        topics[topic]?.removeSubscriber(subscriberID)
     }
 }
 
