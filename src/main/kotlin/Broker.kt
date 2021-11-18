@@ -8,75 +8,87 @@ class Broker {
     private val context = ZContext()
     private val subscriberSocket = context.createSocket(SocketType.ROUTER)
     private val publisherSocket = context.createSocket(SocketType.ROUTER)
-    private val poller: ZMQ.Poller
 
     init {
         subscriberSocket.bind("tcp://*:5555")
         publisherSocket.bind("tcp://*:5556")
-
-        poller = context.createPoller(2)
-
-        poller.register(subscriberSocket, ZMQ.Poller.POLLIN)
-        poller.register(publisherSocket, ZMQ.Poller.POLLIN)
     }
 
     fun mediate() {
+        val poller = context.createPoller(2)
+
+        poller.register(subscriberSocket, ZMQ.Poller.POLLIN)
+        poller.register(publisherSocket, ZMQ.Poller.POLLIN)
+
         while (true) {
             val rc = poller.poll(-1)
 
             // Poll subscribers only if we have available workers
-            if (rc == -1) {
-                println("rc == -1")
-
+            if (rc == -1)
                 break
-            }
 
             // Poll subscribers
             if (poller.pollin(0)) {
                 val message = ZMsg.recvMsg(subscriberSocket).toArray()
-                
+
                 val action = message[2].toString()
                 val topic = message[3].toString()
-                val subscriberID = message[4].toString()
-                
+                val subscriberID = if (message.size > 4) message[4].toString() else ""
+
                 when (action) {
-                    "Subscribe" -> subscribe(topic, subscriberID)
-                    "Unsubscribe" -> unsubscribe(topic, subscriberID)
-                    "Get" -> TODO()
+                    "SUBSCRIBE" -> subscribe(topic, subscriberID)
+                    "UNSUBSCRIBE" -> unsubscribe(topic, subscriberID)
+                    "GET" -> {
+                        val content = topics[topic]?.messages?.last
+                        
+                        subscriberSocket.send(content)
+                    }
                 }
             }
 
             // Poll publishers
             if (poller.pollin(1)) {
-                val message = ZMsg.recvMsg(publisherSocket)
+                val message = ZMsg.recvMsg(publisherSocket).toArray()
 
-                println(message)
+                val action = message[2].toString()
+                val topic = message[3].toString()
+                val content = message[4].toString()
+                
+                when (action)  {
+                    "PUT" -> put(topic, content)
+                }
             }
         }
-
     }
 
-    fun subscribe(topicName: String, subscriberID: String) {
+    private fun subscribe(topic: String, subscriberID: String) {
         // Add subscriber to existing topic
-        if (topics.containsKey(topicName))
-            topics[topicName]?.addSubscriber(subscriberID)
+        if (topics.containsKey(topic))
+            topics[topic]?.addSubscriber(subscriberID)
 
         // Create topic if it doesn't exist and add subscriber
         else {
-            topics[topicName] = Topic()
+            topics[topic] = Topic()
 
-            topics[topicName]?.addSubscriber(subscriberID)
+            topics[topic]?.addSubscriber(subscriberID)
         }
     }
 
-    fun unsubscribe(topic: String, subscriberID: String) {
+    private fun unsubscribe(topic: String, subscriberID: String) {
         // Remove subscriber from topic
         topics[topic]?.removeSubscriber(subscriberID)
+    }
+    
+    private fun put(topic: String, content: String) {
+        if (!topics.containsKey(topic))
+            topics[topic] = Topic()
+        
+        topics[topic]?.addMessage(content)
     }
 }
 
 fun main() {
     val broker = Broker()
-    
+
     broker.mediate()
 }
