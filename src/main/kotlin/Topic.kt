@@ -7,11 +7,11 @@ class Topic {
     fun addSubscriber(subscriberID: String) {
         subscribers.add(subscriberID)
     }
-    
+
     fun removeSubscriber(subscriberID: String) {
         subscribers.remove(subscriberID)
     }
-    
+
     fun addMessage(content: String) {
         messages.add(content)
     }

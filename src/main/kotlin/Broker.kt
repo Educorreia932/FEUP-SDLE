@@ -51,17 +51,16 @@ class Broker {
                     "GET" -> {
                         val contents = topics[topic]?.messages
                         var content = ""
-                        if(contents != null && contents.isNotEmpty()){
+                        if (contents != null && contents.isNotEmpty()) {
                             content = contents.last
                         }
 
                         var msg = ZMsg()
                         msg.add(msgFrame.first)
                         msg.add("")
-                        if(content.equals("")){
+                        if (content.equals("")) {
                             msg.addString("No_content")
-                        }
-                        else{
+                        } else {
                             msg.addString("Success")
                         }
                         msg.send(subscriberSocket)
@@ -76,8 +75,8 @@ class Broker {
                 val action = message[2].toString()
                 val topic = message[3].toString()
                 val content = message[4].toString()
-                
-                when (action)  {
+
+                when (action) {
                     "PUT" -> put(topic, content)
                 }
             }
@@ -86,11 +85,9 @@ class Broker {
 
     private fun subscribe(topic: String, subscriberID: String) {
         // Add subscriber to existing topic
-        if (topics.containsKey(topic))
+        if (topics.containsKey(topic)) {
             topics[topic]?.addSubscriber(subscriberID)
-
-        // Create topic if it doesn't exist and add subscriber
-        else {
+        } else { // Create topic if it doesn't exist and add subscriber
             topics[topic] = Topic()
 
             topics[topic]?.addSubscriber(subscriberID)
@@ -101,12 +98,12 @@ class Broker {
         // Remove subscriber from topic
         topics[topic]?.removeSubscriber(subscriberID)
     }
-    
+
     private fun put(topic: String, content: String) {
         if (!topics.containsKey(topic))
             return
-            //topics[topic] = Topic()
-        
+        //topics[topic] = Topic()
+
         topics[topic]?.addMessage(content)
     }
 }
