@@ -7,44 +7,44 @@ class Subscriber(
     private val id: String
 ) {
     private val socket: ZMQ.Socket
-    
+
     init {
         val context = ZContext()
         socket = context.createSocket(SocketType.REQ)
 
         socket.connect("tcp://localhost:5555")
     }
-    
+
     fun subscribe(topic: String) {
         println("SUBSCRIBE|$topic|$id")
 
         val message = ZMsg()
-        
+
         message.addString("SUBSCRIBE")
         message.addString(topic)
         message.addString(id)
-        
+
         message.send(socket)
-        
+
         val reply = ZMsg.recvMsg(socket)
-        
+
         println(reply)
     }
-    
+
     fun unsubscribe(topic: String) {
         val message = ZMsg()
 
         message.addString("SUBSCRIBE")
         message.addString(topic)
         message.addString(id)
-        
+
         message.send(socket)
 
         //socket.recv(0)
 
         //println(reply)
     }
-    
+
     fun get(topic: String) {
         println("GET|$topic")
 
@@ -63,14 +63,13 @@ class Subscriber(
 
 fun main(args: Array<String>) {
 
-    var subscriber : Subscriber
-    if(args == null || args.isEmpty()) {
+    val subscriber: Subscriber
+    if (args.isEmpty()) {
         subscriber = Subscriber("1")
-    }
-    else{
+    } else {
         subscriber = Subscriber(args[0])
     }
-    
+
     subscriber.subscribe("Sapos")
     subscriber.get("Sapos")
 }
