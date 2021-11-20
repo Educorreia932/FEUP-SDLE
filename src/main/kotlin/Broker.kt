@@ -50,15 +50,16 @@ class Broker {
                     "UNSUBSCRIBE" -> unsubscribe(topic, subscriberID)
                     "GET" -> {
                         val contents = topics[topic]?.messages
-                        var content = ""
-                        if (contents != null && contents.isNotEmpty()) {
+                        var content : String? = null
+                        if (!contents.isNullOrEmpty()) {
                             content = contents.last
                         }
 
                         var msg = ZMsg()
                         msg.add(msgFrame.first)
                         msg.add("")
-                        if (content.equals("")) {
+                        if (content == null) {
+                            // Client will have to enter Retry Get Mode.
                             msg.addString("No_content")
                         } else {
                             msg.addString("Success")
