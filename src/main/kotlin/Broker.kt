@@ -33,12 +33,12 @@ class Broker {
                 val message = msgFrame.toArray()
 
                 val action = message[2].toString()
-                val topic = message[3].toString()
+                val topicName = message[3].toString()
                 val subscriberID = if (message.size > 4) message[4].toString() else ""
 
                 when (action) {
                     "SUBSCRIBE" -> {
-                        subscribe(topic, subscriberID)
+                        subscribe(topicName, subscriberID)
                         val msg = ZMsg()
                         msg.add(msgFrame.first)
                         msg.addString("")
@@ -47,21 +47,26 @@ class Broker {
 
                         msg.send(subscriberSocket)
                     }
-                    "UNSUBSCRIBE" -> unsubscribe(topic, subscriberID)
+                    "UNSUBSCRIBE" -> unsubscribe(topicName, subscriberID)
                     "GET" -> {
-                        val contents = topics[topic]?.messages
-                        var content = ""
-                        if (contents != null && contents.isNotEmpty()) {
-                            content = contents.last
-                        }
-
                         var msg = ZMsg()
                         msg.add(msgFrame.first)
                         msg.add("")
-                        if (content.equals("")) {
-                            msg.addString("No_content")
+
+                        val topic = topics[topicName]
+                        if (topic == null) {
+                            msg.addString("No_such_topic")
+                        } else if (!topic.isSubscribed(subscriberID)) {
+                            msg.addString("Not_subscribed")
                         } else {
-                            msg.addString("Success")
+                            val message = topics[topicName]?.getMessage(subscriberID)
+
+                            if (message == null) {
+                                msg.addString("No_content")
+                            } else {
+                                msg.addString("Success")
+                            }
+
                         }
                         msg.send(subscriberSocket)
                     }
@@ -88,7 +93,7 @@ class Broker {
         if (topics.containsKey(topic)) {
             topics[topic]?.addSubscriber(subscriberID)
         } else { // Create topic if it doesn't exist and add subscriber
-            topics[topic] = Topic()
+            topics[topic] = Topic(topic)
 
             topics[topic]?.addSubscriber(subscriberID)
         }
