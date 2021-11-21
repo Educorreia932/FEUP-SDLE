@@ -53,6 +53,7 @@ class Broker {
                         msg.add(msgFrame.first)
                         msg.add("")
 
+                        println("Subscriber_id: $subscriberID")
                         val topic = topics[topicName]
                         if (topic == null) {
                             msg.addString("No_such_topic")

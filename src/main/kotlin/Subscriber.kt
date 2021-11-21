@@ -52,6 +52,7 @@ class Subscriber(
 
         message.addString("GET")
         message.addString(topic)
+        message.addString(id) //TODO: Needed?
 
         message.send(socket)
 

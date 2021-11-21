@@ -1,7 +1,7 @@
 class Topic(val topicName: String) {
     var tail: Node? = null // null if list is empty
     var head: Node? = null // null if list is empty
-    private val subscribers = mutableMapOf<String, Node?>()
+    val subscribers = mutableMapOf<String, Node?>()
 
 
     /* Linked list Node*/
