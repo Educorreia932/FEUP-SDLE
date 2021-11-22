@@ -42,6 +42,7 @@ class Publisher(
 
         message.send(socket)
 
-        socket.recv(0)
+//        socket.recv(0)
+        ZMsg.recvMsg(socket)
     }
 }

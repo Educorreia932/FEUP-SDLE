@@ -3,7 +3,7 @@ class TestApp {
         @JvmStatic
         fun main(args: Array<String>) {
             val typeString = args[0]
-            if(typeString == "Sub") {
+            if (typeString == "Sub") {
                 val id = args[1]
 
                 val subscriber = Subscriber(id)
@@ -15,8 +15,7 @@ class TestApp {
                         subscriber.get(topicName)
                     subscriber.unsubscribe(topicName)
                 }
-            }
-            else if(typeString == "Pub"){
+            } else if (typeString == "Pub") {
                 val id = args[1]
 
                 val publisher = Publisher(id)

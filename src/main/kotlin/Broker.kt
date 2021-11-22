@@ -42,7 +42,7 @@ class Broker : Serializable {
         @JvmStatic
         fun main(args: Array<String>) {
             var broker: Pair<Broker, Boolean> = loadFromFile()
-            if(broker.second){
+            if (broker.second) {
                 broker.first.altConstructor()
             }
             broker.first.mediate()
@@ -108,7 +108,7 @@ class Broker : Serializable {
                         msg.add(msgFrame.first)
                         msg.addString("")
                         msg.addString("Subscribed")
-                        msg.addString("Sapos")
+                        msg.addString(topicName)
 
                         msg.send(subscriberSocket)
                     }
@@ -145,7 +145,8 @@ class Broker : Serializable {
 
             // Poll publishers
             if (poller.pollin(1)) {
-                val message = ZMsg.recvMsg(publisherSocket).toArray()
+                val msgFrame = ZMsg.recvMsg(publisherSocket)
+                val message = msgFrame.toArray()
 
                 val action = message[2].toString()
                 val topic = message[3].toString()
@@ -155,6 +156,15 @@ class Broker : Serializable {
                     "PUT" -> {
                         put(topic, content)
                         decrementCounter()
+
+                        val msg = ZMsg()
+                        msg.add(msgFrame.first)
+                        msg.addString("")
+                        msg.addString("Published")
+                        msg.addString(topic)
+                        msg.addString(content)
+
+                        msg.send(publisherSocket)
                     }
                 }
             }
