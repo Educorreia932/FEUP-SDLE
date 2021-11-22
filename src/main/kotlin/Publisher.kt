@@ -3,7 +3,9 @@ import org.zeromq.ZContext
 import org.zeromq.ZMQ
 import org.zeromq.ZMsg
 
-class Publisher {
+class Publisher(
+    private val id: String
+) {
     private val socket: ZMQ.Socket
 
     init {
@@ -11,6 +13,22 @@ class Publisher {
         socket = context.createSocket(SocketType.REQ)
 
         socket.connect("tcp://localhost:5556")
+    }
+
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+
+            val publisher: Publisher
+
+            if (args.isEmpty()) {
+                publisher = Publisher("1")
+            } else {
+                publisher = Publisher(args[0])
+            }
+
+            publisher.put("Sapos", "Rãs")
+        }
     }
 
     fun put(topic: String, content: String) {
@@ -26,10 +44,4 @@ class Publisher {
 
         socket.recv(0)
     }
-}
-
-fun main() {
-    val publisher = Publisher()
-
-    publisher.put("Sapos", "Rãs")
 }
