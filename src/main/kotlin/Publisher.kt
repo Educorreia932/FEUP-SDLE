@@ -3,7 +3,9 @@ import org.zeromq.ZContext
 import org.zeromq.ZMQ
 import org.zeromq.ZMsg
 
-class Publisher {
+class Publisher(
+    private val id: String
+) {
     private val socket: ZMQ.Socket
 
     init {
@@ -28,8 +30,15 @@ class Publisher {
     }
 }
 
-fun main() {
-    val publisher = Publisher()
+fun main(args: Array<String>) {
+
+    val publisher: Publisher
+
+    if (args.isEmpty()) {
+        publisher = Publisher("1")
+    } else {
+        publisher = Publisher(args[0])
+    }
 
     publisher.put("Sapos", "Rãs")
 }

@@ -65,6 +65,7 @@ class Subscriber(
 fun main(args: Array<String>) {
 
     val subscriber: Subscriber
+
     if (args.isEmpty()) {
         subscriber = Subscriber("1")
     } else {
