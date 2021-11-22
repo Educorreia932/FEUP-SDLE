@@ -15,22 +15,6 @@ class Publisher(
         socket.connect("tcp://localhost:5556")
     }
 
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-
-            val publisher: Publisher
-
-            if (args.isEmpty()) {
-                publisher = Publisher("1")
-            } else {
-                publisher = Publisher(args[0])
-            }
-
-            publisher.put("Sapos", "Rãs")
-        }
-    }
-
     fun put(topic: String, content: String) {
         val message = ZMsg()
 
@@ -42,7 +26,6 @@ class Publisher(
 
         message.send(socket)
 
-//        socket.recv(0)
         ZMsg.recvMsg(socket)
     }
 }

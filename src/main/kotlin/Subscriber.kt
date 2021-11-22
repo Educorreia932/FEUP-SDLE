@@ -15,23 +15,6 @@ class Subscriber(
         socket.connect("tcp://localhost:5555")
     }
 
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-
-            val subscriber: Subscriber
-            if (args.isEmpty()) {
-                subscriber = Subscriber("1")
-            } else {
-                subscriber = Subscriber(args[0])
-            }
-
-            subscriber.subscribe("Sapos")
-            subscriber.get("Sapos")
-        }
-    }
-
-
     fun subscribe(topic: String) {
         println("SUBSCRIBE|$topic|$id")
 

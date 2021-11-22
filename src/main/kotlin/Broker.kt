@@ -41,7 +41,7 @@ class Broker : Serializable {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            var broker: Pair<Broker, Boolean> = loadFromFile()
+            val broker: Pair<Broker, Boolean> = loadFromFile()
             if (broker.second) {
                 broker.first.altConstructor()
             }
@@ -50,7 +50,7 @@ class Broker : Serializable {
 
         @JvmStatic
         fun loadFromFile(): Pair<Broker, Boolean> {
-            var broker: Broker? = null
+            val broker: Broker?
             try {
                 val file = File(filePath)
                 if (!file.isFile)
@@ -71,7 +71,7 @@ class Broker : Serializable {
             }
 
             println("Deserialized Broker...")
-            System.out.println("Num topics: " + broker.topics.count())
+            println("Num topics: " + broker.topics.count())
             return Pair(broker, true)
         }
 
@@ -94,7 +94,7 @@ class Broker : Serializable {
 
             // Poll subscribers
             if (poller.pollin(0)) {
-                var msgFrame = ZMsg.recvMsg(subscriberSocket)
+                val msgFrame = ZMsg.recvMsg(subscriberSocket)
                 val message = msgFrame.toArray()
 
                 val action = message[2].toString()
@@ -114,7 +114,7 @@ class Broker : Serializable {
                     }
                     "UNSUBSCRIBE" -> unsubscribe(topicName, subscriberID)
                     "GET" -> {
-                        var msg = ZMsg()
+                        val msg = ZMsg()
                         msg.add(msgFrame.first)
                         msg.add("")
 
@@ -127,9 +127,9 @@ class Broker : Serializable {
                         } else if (!topic.isSubscribed(subscriberID)) {
                             msg.addString("Not_subscribed")
                         } else {
-                            val message = topics[topicName]?.getMessage(subscriberID)
+                            val content = topics[topicName]?.getMessage(subscriberID)
 
-                            if (message == null) {
+                            if (content == null) {
                                 msg.addString("No_content")
                             } else {
                                 msg.addString("Success")
@@ -190,7 +190,6 @@ class Broker : Serializable {
     private fun put(topic: String, content: String) {
         if (!topics.containsKey(topic))
             return
-        //topics[topic] = Topic()
 
         topics[topic]?.addMessage(content)
     }
@@ -205,9 +204,9 @@ class Broker : Serializable {
         }
     }
 
-    fun saveToFile() {
+    private fun saveToFile() {
         try {
-            val fileOut = FileOutputStream(Companion.filePath)
+            val fileOut = FileOutputStream(filePath)
             val out = ObjectOutputStream(fileOut)
             out.writeObject(this)
             out.close()
