@@ -191,6 +191,7 @@ class Broker : Serializable {
         if (numOperUntilSave == 0) {
             print("Saving file now")
             saveToFile()
+            numOperUntilSave = maxNumOperationsUntilSave
         }
     }
 
