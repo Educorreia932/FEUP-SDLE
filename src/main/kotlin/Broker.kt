@@ -32,8 +32,10 @@ class Broker : Serializable {
 
     fun altConstructor() {
         context = ZContext()
+        
         subscriberSocket = context.createSocket(SocketType.ROUTER)
         publisherSocket = context.createSocket(SocketType.ROUTER)
+        
         subscriberSocket.bind("tcp://*:5555")
         publisherSocket.bind("tcp://*:5556")
     }
@@ -42,17 +44,21 @@ class Broker : Serializable {
         @JvmStatic
         fun main(args: Array<String>) {
             val broker: Pair<Broker, Boolean> = loadFromFile()
+            
             if (broker.second) {
                 broker.first.altConstructor()
             }
+            
             broker.first.mediate()
         }
 
         @JvmStatic
         fun loadFromFile(): Pair<Broker, Boolean> {
             val broker: Broker?
+            
             try {
                 val file = File(filePath)
+                
                 if (!file.isFile)
                     return Pair(Broker(), false)
 
@@ -61,17 +67,24 @@ class Broker : Serializable {
                 broker = `in`.readObject() as Broker
                 `in`.close()
                 fileIn.close()
-            } catch (i: IOException) {
+            } 
+            
+            catch (i: IOException) {
                 i.printStackTrace()
+            
                 return Pair(Broker(), false)
-            } catch (c: ClassNotFoundException) {
-                println("Employee class not found")
+            } 
+            
+            catch (c: ClassNotFoundException) {
+                println("Class not found")
                 c.printStackTrace()
+                
                 return Pair(Broker(), false)
             }
 
             println("Deserialized Broker...")
             println("Num topics: " + broker.topics.count())
+            
             return Pair(broker, true)
         }
 
@@ -94,8 +107,8 @@ class Broker : Serializable {
 
             // Poll subscribers
             if (poller.pollin(0)) {
-                val msgFrame = ZMsg.recvMsg(subscriberSocket)
-                val message = msgFrame.toArray()
+                val messageFrame = ZMsg.recvMsg(subscriberSocket)
+                val message = messageFrame.toArray()
 
                 val action = message[2].toString()
                 val topicName = message[3].toString()
@@ -103,9 +116,12 @@ class Broker : Serializable {
 
                 when (action) {
                     "SUBSCRIBE" -> {
+                        // Subscribe to topic
                         subscribe(topicName, subscriberID)
+                        
                         val msg = ZMsg()
-                        msg.add(msgFrame.first)
+                        
+                        msg.add(messageFrame.first)
                         msg.addString("")
                         msg.addString("Subscribed")
                         msg.addString(topicName)
@@ -114,30 +130,36 @@ class Broker : Serializable {
                     }
                     "UNSUBSCRIBE" -> unsubscribe(topicName, subscriberID)
                     "GET" -> {
-                        val msg = ZMsg()
-                        msg.add(msgFrame.first)
-                        msg.add("")
+                        val zmsg = ZMsg()
+                        
+                        zmsg.add(messageFrame.first)
+                        zmsg.add("")
 
-                        println("Subscriber_id: $subscriberID")
+                        println("Subscriber ID: $subscriberID")
 
                         val topic = topics[topicName]
 
                         if (topic == null) {
-                            msg.addString("No_such_topic")
-                        } else if (!topic.isSubscribed(subscriberID)) {
-                            msg.addString("Not_subscribed")
-                        } else {
-                            val content = topics[topicName]?.getMessage(subscriberID)
+                            zmsg.addString("No such topic")
+                        } 
+                        
+                        else if (!topic.isSubscribed(subscriberID)) {
+                            zmsg.addString("Not subscribed")
+                        } 
+                        
+                        else {
+                            val topicMessage = topics[topicName]?.getMessage(subscriberID)
 
-                            if (content == null) {
-                                msg.addString("No_content")
-                            } else {
-                                msg.addString("Success")
+                            if (topicMessage == null) {
+                                zmsg.addString("No content")
+                            } 
+                            
+                            else {
+                                zmsg.addString(topicMessage)
                             }
-
                         }
 
-                        msg.send(subscriberSocket)
+                        zmsg.send(subscriberSocket)
                         decrementCounter()
                     }
                 }
@@ -157,14 +179,15 @@ class Broker : Serializable {
                         put(topic, content)
                         decrementCounter()
 
-                        val msg = ZMsg()
-                        msg.add(msgFrame.first)
-                        msg.addString("")
-                        msg.addString("Published")
-                        msg.addString(topic)
-                        msg.addString(content)
+                        val zmsg = ZMsg()
+                        
+                        zmsg.add(msgFrame.first)
+                        zmsg.addString("")
+                        zmsg.addString("Published")
+                        zmsg.addString(topic)
+                        zmsg.addString(content)
 
-                        msg.send(publisherSocket)
+                        zmsg.send(publisherSocket)
                     }
                 }
             }
@@ -175,7 +198,10 @@ class Broker : Serializable {
         // Add subscriber to existing topic
         if (topics.containsKey(topic)) {
             topics[topic]?.addSubscriber(subscriberID)
-        } else { // Create topic if it doesn't exist and add subscriber
+        }
+
+        // Create topic if it doesn't exist and add subscriber
+        else { 
             topics[topic] = Topic(topic)
 
             topics[topic]?.addSubscriber(subscriberID)
@@ -197,9 +223,12 @@ class Broker : Serializable {
     private fun decrementCounter() {
         numOperUntilSave--
         print(numOperUntilSave)
+        
         if (numOperUntilSave == 0) {
             print("Saving file now")
+            
             saveToFile()
+            
             numOperUntilSave = maxNumOperationsUntilSave
         }
     }
@@ -208,14 +237,15 @@ class Broker : Serializable {
         try {
             val fileOut = FileOutputStream(filePath)
             val out = ObjectOutputStream(fileOut)
+            
             out.writeObject(this)
             out.close()
             fileOut.close()
             System.out.printf("Serialized data is saved")
-        } catch (i: IOException) {
+        } 
+        
+        catch (i: IOException) {
             i.printStackTrace()
         }
     }
 }
-
-

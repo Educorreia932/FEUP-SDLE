@@ -39,10 +39,6 @@ class Subscriber(
         message.addString(id)
 
         message.send(socket)
-
-        //socket.recv(0)
-
-        //println(reply)
     }
 
     fun get(topic: String): Boolean {
