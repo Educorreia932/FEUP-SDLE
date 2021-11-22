@@ -65,29 +65,46 @@ class Broker: Serializable {
                     }
                     "UNSUBSCRIBE" -> unsubscribe(topicName, subscriberID)
                     "GET" -> {
+                        val contents = topics[topic]?.messages
+                        var content = ""
+                        
+                        if (contents != null && contents.isNotEmpty()) {
+                            content = contents.last
+                        }
+
                         var msg = ZMsg()
                         msg.add(msgFrame.first)
                         msg.add("")
 
                         println("Subscriber_id: $subscriberID")
+                        
                         val topic = topics[topicName]
+                        
                         if (topic == null) {
                             msg.addString("No_such_topic")
-                        } else if (!topic.isSubscribed(subscriberID)) {
+                        } 
+                        
+                        else if (!topic.isSubscribed(subscriberID)) {
                             msg.addString("Not_subscribed")
-                        } else {
+                        } 
+                        
+                        else {
                             val message = topics[topicName]?.getMessage(subscriberID)
 
                             if (message == null) {
                                 msg.addString("No_content")
-                            } else {
+                            } 
+                            
+                            else {
                                 msg.addString("Success")
                             }
 
                         }
+                        
                         msg.send(subscriberSocket)
                     }
                 }
+                
                 decrementCounter()
             }
 

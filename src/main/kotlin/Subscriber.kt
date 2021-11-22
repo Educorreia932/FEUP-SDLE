@@ -62,7 +62,7 @@ class Subscriber(
         //println(reply)
     }
 
-    fun get(topic: String) {
+    fun get(topic: String): Boolean {
         println("GET|$topic")
 
         val message = ZMsg()
@@ -74,7 +74,21 @@ class Subscriber(
         message.send(socket)
 
         val reply = ZMsg.recvMsg(socket)
+        println(reply.toString())
 
-        println(reply)
+        // Verify if there was no message available on topic.
+        if (reply.toString() == "[ No_content ]") {
+            // Enter Retry Get mode.
+            retryGetMode(topic)
+            return false
+        }
+
+        return true
+    }
+
+    private fun retryGetMode(topic: String) {
+        println("> Entered Retry Get mode...")
+        Thread.sleep(5_000)
+        get(topic)
     }
 }
