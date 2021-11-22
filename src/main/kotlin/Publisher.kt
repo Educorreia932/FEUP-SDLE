@@ -13,6 +13,15 @@ class Publisher {
         socket.connect("tcp://localhost:5556")
     }
 
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val publisher = Publisher()
+
+            publisher.put("Sapos", "Rãs")
+        }
+    }
+
     fun put(topic: String, content: String) {
         val message = ZMsg()
 
@@ -28,8 +37,3 @@ class Publisher {
     }
 }
 
-fun main() {
-    val publisher = Publisher()
-
-    publisher.put("Sapos", "Rãs")
-}

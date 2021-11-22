@@ -43,7 +43,6 @@ class Topic(val topicName: String) {
                 }
             }
 
-
         } else {
             tail!!.next = newTail
             tail = tail!!.next

@@ -14,6 +14,15 @@ class Broker {
         publisherSocket.bind("tcp://*:5556")
     }
 
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val broker = Broker()
+
+            broker.mediate()
+        }
+    }
+
     fun mediate() {
         val poller = context.createPoller(2)
 
@@ -114,8 +123,4 @@ class Broker {
     }
 }
 
-fun main() {
-    val broker = Broker()
 
-    broker.mediate()
-}
