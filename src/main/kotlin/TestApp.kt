@@ -11,8 +11,14 @@ class TestApp {
                     val topicName = args[i]
                     val numGets = args[i + 1]
                     subscriber.subscribe(topicName)
-                    for (j in 1..Integer.parseInt(numGets))
-                        subscriber.get(topicName)
+                    for (j in 1..Integer.parseInt(numGets)) {
+                        val response = subscriber.get(topicName)
+                        if (response == null) {
+                            println("ERROR: Not subscribed")
+                        } else {
+                            println("GET $response")
+                        }
+                    }
                     subscriber.unsubscribe(topicName)
                 }
             } else if (typeString == "Pub") {

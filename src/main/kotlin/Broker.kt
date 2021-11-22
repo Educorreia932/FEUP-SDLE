@@ -21,7 +21,7 @@ class Broker : Serializable {
     private var publisherSocket = context.createSocket(SocketType.ROUTER)
 
     @Transient
-    val maxNumOperationsUntilSave = 2
+    var maxNumOperationsUntilSave = 2
 
     @Transient
     var numOperUntilSave = maxNumOperationsUntilSave
@@ -36,6 +36,8 @@ class Broker : Serializable {
         publisherSocket = context.createSocket(SocketType.ROUTER)
         subscriberSocket.bind("tcp://*:5555")
         publisherSocket.bind("tcp://*:5556")
+        maxNumOperationsUntilSave = 2
+        numOperUntilSave = maxNumOperationsUntilSave
     }
 
     companion object {
@@ -57,21 +59,20 @@ class Broker : Serializable {
                     return Pair(Broker(), false)
 
                 val fileIn = FileInputStream(filePath)
-                val `in` = ObjectInputStream(fileIn)
-                broker = `in`.readObject() as Broker
-                `in`.close()
+                val objIn = ObjectInputStream(fileIn)
+                broker = objIn.readObject() as Broker
+                objIn.close()
                 fileIn.close()
             } catch (i: IOException) {
                 i.printStackTrace()
                 return Pair(Broker(), false)
             } catch (c: ClassNotFoundException) {
-                println("Employee class not found")
                 c.printStackTrace()
                 return Pair(Broker(), false)
             }
 
             println("Deserialized Broker...")
-            println("Num topics: " + broker.topics.count())
+            println("Num topics: ${broker.topics.count()}")
             return Pair(broker, true)
         }
 
@@ -121,20 +122,16 @@ class Broker : Serializable {
                         println("Subscriber_id: $subscriberID")
 
                         val topic = topics[topicName]
-
-                        if (topic == null) {
-                            msg.addString("No_such_topic")
-                        } else if (!topic.isSubscribed(subscriberID)) {
+                        if (topic == null || !topic.isSubscribed(subscriberID)) {
                             msg.addString("Not_subscribed")
                         } else {
+
                             val content = topics[topicName]?.getMessage(subscriberID)
-
                             if (content == null) {
-                                msg.addString("No_content")
+                                msg.addString("Empty_Topic")
                             } else {
-                                msg.addString("Success")
+                                msg.addString(content)
                             }
-
                         }
 
                         msg.send(subscriberSocket)
@@ -192,13 +189,15 @@ class Broker : Serializable {
             return
 
         topics[topic]?.addMessage(content)
+        println(topics[topic])
+
     }
 
     private fun decrementCounter() {
         numOperUntilSave--
-        print(numOperUntilSave)
+        println("Until save: $numOperUntilSave")
         if (numOperUntilSave == 0) {
-            print("Saving file now")
+            println("Saving file now")
             saveToFile()
             numOperUntilSave = maxNumOperationsUntilSave
         }
@@ -211,7 +210,7 @@ class Broker : Serializable {
             out.writeObject(this)
             out.close()
             fileOut.close()
-            System.out.printf("Serialized data is saved")
+            println("Serialized data is saved")
         } catch (i: IOException) {
             i.printStackTrace()
         }

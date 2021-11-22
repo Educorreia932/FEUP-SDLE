@@ -1,13 +1,13 @@
 import java.io.Serializable
 
-class Topic (val topicName: String): Serializable {
+class Topic(val topicName: String) : Serializable {
     var tail: Node? = null // null if list is empty
     var head: Node? = null // null if list is empty
     val subscribers = mutableMapOf<String, Node?>()
 
 
     /* Linked list Node*/
-    inner class Node(var data: String) {
+    inner class Node(var data: String) : Serializable {
         var next: Node? = null
         var subCounter: Int = 0
 
@@ -49,6 +49,7 @@ class Topic (val topicName: String): Serializable {
             tail!!.next = newTail
             tail = tail!!.next
         }
+        println(this)
     }
 
     fun getMessage(subscriber_id: String): String? {
@@ -90,8 +91,19 @@ class Topic (val topicName: String): Serializable {
         updateHead()
     }
 
-    override fun toString(): String{
-        return subscribers.size.toString()
+    override fun toString(): String {
+        if (isEmpty()) {
+            return "EMPTY"
+        }
+
+        var ret = ""
+        var curNode: Node? = head
+        while (curNode!!.next != null) {
+            ret = ret.plus(" ${curNode.data}")
+            curNode = curNode.next!!
+        }
+
+        return ret
     }
 
 }
