@@ -90,4 +90,8 @@ class Topic (val topicName: String): Serializable {
         updateHead()
     }
 
+    override fun toString(): String{
+        return subscribers.size.toString()
+    }
+
 }

@@ -3,19 +3,37 @@ import org.zeromq.ZContext
 import org.zeromq.ZMQ
 import org.zeromq.ZMsg
 import java.io.*
+import java.io.ObjectInputStream
+
+import java.io.FileInputStream
 
 
-class Broker: Serializable {
+class Broker : Serializable {
     private val topics = mutableMapOf<String, Topic>()
-    private val context = ZContext()
-    private val subscriberSocket = context.createSocket(SocketType.ROUTER)
-    private val publisherSocket = context.createSocket(SocketType.ROUTER)
 
-    var filePath = "topics.ser"
+    @Transient
+    private var context = ZContext()
+
+    @Transient
+    private var subscriberSocket = context.createSocket(SocketType.ROUTER)
+
+    @Transient
+    private var publisherSocket = context.createSocket(SocketType.ROUTER)
+
+    @Transient
     val maxNumOperationsUntilSave = 2
+
+    @Transient
     var numOperUntilSave = maxNumOperationsUntilSave
 
     init {
+        altConstructor()
+    }
+
+    fun altConstructor() {
+        context = ZContext()
+        subscriberSocket = context.createSocket(SocketType.ROUTER)
+        publisherSocket = context.createSocket(SocketType.ROUTER)
         subscriberSocket.bind("tcp://*:5555")
         publisherSocket.bind("tcp://*:5556")
     }
@@ -23,11 +41,42 @@ class Broker: Serializable {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val broker = Broker()
-
-            loadFromFile()
-            broker.mediate()
+            var broker: Pair<Broker, Boolean> = loadFromFile()
+            if(broker.second){
+                broker.first.altConstructor()
+            }
+            broker.first.mediate()
         }
+
+        @JvmStatic
+        fun loadFromFile(): Pair<Broker, Boolean> {
+            var broker: Broker? = null
+            try {
+                val file = File(filePath)
+                if (!file.isFile)
+                    return Pair(Broker(), false)
+
+                val fileIn = FileInputStream(filePath)
+                val `in` = ObjectInputStream(fileIn)
+                broker = `in`.readObject() as Broker
+                `in`.close()
+                fileIn.close()
+            } catch (i: IOException) {
+                i.printStackTrace()
+                return Pair(Broker(), false)
+            } catch (c: ClassNotFoundException) {
+                println("Employee class not found")
+                c.printStackTrace()
+                return Pair(Broker(), false)
+            }
+
+            println("Deserialized Broker...")
+            System.out.println("Num topics: " + broker.topics.count())
+            return Pair(broker, true)
+        }
+
+        @Transient
+        const val filePath = "topics.ser"
     }
 
     fun mediate() {
@@ -65,47 +114,33 @@ class Broker: Serializable {
                     }
                     "UNSUBSCRIBE" -> unsubscribe(topicName, subscriberID)
                     "GET" -> {
-                        val contents = topics[topic]?.messages
-                        var content = ""
-                        
-                        if (contents != null && contents.isNotEmpty()) {
-                            content = contents.last
-                        }
-
                         var msg = ZMsg()
                         msg.add(msgFrame.first)
                         msg.add("")
 
                         println("Subscriber_id: $subscriberID")
-                        
+
                         val topic = topics[topicName]
-                        
+
                         if (topic == null) {
                             msg.addString("No_such_topic")
-                        } 
-                        
-                        else if (!topic.isSubscribed(subscriberID)) {
+                        } else if (!topic.isSubscribed(subscriberID)) {
                             msg.addString("Not_subscribed")
-                        } 
-                        
-                        else {
+                        } else {
                             val message = topics[topicName]?.getMessage(subscriberID)
 
                             if (message == null) {
                                 msg.addString("No_content")
-                            } 
-                            
-                            else {
+                            } else {
                                 msg.addString("Success")
                             }
 
                         }
-                        
+
                         msg.send(subscriberSocket)
+                        decrementCounter()
                     }
                 }
-                
-                decrementCounter()
             }
 
             // Poll publishers
@@ -117,9 +152,11 @@ class Broker: Serializable {
                 val content = message[4].toString()
 
                 when (action) {
-                    "PUT" -> put(topic, content)
+                    "PUT" -> {
+                        put(topic, content)
+                        decrementCounter()
+                    }
                 }
-                decrementCounter()
             }
         }
     }
@@ -148,20 +185,20 @@ class Broker: Serializable {
         topics[topic]?.addMessage(content)
     }
 
-    private fun decrementCounter(){
+    private fun decrementCounter() {
         numOperUntilSave--
         print(numOperUntilSave)
-        if(numOperUntilSave == 0){
+        if (numOperUntilSave == 0) {
             print("Saving file now")
             saveToFile()
         }
     }
 
-    fun saveToFile(){
+    fun saveToFile() {
         try {
-            val fileOut = FileOutputStream(filePath)
+            val fileOut = FileOutputStream(Companion.filePath)
             val out = ObjectOutputStream(fileOut)
-            out.writeObject(topics)
+            out.writeObject(this)
             out.close()
             fileOut.close()
             System.out.printf("Serialized data is saved")
@@ -169,12 +206,6 @@ class Broker: Serializable {
             i.printStackTrace()
         }
     }
-
-    fun loadFromFile(){
-
-    }
-
-
 }
 
 
