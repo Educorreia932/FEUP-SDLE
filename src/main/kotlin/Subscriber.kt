@@ -17,7 +17,7 @@ class Subscriber(
 
     companion object {
         @JvmStatic
-        private fun main(args: Array<String>) {
+        fun main(args: Array<String>) {
 
             val subscriber: Subscriber
             if (args.isEmpty()) {

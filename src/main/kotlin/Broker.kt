@@ -2,12 +2,18 @@ import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
 import org.zeromq.ZMsg
+import java.io.*
 
-class Broker {
+
+class Broker: Serializable {
     private val topics = mutableMapOf<String, Topic>()
     private val context = ZContext()
     private val subscriberSocket = context.createSocket(SocketType.ROUTER)
     private val publisherSocket = context.createSocket(SocketType.ROUTER)
+
+    var filePath = "topics.ser"
+    val maxNumOperationsUntilSave = 2
+    var numOperUntilSave = maxNumOperationsUntilSave
 
     init {
         subscriberSocket.bind("tcp://*:5555")
@@ -19,6 +25,7 @@ class Broker {
         fun main(args: Array<String>) {
             val broker = Broker()
 
+            loadFromFile()
             broker.mediate()
         }
     }
@@ -81,6 +88,7 @@ class Broker {
                         msg.send(subscriberSocket)
                     }
                 }
+                decrementCounter()
             }
 
             // Poll publishers
@@ -94,6 +102,7 @@ class Broker {
                 when (action) {
                     "PUT" -> put(topic, content)
                 }
+                decrementCounter()
             }
         }
     }
@@ -121,6 +130,34 @@ class Broker {
 
         topics[topic]?.addMessage(content)
     }
+
+    private fun decrementCounter(){
+        numOperUntilSave--
+        print(numOperUntilSave)
+        if(numOperUntilSave == 0){
+            print("Saving file now")
+            saveToFile()
+        }
+    }
+
+    fun saveToFile(){
+        try {
+            val fileOut = FileOutputStream(filePath)
+            val out = ObjectOutputStream(fileOut)
+            out.writeObject(topics)
+            out.close()
+            fileOut.close()
+            System.out.printf("Serialized data is saved")
+        } catch (i: IOException) {
+            i.printStackTrace()
+        }
+    }
+
+    fun loadFromFile(){
+
+    }
+
+
 }
 
 

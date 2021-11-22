@@ -1,4 +1,6 @@
-class Topic(val topicName: String) {
+import java.io.Serializable
+
+class Topic (val topicName: String): Serializable {
     var tail: Node? = null // null if list is empty
     var head: Node? = null // null if list is empty
     val subscribers = mutableMapOf<String, Node?>()
@@ -87,4 +89,5 @@ class Topic(val topicName: String) {
         subscribers.remove(subscriber_id)
         updateHead()
     }
+
 }
