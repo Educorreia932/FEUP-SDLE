@@ -3,17 +3,15 @@ import java.io.Serializable
 class Topic(val topicName: String) : Serializable {
     var tail: Node? = null // null if list is empty
     var head: Node? = null // null if list is empty
-    val subscribers = mutableMapOf<String, Node?>()
-
+    private val subscribers = mutableMapOf<String, Node?>()
 
     /* Linked list Node*/
     inner class Node(var data: String) : Serializable {
         var next: Node? = null
         var subCounter: Int = 0
-
     }
 
-    fun isEmpty(): Boolean {
+    private fun isEmpty(): Boolean {
         return tail == null
     }
 
@@ -85,13 +83,14 @@ class Topic(val topicName: String) : Serializable {
     }
 
     fun removeSubscriber(subscriber_id: String) {
-
         subscribers[subscriber_id]?.subCounter?.plus(-1)
         subscribers.remove(subscriber_id)
+
         updateHead()
     }
 
     override fun toString(): String {
+
         if (isEmpty()) {
             return "EMPTY"
         }

@@ -43,7 +43,6 @@ class Subscriber(
         message.send(socket)
 
         val reply = ZMsg.recvMsg(socket)
-
         println(reply)
     }
 
