@@ -6,7 +6,12 @@ import org.zeromq.ZMsg
 class Subscriber(
     private val id: String
 ) {
+    companion object{
+        const val maximumUnattendedGets = 15
+    }
+
     private val socket: ZMQ.Socket
+    private val numUnattendedGets = mutableMapOf<String, Int>()
 
     init {
         val context = ZContext()
@@ -44,6 +49,8 @@ class Subscriber(
 
         val reply = ZMsg.recvMsg(socket)
         println(reply)
+
+        numUnattendedGets.remove(topic)
     }
 
     // Returns message data or null if not subscribed to a topic
@@ -72,12 +79,14 @@ class Subscriber(
                 "Not_Subscribed" -> return null
                 "Empty_Topic" -> {
                     println("GET: No new Messages. Retrying...")
+                    numUnattendedGets[topic] = (numUnattendedGets[topic] ?: 0) + 1
                     false
                 }
                 else -> true
             }
+        } while (!success && maximumUnattendedGets != numUnattendedGets[topic])
 
-        } while (!success)
+        numUnattendedGets.remove(topic)
 
         return reply
     }

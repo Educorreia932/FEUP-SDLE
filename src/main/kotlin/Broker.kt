@@ -148,6 +148,7 @@ class Broker : Serializable {
                             }
                         }
 
+                        println(">>>>>>> " + zmsg.toString())
                         zmsg.send(subscriberSocket)
                         decrementCounter()
                     }
@@ -165,6 +166,7 @@ class Broker : Serializable {
 
                 when (action) {
                     "PUT" -> {
+                        print("PUTITITITITITITIT")
                         put(topic, content)
                         decrementCounter()
 
