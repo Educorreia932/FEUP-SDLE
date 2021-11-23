@@ -112,6 +112,8 @@ class Topic(val topicName: String) : Serializable {
     }
 
     fun addSubscriber(subscriber_id: String) {
+        if(subscribers.containsKey(subscriber_id))
+            return
         subscribers[subscriber_id] = null
     }
 
