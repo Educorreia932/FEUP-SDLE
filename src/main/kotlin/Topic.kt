@@ -6,19 +6,26 @@ class Topic(val topicName: String) : Serializable {
     private val subscribers = mutableMapOf<String, Node?>()
 
     companion object{
-        fun fromMap(map : Map<String, List<String>>, topicName: String): Topic{
+        fun fromMap(mapPair : Pair<Map<String, List<String>>, List<String>>, topicName: String): Topic{
             var topic = Topic(topicName)
             var tail: Node? = null // null if list is empty
             var head: Node? = null // null if list is empty
 
-
+            var map = mapPair.first
             for((key, value) in map){
                 topic.addMessage(key)
                 topic.tail!!.subList = value as MutableList<String>
                 for(i in value){
-                    value.add(i)
+                    topic.subscribers[i] = topic.tail
                 }
             }
+
+            //Add subscribers which don't belong to any node (ones who don't have anything to read but are subscribed)
+            var subscribersAtEndOfList = mapPair.second
+            for(sub in subscribersAtEndOfList){
+                topic.subscribers[sub] = null
+            }
+
             return topic
         }
     }
@@ -42,9 +49,13 @@ class Topic(val topicName: String) : Serializable {
         if (head!!.subCounter > 0) {
             return
         }
-
         while (head!!.next != null && head!!.subCounter == 0) {
             head = head!!.next
+        }
+        //If the head and the tail are the same node and noone needs that node's message anymore
+        if(head != null && head!!.subCounter == 0){
+            head = null
+            tail = null
         }
     }
 
@@ -55,19 +66,21 @@ class Topic(val topicName: String) : Serializable {
             tail = newTail
             head = newTail
 
-            // Check all subscribers waiting for message
-            for ((key, value) in subscribers) {
-                if (value == null) {
-                    subscribers[key] = tail
-                    tail!!.subList.add(key)
-                }
-            }
+
 
         } else {
             tail!!.next = newTail
             tail = tail!!.next
         }
-        println(this)
+
+        // Check all subscribers waiting for message
+        for ((key, value) in subscribers) {
+            if (value == null) {
+                subscribers[key] = tail
+                tail!!.subCounter++
+                tail!!.subList.add(key)
+            }
+        }
     }
 
     fun getMessage(subscriber_id: String): String? {
@@ -80,6 +93,7 @@ class Topic(val topicName: String) : Serializable {
             node.subCounter--
             node.subList.remove(subscriber_id)
             subscribers[subscriber_id] = null
+            updateHead()
             return ret
         }
 
@@ -129,26 +143,25 @@ class Topic(val topicName: String) : Serializable {
         return ret
     }
 
-    fun toMap(): Map<String, List<String>>{
+    fun toMap(): Pair<Map<String, List<String>>, List<String>>{
         //String: Message data
         //List<String>: List of subscribers subscribed to the node
         var ret = mutableMapOf<String, List<String>>()
         var node: Node? = head
-        println("Head: ")
-        println(head)
 
         while(node != null){
-            /*println("sublist: ")
-            for(i in node!!.subList){
-                println(i)
-            }*/
-            println("\n")
-            ret[node!!.data] = node!!.subList
-            node = node!!.next
+            ret[node.data] = node.subList
+            node = node.next
         }
-        println("Head: ")
-        println(head)
-        return ret
+
+        var subsInLastNode: MutableList<String> = mutableListOf()
+        for ((key, value) in subscribers) {
+            if (value == null) {
+                subsInLastNode.add(key)
+            }
+        }
+
+        return Pair(ret, subsInLastNode)
     }
 
     fun printTopic(){
@@ -168,7 +181,6 @@ class Topic(val topicName: String) : Serializable {
             for(k in node.subList){
                 println(" $k")
             }
-            println("\n")
             node = node.next
         }
         println("\n")

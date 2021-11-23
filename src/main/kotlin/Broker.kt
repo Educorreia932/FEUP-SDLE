@@ -6,6 +6,7 @@ import java.io.*
 
 import java.io.ObjectInputStream
 import java.io.FileInputStream
+import java.lang.ArithmeticException
 import java.lang.Exception
 
 
@@ -22,16 +23,12 @@ class Broker : Serializable {
     private var publisherSocket = context.createSocket(SocketType.ROUTER)
 
     @Transient
-    var maxNumOperationsUntilSave = 2
+    var maxNumOperationsUntilSave = 20
 
     @Transient
     var numOperUntilSave = maxNumOperationsUntilSave
 
     init {
-        altConstructor()
-    }
-
-    fun altConstructor() {
         context = ZContext()
 
         subscriberSocket = context.createSocket(SocketType.ROUTER)
@@ -50,19 +47,19 @@ class Broker : Serializable {
 
 
             if (broker.second) {
-                //broker.first.altConstructor()
                 for((k, v) in broker.first.topics){
                     println("Topic $k:\n")
                     v.printTopic()
                 }
             }
+
             broker.first.mediate()
         }
 
         @JvmStatic
         fun loadFromFile(): Pair<Broker, Boolean> {
             val broker: Broker?
-            val map: MutableMap<String, Map<String, List<String>>>
+            val map: MutableMap<String, Pair<Map<String, List<String>>, List<String>>>
 
             try {
                 val file = File(filePath)
@@ -73,7 +70,7 @@ class Broker : Serializable {
                 val fileIn = FileInputStream(filePath)
                 val objIn = ObjectInputStream(fileIn)
                 broker = Broker()
-                map = objIn.readObject() as MutableMap<String, Map<String, List<String>>>
+                map = objIn.readObject() as MutableMap<String, Pair<Map<String, List<String>>, List<String>>>
                 for((k, v) in map){
                     broker.topics[k] = Topic.fromMap(v, k)
                 }
@@ -92,6 +89,7 @@ class Broker : Serializable {
 
             println("Deserialized Broker...")
             println("Num topics: ${broker.topics.count()}")
+
 
             return Pair(broker, true)
         }
@@ -145,6 +143,8 @@ class Broker : Serializable {
 
                         println("Subscriber ID: $subscriberID")
 
+                        var hasContent = false
+
                         val topic = topics[topicName]
                         if (topic == null || !topic.isSubscribed(subscriberID)) {
                             zmsg.addString("Not_subscribed")
@@ -155,11 +155,13 @@ class Broker : Serializable {
                                 zmsg.addString("Empty_Topic")
                             } else {
                                 zmsg.addString(content)
+                                println("Sent message: " + content)
+                                hasContent = true
                             }
                         }
-
                         zmsg.send(subscriberSocket)
-                        decrementCounter()
+                        if(hasContent)
+                            decrementCounter()
                     }
                 }
             }
@@ -217,8 +219,6 @@ class Broker : Serializable {
             return
 
         topics[topic]?.addMessage(content)
-        println(topics[topic])
-
     }
 
     private fun decrementCounter() {
@@ -234,7 +234,7 @@ class Broker : Serializable {
 
     private fun saveToFile() {
         try {
-            var topicInfo: MutableMap<String, Map<String, List<String>>> = mutableMapOf()
+            var topicInfo: MutableMap<String, Pair<Map<String, List<String>>, List<String>>> = mutableMapOf()
             // The outer map's keys are the topic names and it's values are the information from each topic
             // The inner map's keys are the messages
             // The map's list is a list of the subscriber ids which are in that message
