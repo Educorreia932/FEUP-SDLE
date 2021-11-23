@@ -18,10 +18,10 @@ class Broker : Serializable {
     private var publisherSocket = context.createSocket(SocketType.ROUTER)
 
     @Transient
-    var maxNumOperationsUntilSave = 20
+    var maxNumOperationsUntilSave: Int
 
     @Transient
-    var numOperUntilSave = maxNumOperationsUntilSave
+    var numOperUntilSave: Int
 
     init {
         context = ZContext()
@@ -31,7 +31,7 @@ class Broker : Serializable {
 
         subscriberSocket.bind("tcp://*:5555")
         publisherSocket.bind("tcp://*:5556")
-        maxNumOperationsUntilSave = 2
+        maxNumOperationsUntilSave = 20
         numOperUntilSave = maxNumOperationsUntilSave
     }
 
