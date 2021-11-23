@@ -6,6 +6,7 @@ import java.io.*
 
 import java.io.ObjectInputStream
 import java.io.FileInputStream
+import java.lang.Exception
 
 
 class Broker : Serializable {
@@ -47,16 +48,21 @@ class Broker : Serializable {
         fun main(args: Array<String>) {
             val broker: Pair<Broker, Boolean> = loadFromFile()
 
-            if (broker.second) {
-                broker.first.altConstructor()
-            }
 
+            if (broker.second) {
+                //broker.first.altConstructor()
+                for((k, v) in broker.first.topics){
+                    println("Topic $k:\n")
+                    v.printTopic()
+                }
+            }
             broker.first.mediate()
         }
 
         @JvmStatic
         fun loadFromFile(): Pair<Broker, Boolean> {
             val broker: Broker?
+            val map: MutableMap<String, Map<String, List<String>>>
 
             try {
                 val file = File(filePath)
@@ -66,7 +72,11 @@ class Broker : Serializable {
 
                 val fileIn = FileInputStream(filePath)
                 val objIn = ObjectInputStream(fileIn)
-                broker = objIn.readObject() as Broker
+                broker = Broker()
+                map = objIn.readObject() as MutableMap<String, Map<String, List<String>>>
+                for((k, v) in map){
+                    broker.topics[k] = Topic.fromMap(v, k)
+                }
                 objIn.close()
                 fileIn.close()
             } catch (i: IOException) {
@@ -224,13 +234,26 @@ class Broker : Serializable {
 
     private fun saveToFile() {
         try {
+            var topicInfo: MutableMap<String, Map<String, List<String>>> = mutableMapOf()
+            // The outer map's keys are the topic names and it's values are the information from each topic
+            // The inner map's keys are the messages
+            // The map's list is a list of the subscriber ids which are in that message
+
+            for((key, value) in topics){
+                topicInfo[key]= value.toMap()
+            }
+
             val fileOut = FileOutputStream(filePath)
             val out = ObjectOutputStream(fileOut)
 
-            out.writeObject(this)
+            out.writeObject(topicInfo)
             out.close()
             fileOut.close()
             println("Serialized data is saved")
+            for((k, v) in topics){
+                //println("Topic $k:\n")
+                //v.printTopic()
+            }
         } catch (i: IOException) {
             i.printStackTrace()
         }

@@ -1,3 +1,6 @@
+import java.lang.Thread.sleep
+import kotlin.concurrent.thread
+
 class TestApp {
     companion object {
         @JvmStatic
@@ -17,6 +20,7 @@ class TestApp {
 
                         for (j in 1..Integer.parseInt(numGets)) {
                             val response = subscriber.get(topicName)
+                            sleep(20000)
                             if (response == null) {
                                 println("ERROR: Not subscribed")
                             } else {
@@ -35,6 +39,7 @@ class TestApp {
 
                         for (j in 1..Integer.parseInt(numPuts)) {
                             publisher.put(topicName, (0..999999999999).random().toString())
+                            sleep(20000)
                         }
                     }
                 }

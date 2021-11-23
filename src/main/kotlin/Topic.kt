@@ -11,9 +11,13 @@ class Topic(val topicName: String) : Serializable {
             var tail: Node? = null // null if list is empty
             var head: Node? = null // null if list is empty
 
+
             for((key, value) in map){
                 topic.addMessage(key)
                 topic.tail!!.subList = value as MutableList<String>
+                for(i in value){
+                    value.add(i)
+                }
             }
             return topic
         }
@@ -55,6 +59,7 @@ class Topic(val topicName: String) : Serializable {
             for ((key, value) in subscribers) {
                 if (value == null) {
                     subscribers[key] = tail
+                    tail!!.subList.add(key)
                 }
             }
 
@@ -128,16 +133,47 @@ class Topic(val topicName: String) : Serializable {
         //String: Message data
         //List<String>: List of subscribers subscribed to the node
         var ret = mutableMapOf<String, List<String>>()
-        while(head != tail){
-            ret[head!!.data] = head!!.subList
-            head = head!!.next
+        var node: Node? = head
+        println("Head: ")
+        println(head)
+
+        while(node != null){
+            /*println("sublist: ")
+            for(i in node!!.subList){
+                println(i)
+            }*/
+            println("\n")
+            ret[node!!.data] = node!!.subList
+            node = node!!.next
         }
-        ret[tail!!.data] = tail!!.subList
+        println("Head: ")
+        println(head)
         return ret
     }
 
+    fun printTopic(){
+        println("Topic name: " + topicName)
+        println("\n")
+        println("Subscribers: ")
+        for((k, v) in subscribers){
+            println(k + " - " + v?.data)
+        }
+        println("\n")
+        println("Nodes:")
+        var node : Node? = head
+        while(node != null){
+            println(node.data)
+            println(node.subCounter)
+            println(" Subscriber in node list:")
+            for(k in node.subList){
+                println(" $k")
+            }
+            println("\n")
+            node = node.next
+        }
+        println("\n")
 
-
+    }
 
 
 }
