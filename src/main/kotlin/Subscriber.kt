@@ -2,7 +2,6 @@ import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
 import org.zeromq.ZMsg
-import java.lang.ArithmeticException
 
 class Subscriber(
     private val id: String

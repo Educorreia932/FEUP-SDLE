@@ -5,24 +5,24 @@ class Topic(val topicName: String) : Serializable {
     var head: Node? = null // null if list is empty
     private val subscribers = mutableMapOf<String, Node?>()
 
-    companion object{
-        fun fromMap(mapPair : Pair<Map<String, List<String>>, List<String>>, topicName: String): Topic{
+    companion object {
+        fun fromMap(mapPair: Pair<Map<String, List<String>>, List<String>>, topicName: String): Topic {
             var topic = Topic(topicName)
             var tail: Node? = null // null if list is empty
             var head: Node? = null // null if list is empty
 
             var map = mapPair.first
-            for((key, value) in map){
+            for ((key, value) in map) {
                 topic.addMessage(key)
                 topic.tail!!.subList = value as MutableList<String>
-                for(i in value){
+                for (i in value) {
                     topic.subscribers[i] = topic.tail
                 }
             }
 
             //Add subscribers which don't belong to any node (ones who don't have anything to read but are subscribed)
             var subscribersAtEndOfList = mapPair.second
-            for(sub in subscribersAtEndOfList){
+            for (sub in subscribersAtEndOfList) {
                 topic.subscribers[sub] = null
             }
 
@@ -53,7 +53,7 @@ class Topic(val topicName: String) : Serializable {
             head = head!!.next
         }
         //If the head and the tail are the same node and noone needs that node's message anymore
-        if(head != null && head!!.subCounter == 0){
+        if (head != null && head!!.subCounter == 0) {
             head = null
             tail = null
         }
@@ -65,7 +65,6 @@ class Topic(val topicName: String) : Serializable {
         if (this.isEmpty()) {
             tail = newTail
             head = newTail
-
 
 
         } else {
@@ -112,7 +111,7 @@ class Topic(val topicName: String) : Serializable {
     }
 
     fun addSubscriber(subscriber_id: String) {
-        if(subscribers.containsKey(subscriber_id))
+        if (subscribers.containsKey(subscriber_id))
             return
         subscribers[subscriber_id] = null
     }
@@ -145,13 +144,13 @@ class Topic(val topicName: String) : Serializable {
         return ret
     }
 
-    fun toMap(): Pair<Map<String, List<String>>, List<String>>{
+    fun toMap(): Pair<Map<String, List<String>>, List<String>> {
         //String: Message data
         //List<String>: List of subscribers subscribed to the node
         var ret = mutableMapOf<String, List<String>>()
         var node: Node? = head
 
-        while(node != null){
+        while (node != null) {
             ret[node.data] = node.subList
             node = node.next
         }
@@ -166,21 +165,21 @@ class Topic(val topicName: String) : Serializable {
         return Pair(ret, subsInLastNode)
     }
 
-    fun printTopic(){
+    fun printTopic() {
         println("Topic name: " + topicName)
         println("\n")
         println("Subscribers: ")
-        for((k, v) in subscribers){
+        for ((k, v) in subscribers) {
             println(k + " - " + v?.data)
         }
         println("\n")
         println("Nodes:")
-        var node : Node? = head
-        while(node != null){
+        var node: Node? = head
+        while (node != null) {
             println(node.data)
             println(node.subCounter)
             println(" Subscriber in node list:")
-            for(k in node.subList){
+            for (k in node.subList) {
                 println(" $k")
             }
             node = node.next

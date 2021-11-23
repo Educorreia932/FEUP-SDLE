@@ -10,7 +10,7 @@ class Publisher(
 
     init {
         val context = ZContext()
-        
+
         socket = context.createSocket(SocketType.REQ)
 
         socket.connect("tcp://localhost:5556")

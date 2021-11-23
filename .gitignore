@@ -1,3 +1,4 @@
 target/
 .idea/
 topics.ser
+.DS_Store

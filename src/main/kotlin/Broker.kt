@@ -4,11 +4,6 @@ import org.zeromq.ZMQ
 import org.zeromq.ZMsg
 import java.io.*
 
-import java.io.ObjectInputStream
-import java.io.FileInputStream
-import java.lang.ArithmeticException
-import java.lang.Exception
-
 
 class Broker : Serializable {
     private val topics = mutableMapOf<String, Topic>()
@@ -47,7 +42,7 @@ class Broker : Serializable {
 
 
             if (broker.second) {
-                for((k, v) in broker.first.topics){
+                for ((k, v) in broker.first.topics) {
                     println("Topic $k:\n")
                     v.printTopic()
                 }
@@ -71,7 +66,7 @@ class Broker : Serializable {
                 val objIn = ObjectInputStream(fileIn)
                 broker = Broker()
                 map = objIn.readObject() as MutableMap<String, Pair<Map<String, List<String>>, List<String>>>
-                for((k, v) in map){
+                for ((k, v) in map) {
                     broker.topics[k] = Topic.fromMap(v, k)
                 }
                 objIn.close()
@@ -160,7 +155,7 @@ class Broker : Serializable {
                             }
                         }
                         zmsg.send(subscriberSocket)
-                        if(hasContent)
+                        if (hasContent)
                             decrementCounter()
                     }
                 }
@@ -238,8 +233,8 @@ class Broker : Serializable {
             // The inner map's keys are the messages
             // The map's list is a list of the subscriber ids which are in that message
 
-            for((key, value) in topics){
-                topicInfo[key]= value.toMap()
+            for ((key, value) in topics) {
+                topicInfo[key] = value.toMap()
             }
 
             val fileOut = FileOutputStream(filePath)
@@ -249,7 +244,7 @@ class Broker : Serializable {
             out.close()
             fileOut.close()
             println("Serialized data is saved")
-            for((k, v) in topics){
+            for ((k, v) in topics) {
                 //println("Topic $k:\n")
                 //v.printTopic()
             }
