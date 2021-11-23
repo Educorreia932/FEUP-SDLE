@@ -204,7 +204,6 @@ class Broker : Serializable {
         // Create topic if it doesn't exist and add subscriber
         else {
             topics[topic] = Topic(topic)
-
             topics[topic]?.addSubscriber(subscriberID)
         }
     }
