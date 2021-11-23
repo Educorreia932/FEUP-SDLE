@@ -5,10 +5,25 @@ class Topic(val topicName: String) : Serializable {
     var head: Node? = null // null if list is empty
     private val subscribers = mutableMapOf<String, Node?>()
 
+    companion object{
+        fun fromMap(map : Map<String, List<String>>, topicName: String): Topic{
+            var topic = Topic(topicName)
+            var tail: Node? = null // null if list is empty
+            var head: Node? = null // null if list is empty
+
+            for((key, value) in map){
+                topic.addMessage(key)
+                topic.tail!!.subList = value as MutableList<String>
+            }
+            return topic
+        }
+    }
+
     /* Linked list Node*/
     inner class Node(var data: String) : Serializable {
         var next: Node? = null
         var subCounter: Int = 0
+        var subList = mutableListOf<String>()
     }
 
     private fun isEmpty(): Boolean {
@@ -58,6 +73,7 @@ class Topic(val topicName: String) : Serializable {
         if (node == tail) {
             val ret = node.data
             node.subCounter--
+            node.subList.remove(subscriber_id)
             subscribers[subscriber_id] = null
             return ret
         }
@@ -65,8 +81,10 @@ class Topic(val topicName: String) : Serializable {
         //All other cases
         val ret = node.data
         node.subCounter--
+        node.subList.remove(subscriber_id)
         node = node.next!!
         node.subCounter++
+        node.subList.add(subscriber_id)
         subscribers[subscriber_id] = node
 
         //Update head
@@ -83,6 +101,7 @@ class Topic(val topicName: String) : Serializable {
     }
 
     fun removeSubscriber(subscriber_id: String) {
+        subscribers[subscriber_id]?.subList?.remove(subscriber_id)
         subscribers[subscriber_id]?.subCounter?.plus(-1)
         subscribers.remove(subscriber_id)
 
@@ -104,5 +123,21 @@ class Topic(val topicName: String) : Serializable {
 
         return ret
     }
+
+    fun toMap(): Map<String, List<String>>{
+        //String: Message data
+        //List<String>: List of subscribers subscribed to the node
+        var ret = mutableMapOf<String, List<String>>()
+        while(head != tail){
+            ret[head!!.data] = head!!.subList
+            head = head!!.next
+        }
+        ret[tail!!.data] = tail!!.subList
+        return ret
+    }
+
+
+
+
 
 }
