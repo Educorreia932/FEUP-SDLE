@@ -3,7 +3,7 @@ import java.io.Serializable
 class Topic(val topicName: String) : Serializable {
     var tail: Node? = null // null if list is empty
     var head: Node? = null // null if list is empty
-    private val subscribers = mutableMapOf<String, Node?>()
+    val subscribers = mutableMapOf<String, Node?>()
 
     companion object {
         fun fromMap(mapPair: Pair<Map<String, List<String>>, List<String>>, topicName: String): Topic {

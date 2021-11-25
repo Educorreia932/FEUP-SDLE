@@ -6,10 +6,10 @@ import java.io.*
 
 
 class Broker : Serializable {
-    private val topics = mutableMapOf<String, Topic>()
+    val topics = mutableMapOf<String, Topic>()
 
     @Transient
-    private var context = ZContext()
+    var context = ZContext()
 
     @Transient
     private var subscriberSocket = context.createSocket(SocketType.ROUTER)
@@ -190,7 +190,7 @@ class Broker : Serializable {
         }
     }
 
-    private fun subscribe(topic: String, subscriberID: String) {
+    fun subscribe(topic: String, subscriberID: String) {
         // Add subscriber to existing topic
         if (topics.containsKey(topic)) {
             topics[topic]?.addSubscriber(subscriberID)
@@ -203,19 +203,22 @@ class Broker : Serializable {
         }
     }
 
-    private fun unsubscribe(topic: String, subscriberID: String) {
+    fun unsubscribe(topic: String, subscriberID: String) {
         // Remove subscriber from topic
         topics[topic]?.removeSubscriber(subscriberID)
+        if (topics[topic]?.subscribers?.isEmpty() == true) {
+            topics.remove(topic)
+        }
     }
 
-    private fun put(topic: String, content: String) {
+    fun put(topic: String, content: String) {
         if (!topics.containsKey(topic))
             return
 
         topics[topic]?.addMessage(content)
     }
 
-    private fun decrementCounter() {
+    fun decrementCounter() {
         numOperUntilSave--
 
         println("Until save: $numOperUntilSave")
@@ -226,7 +229,7 @@ class Broker : Serializable {
         }
     }
 
-    private fun saveToFile() {
+    fun saveToFile() {
         try {
             var topicInfo: MutableMap<String, Pair<Map<String, List<String>>, List<String>>> = mutableMapOf()
             // The outer map's keys are the topic names and it's values are the information from each topic
