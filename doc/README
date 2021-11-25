@@ -25,3 +25,6 @@ testApp.jar Pub pub1 sapo 15 batata 5 -> will PUT to sapo 15 times and to batata
 testApp.jar Sub sub1 sapo 10 -> will GET from sapo 10 times
 
 For subscribers the testApp will automatically subscribe to the desired topic at the beginning and unsubscribe at the end.
+
+
+To stop the program execution please use CTRL+C
