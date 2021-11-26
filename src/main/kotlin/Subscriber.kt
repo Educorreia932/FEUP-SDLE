@@ -6,15 +6,16 @@ import org.zeromq.ZMsg
 class Subscriber(
     private val id: String
 ) {
-    companion object{
+    companion object {
         const val maximumUnattendedGets = 15
     }
 
     private val socket: ZMQ.Socket
     private val numUnattendedGets = mutableMapOf<String, Int>()
+    val context: ZContext
 
     init {
-        val context = ZContext()
+        context = ZContext()
         socket = context.createSocket(SocketType.REQ)
 
         socket.connect("tcp://localhost:5555")
