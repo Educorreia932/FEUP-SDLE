@@ -129,7 +129,19 @@ class Broker : Serializable {
 
                         msg.send(subscriberSocket)
                     }
-                    "UNSUBSCRIBE" -> unsubscribe(topicName, subscriberID)
+                    "UNSUBSCRIBE" -> {
+                        unsubscribe(topicName, subscriberID)
+
+                        val msg = ZMsg()
+
+                        msg.add(messageFrame.first)
+                        msg.addString("")
+                        msg.addString("Unsubscribed")
+                        msg.addString(topicName)
+
+                        msg.send(subscriberSocket)
+
+                    }
                     "GET" -> {
                         val zmsg = ZMsg()
 
