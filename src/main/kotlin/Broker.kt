@@ -259,10 +259,10 @@ class Broker : Serializable {
             out.close()
             fileOut.close()
             println("Serialized data is saved")
-            for ((k, v) in topics) {
+            //for ((k, v) in topics) {
                 //println("Topic $k:\n")
                 //v.printTopic()
-            }
+            //}
         } catch (i: IOException) {
             i.printStackTrace()
         }
