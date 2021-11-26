@@ -83,6 +83,30 @@ class Test {
         newBroker.context.close()
     }
 
+    @Test
+    fun testMultipleTopics() {
+        val broker = Broker()
+        broker.subscribe("sapo", "sub1")
+        broker.subscribe("batata", "sub1")
+        broker.subscribe("sapo", "sub2")
+
+        broker.put("sapo", "1")
+        broker.put("batata", "2")
+        broker.put("sapo", "3")
+        broker.put("sapo", "4")
+
+        var msg = broker.topics["sapo"]?.getMessage("sub1")
+        assert(msg=="1")
+        msg = broker.topics["batata"]?.getMessage("sub1")
+        assert(msg=="2")
+        msg = broker.topics["sapo"]?.getMessage("sub2")
+        assert(msg=="1")
+        msg = broker.topics["sapo"]?.getMessage("sub2")
+        assert(msg=="3")
+        msg = broker.topics["sapo"]?.getMessage("sub2")
+        assert(msg=="4")
+        broker.context.close()
+    }
 
 
     @AfterTest
