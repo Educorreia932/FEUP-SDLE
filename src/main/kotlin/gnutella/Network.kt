@@ -1,3 +1,7 @@
+package gnutella
+
+import gnutella.peer.Peer
+
 fun main() {
     val peers = mutableListOf<Peer>()
 

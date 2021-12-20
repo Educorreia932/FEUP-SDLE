@@ -9,6 +9,3 @@ Second project for group **T2G16**.
 - João Cardoso (up201806531@edu.fe.up.pt)
 - Ricardo Fontão (up201806317@edu.fe.up.pt)
 
-## Related work
-
-- [Decentralized Online Social Network Using Peer-to-Peer Technology](https://www.researchgate.net/publication/303290181_Decentralized_Online_Social_Network_Using_Peer-to-Peer_Technology)
