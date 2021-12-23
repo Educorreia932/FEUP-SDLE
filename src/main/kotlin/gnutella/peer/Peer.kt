@@ -11,16 +11,26 @@ class Peer(
     private val address: String = "224.0.0.15",
     private val port: Int,
 ) {
-    private var neighbours = mutableListOf<Peer>()
-    
-    private val messageBroker = MessageBroker(address, port)
+    val neighbours = mutableListOf<Peer>()
+    val messageBroker = MessageBroker(this, address, port)
     private val dataHandler = DataHandler()
 
-    fun connect(peer: Peer) {
+    fun addNeighbour(address: String, port: Int) {
+        addNeighbour(Peer("", address, port))
+    }
+
+    fun addNeighbour(peer: Peer) {
         if (this != peer && peer !in neighbours) {
             neighbours.add(peer)
-            peer.connect(this)
+            peer.addNeighbour(this)
         }
+    }
+
+    fun ping() {
+        val data = "PING"
+        val message = Message("127.0.0.1", 8002, data)
+
+        messageBroker.putMessage(message)
     }
 
     fun search(keyword: String) {

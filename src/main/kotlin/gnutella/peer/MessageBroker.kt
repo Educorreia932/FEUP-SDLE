@@ -1,30 +1,30 @@
 package gnutella.peer
 
+import gnutella.handlers.PingHandler
+import gnutella.handlers.PongHandler
+import gnutella.handlers.QueryHandler
+import gnutella.handlers.QueryHitHandler
 import gnutella.messages.Message
-import java.net.DatagramPacket
-import java.net.InetAddress
-import java.net.MulticastSocket
+import java.net.*
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.concurrent.thread
 
-
 class MessageBroker(
+    private val peer: Peer,
     address: String,
     port: Int
 ) {
     private val inbox = LinkedBlockingQueue<Message>()
     private val outbox = LinkedBlockingQueue<Message>()
-    private val socket = MulticastSocket(port)
+    private val socket = DatagramSocket()
 
     init {
-        socket.joinGroup(InetAddress.getByName(address))
-        
         // Receive messages
         thread {
             while (true) {
                 val response = ByteArray(65536)
                 val packet = DatagramPacket(response, response.size)
-                
+
                 socket.receive(packet)
 
                 val message = Message(address, port, response.toString())
@@ -57,10 +57,10 @@ class MessageBroker(
             val message = inbox.take()
 
             when (message.content) {
-                "PING" -> TODO()
-                "PONG" -> TODO()
-                "QUERY" -> TODO()
-                "QUERY_HIT" -> TODO()
+                "PING" -> PingHandler(peer, message).run()
+                "PONG" -> PongHandler(peer, message).run()
+                "QUERY" -> QueryHandler(peer, message).run()
+                "QUERY_HIT" -> QueryHitHandler(peer, message).run()
             }
         }
     }
