@@ -2,29 +2,34 @@ package gnutella.peer
 
 import gnutella.messages.Message
 import java.net.DatagramPacket
-import java.net.DatagramSocket
 import java.net.InetAddress
+import java.net.MulticastSocket
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.concurrent.thread
 
-class PeerProcessor(
+
+class MessageBroker(
     address: String,
     port: Int
 ) {
     private val inbox = LinkedBlockingQueue<Message>()
     private val outbox = LinkedBlockingQueue<Message>()
-    private val socket = DatagramSocket(port)
+    private val socket = MulticastSocket(port)
 
     init {
+        socket.joinGroup(InetAddress.getByName(address))
+        
         // Receive messages
         thread {
             while (true) {
                 val response = ByteArray(65536)
                 val packet = DatagramPacket(response, response.size)
-
+                
                 socket.receive(packet)
 
                 val message = Message(address, port, response.toString())
+
+                println(String(response))
 
                 inbox.put(message)
             }
@@ -46,11 +51,11 @@ class PeerProcessor(
                 socket.send(packet)
             }
         }
-        
+
         // Process messages
         thread {
             val message = inbox.take()
-            
+
             when (message.content) {
                 "PING" -> TODO()
                 "PONG" -> TODO()
@@ -58,5 +63,9 @@ class PeerProcessor(
                 "QUERY_HIT" -> TODO()
             }
         }
+    }
+
+    fun putMessage(message: Message) {
+        outbox.put(message)
     }
 }
