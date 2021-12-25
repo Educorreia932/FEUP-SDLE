@@ -1,18 +1,17 @@
 package gnutella.peer
 
-import gnutella.handlers.DataHandler
 import gnutella.messages.Message
 
 /**
  * Representation of a Gnutella node
  */
 class Peer(
-    private val username: String,
-    private val address: String = "224.0.0.15",
-    private val port: Int,
+    val username: String,
+    private val address: String = "127.0.0.1",
+    val port: Int,
 ) {
-    val neighbours = mutableListOf<Peer>()
-    val messageBroker = MessageBroker(this, address, port)
+    val neighbours = mutableSetOf<Peer>()
+    val messageBroker = MessageBroker(this)
     private val dataHandler = DataHandler()
 
     fun addNeighbour(address: String, port: Int) {
@@ -20,15 +19,22 @@ class Peer(
     }
 
     fun addNeighbour(peer: Peer) {
-        if (this != peer && peer !in neighbours) {
+        if (this != peer && peer !in neighbours)
             neighbours.add(peer)
-            peer.addNeighbour(this)
-        }
+    }
+
+    fun removeNeighbour(address: String, port: Int) {
+        neighbours.remove(Peer("", address, port))
+    }
+
+    fun removeNeighbour(peer: Peer) {
+        if (this != peer && peer in neighbours)
+            neighbours.remove(peer)
     }
 
     fun ping() {
         val data = "PING"
-        val message = Message("127.0.0.1", 8002, data)
+        val message = Message(address, port, data)
 
         messageBroker.putMessage(message)
     }

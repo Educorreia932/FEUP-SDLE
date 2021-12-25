@@ -1,4 +1,4 @@
-package gnutella.handlers
+package gnutella.peer
 
 import Post
 

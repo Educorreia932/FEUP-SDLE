@@ -15,5 +15,5 @@ fun main() {
     peers[1].addNeighbour(peers[4])
     peers[2].addNeighbour(peers[4])
 
-    peers[0].search("babuia")
+    peers[0].ping()
 }

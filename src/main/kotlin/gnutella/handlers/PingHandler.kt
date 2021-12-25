@@ -13,6 +13,6 @@ class PingHandler(
             peer.messageBroker.putMessage(message)
         }
         
-        
+        // TODO: Set timeout to remove neighbour
     }
 }

@@ -1,3 +1,3 @@
 package gnutella.messages
 
-class QueryHit
+class QueryHit: Message("", 0, "")
