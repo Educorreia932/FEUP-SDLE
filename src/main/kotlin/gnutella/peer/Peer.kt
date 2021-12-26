@@ -1,21 +1,24 @@
 package gnutella.peer
 
+import User
 import gnutella.messages.Message
+import gnutella.messages.Ping
+import gnutella.messages.Query
 
 /**
  * Representation of a Gnutella node
  */
 class Peer(
-    val username: String,
-    private val address: String = "127.0.0.1",
+    val user: User,
+    val address: String = "127.0.0.1",
     val port: Int,
 ) {
-    val neighbours = mutableSetOf<Peer>()
-    val messageBroker = MessageBroker(this)
-    private val dataHandler = DataHandler()
+    private val neighbours = mutableSetOf<Peer>()
+    private val messageBroker = MessageBroker(this)
+    val storage = Storage()
 
     fun addNeighbour(address: String, port: Int) {
-        addNeighbour(Peer("", address, port))
+        addNeighbour(Peer(User(""), address, port))
     }
 
     fun addNeighbour(peer: Peer) {
@@ -24,7 +27,7 @@ class Peer(
     }
 
     fun removeNeighbour(address: String, port: Int) {
-        neighbours.remove(Peer("", address, port))
+        neighbours.remove(Peer(User(""), address, port))
     }
 
     fun removeNeighbour(peer: Peer) {
@@ -33,24 +36,36 @@ class Peer(
     }
 
     fun ping() {
-        val data = "PING"
-        val message = Message(address, port, data)
+        val message = Ping(address, port)
 
-        messageBroker.putMessage(message)
+        forwardMessage(message)
     }
 
     fun search(keyword: String) {
-        val message = Message(address, 8003, keyword)
+        val message = Query(address, port, keyword)
 
-        messageBroker.putMessage(message)
+        forwardMessage(message)
+    }
+
+    fun sendMessage(message: Message, address: String, port: Int) {
+        messageBroker.putMessage(message.to(address, port))
+    }
+    
+    fun sendMessage(message: Message, peer: Peer) {
+        messageBroker.putMessage(message.to(peer))
+    }
+
+    fun forwardMessage(message: Message) {
+        for (neighbour in neighbours)
+            sendMessage(message, neighbour)
     }
 
     override fun equals(other: Any?): Boolean {
-        return username == (other as Peer).username
+        return user.username == (other as Peer).user.username
     }
 
     override fun hashCode(): Int {
-        var result = username.hashCode()
+        var result = user.username.hashCode()
         result = 31 * result + neighbours.hashCode()
 
         return result

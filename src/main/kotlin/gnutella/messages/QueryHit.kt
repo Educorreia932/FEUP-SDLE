@@ -1,3 +1,7 @@
 package gnutella.messages
 
-class QueryHit: Message("", 0, "")
+class QueryHit : Message() {
+    override fun toString(): String {
+        return "QUERY_HIT"
+    }
+}

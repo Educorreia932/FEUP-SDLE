@@ -29,9 +29,9 @@ class MessageBroker(
                 val data = packet.data.slice(0 until packet.length).toByteArray()
                 val message = Message.fromBytes(data)
 
-                println("Peer ${peer.username} | Received message ${message.content}")
+                println("Peer ${peer.user.username} | Received message $message")
 
-                inbox.put(message)
+                inbox.put(message!!)
             }
         }
 
@@ -41,15 +41,15 @@ class MessageBroker(
 
             while (true) {
                 val message = outbox.take()
-                val payload = message.content
+                val payload = message.toBytes()
 
-                println("Peer ${peer.username} | Sent message ${message.content}")
+                println("Peer ${peer.user.username} | Sent $message to ${message.destinationAddress}:${message.destinationPort}")
 
                 val packet = DatagramPacket(
-                    payload.toByteArray(),
-                    payload.length,
-                    InetAddress.getByName(message.address),
-                    message.port
+                    payload,
+                    payload.size,
+                    InetAddress.getByName(message.destinationAddress),
+                    message.destinationPort!!
                 )
 
                 socket.send(packet)

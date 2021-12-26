@@ -6,8 +6,10 @@ import gnutella.peer.Peer
 class PongHandler(
     private val peer: Peer,
     private val message: Message
-) : MessageHandler(message), Runnable {
+) : MessageHandler(message) {
     override fun run() {
-        peer.addNeighbour(message.address, message.port)
+        peer.addNeighbour(message.destinationAddress!!, message.destinationPort!!)
+
+        // TODO: Set timeout to remove neighbour
     }
 }

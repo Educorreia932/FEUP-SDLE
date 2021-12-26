@@ -1,6 +1,4 @@
-/**
- * Representation of a publication made by a user
- */
 data class Post(
-    val content: String
+    val content: String,
+    val author: User
 )

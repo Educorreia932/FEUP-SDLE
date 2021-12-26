@@ -3,4 +3,8 @@ package gnutella.messages
 class Ping(
     sourceAddress: String,
     sourcePort: Int
-) : Message(sourceAddress, sourcePort)
+) : Message() {
+    override fun toString(): String {
+        return "PING"
+    }
+}
