@@ -8,12 +8,8 @@ class Query constructor(
     val keyword: String,
 ) : Message() {
 
-    override fun to(address: String, port: Int): Message {
-        val query = Query(address, port, timeToLive, hops, keyword)
-
-        query.destinationPort = port
-        query.destinationAddress = address
-        return query
+    override fun cloneThis(): Message {
+        return Query(sourceAddress, sourcePort, timeToLive, hops, keyword)
     }
 
     override fun toBytes(): ByteArray {

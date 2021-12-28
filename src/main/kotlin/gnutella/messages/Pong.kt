@@ -5,11 +5,8 @@ data class Pong(
     val port: Int
 ) : Message() {
 
-    override fun to(address: String, port: Int): Message {
-        val pong = Pong(address, port)
-        pong.destinationPort = port
-        pong.destinationAddress = address
-        return pong
+    override fun cloneThis(): Message {
+        return Pong(address, port)
     }
 
     override fun toString(): String {

@@ -50,15 +50,11 @@ class Peer(
 
     fun sendMessage(message: Message, address: String, port: Int) {
         val msg = message.to(address, port)
-        println(message.destinationAddress)
-        println(msg.destinationAddress)
         messageBroker.putMessage(message.to(address, port))
     }
     
     fun sendMessage(message: Message, peer: Peer) {
         val msg = message.to(peer)
-        println(message.destinationAddress)
-        println(msg.destinationAddress)
         messageBroker.putMessage(msg)
     }
 

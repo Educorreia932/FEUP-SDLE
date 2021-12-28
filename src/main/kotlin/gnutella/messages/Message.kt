@@ -11,7 +11,12 @@ abstract class Message {
         return to(peer.address, peer.port)
     }
 
-    abstract fun to(address: String, port: Int): Message
+    fun to(address: String, port: Int): Message {
+        val msg = cloneThis()
+        msg.destinationAddress = address
+        msg.destinationPort = port
+        return msg
+    }
 
     open fun toBytes(): ByteArray {
         return "${toString()}|${destinationAddress}|${destinationPort}".toByteArray()
@@ -34,4 +39,6 @@ abstract class Message {
             }
         }
     }
+
+    abstract fun cloneThis(): Message
 }
