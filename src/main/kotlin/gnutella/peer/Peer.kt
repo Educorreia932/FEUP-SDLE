@@ -1,6 +1,7 @@
 package gnutella.peer
 
 import User
+import gnutella.Constants
 import gnutella.messages.Message
 import gnutella.messages.Ping
 import gnutella.messages.Query
@@ -36,23 +37,29 @@ class Peer(
     }
 
     fun ping() {
-        val message = Ping(address, port)
+        val message = Ping(address, port, Constants.MAX_HOPS, 0)
 
         forwardMessage(message)
     }
 
     fun search(keyword: String) {
-        val message = Query(address, port, keyword)
+        val message = Query(address, port, Constants.MAX_HOPS, 0, keyword)
 
         forwardMessage(message)
     }
 
     fun sendMessage(message: Message, address: String, port: Int) {
+        val msg = message.to(address, port)
+        println(message.destinationAddress)
+        println(msg.destinationAddress)
         messageBroker.putMessage(message.to(address, port))
     }
     
     fun sendMessage(message: Message, peer: Peer) {
-        messageBroker.putMessage(message.to(peer))
+        val msg = message.to(peer)
+        println(message.destinationAddress)
+        println(msg.destinationAddress)
+        messageBroker.putMessage(msg)
     }
 
     fun forwardMessage(message: Message) {

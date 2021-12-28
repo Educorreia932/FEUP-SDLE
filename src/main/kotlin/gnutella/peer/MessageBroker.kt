@@ -68,6 +68,7 @@ class MessageBroker(
     }
 
     fun putMessage(message: Message) {
+        println("Put message to outbox")
         outbox.put(message)
     }
 }

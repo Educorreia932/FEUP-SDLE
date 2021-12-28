@@ -11,12 +11,7 @@ abstract class Message {
         return to(peer.address, peer.port)
     }
 
-    fun to(address: String, port: Int): Message {
-        destinationAddress = address
-        destinationPort = port
-
-        return this
-    }
+    abstract fun to(address: String, port: Int): Message
 
     open fun toBytes(): ByteArray {
         return "${toString()}|${destinationAddress}|${destinationPort}".toByteArray()
@@ -28,9 +23,9 @@ abstract class Message {
             println(fields)
 
             return when (fields[0]) {
-                "PING" -> Ping(fields[1], fields[2].toInt())
+                "PING" -> Ping(fields[1], fields[2].toInt(), fields[3].toInt(), fields[4].toInt())
                 "PONG" -> Pong(fields[1], fields[2].toInt())
-                "QUERY" -> Query(fields[1], fields[2].toInt(), fields[3])
+                "QUERY" -> Query(fields[1], fields[2].toInt(), fields[3].toInt(), fields[4].toInt(), fields[5])
                 "QUERY_HIT" -> QueryHit()
 
                 else -> {
