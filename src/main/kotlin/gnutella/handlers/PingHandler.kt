@@ -14,8 +14,14 @@ class PingHandler(
             return;
         }
 
+        //Duplicate query received. Ignore.
+        if(peer.cache.containsPing(ping))
+            return;
+        peer.cache.addPing(ping)
+
+
         //Increment hops and decrement time to live
-        ping.hops = ping.hops - 1;
+        ping.hops = ping.hops + 1;
         ping.timeToLive = ping.timeToLive - 1;
 
         //Don't propagate if it's reached the hop limit

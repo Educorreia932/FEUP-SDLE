@@ -19,4 +19,10 @@ class Query constructor(
     override fun toString(): String {
         return "QUERY"
     }
+
+    //Checks if the ping is a duplicate of this ping. Duplicates don't need to have the same time to live or number of hops.
+    fun isDuplicateOf(query: Query): Boolean{
+        return sourceAddress.equals(query.sourceAddress) && sourcePort == query.sourcePort && destinationAddress.equals(query.destinationAddress) && destinationPort == query.destinationPort
+    }
+
 }

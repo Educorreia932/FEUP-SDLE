@@ -16,6 +16,7 @@ class Peer(
 ) {
     private val neighbours = mutableSetOf<Peer>()
     private val messageBroker = MessageBroker(this)
+    val cache = Cache(this)
     val storage = Storage()
 
     fun addNeighbour(address: String, port: Int) {
@@ -69,7 +70,7 @@ class Peer(
 
     override fun hashCode(): Int {
         var result = user.username.hashCode()
-        result = 31 * result + neighbours.hashCode()
+        //result = 31 * result + neighbours.hashCode()
 
         return result
     }
