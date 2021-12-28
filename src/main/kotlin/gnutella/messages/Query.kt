@@ -13,7 +13,7 @@ class Query constructor(
     }
 
     override fun toBytes(): ByteArray {
-        return "${toString()}|${sourceAddress}|${sourcePort}|${keyword}|${timeToLive}|${hops}".toByteArray()
+        return "${toString()}|${sourceAddress}|${sourcePort}|${timeToLive}|${hops}|${keyword}".toByteArray()
     }
 
     override fun toString(): String {

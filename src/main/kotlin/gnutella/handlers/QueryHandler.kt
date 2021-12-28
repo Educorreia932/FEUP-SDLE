@@ -26,7 +26,6 @@ class QueryHandler(
         query.hops = query.hops!! - 1;
         query.timeToLive = query.timeToLive!! - 1;
 
-        println("Peer: ${peer.user.username} ; TTL: ${query.timeToLive}")
         //Don't propagate if it's reached the hop limit
         if(query.timeToLive!! <= 0){
             println("Not propagating. Reached TTL=0.")
