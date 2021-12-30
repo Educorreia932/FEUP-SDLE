@@ -1,6 +1,7 @@
 package gnutella.peer
 
 import User
+import gnutella.Connection.ConnectionMessage
 import gnutella.Constants
 import gnutella.handlers.PingHandler
 import gnutella.handlers.PongHandler
@@ -100,9 +101,10 @@ class MessageBroker(
 
                 if(splitStr[0].equals(Constants.CONNECTION_REQUEST_STRING)){
                     val outputStream = DataOutputStream(newSock.getOutputStream())
-                    outputStream.writeUTF(Constants.CONNECTION_ACCEPTANCE_STRING + Constants.CONNECTION_MESSAGE_SEPARATOR + peer.address + Constants.CONNECTION_MESSAGE_SEPARATOR + peer.port + Constants.CONNECTION_MESSAGE_SEPARATOR + peer.user.username)
+                    outputStream.writeUTF(ConnectionMessage.getConnAcceptMsg(peer.address, peer.port, peer.user.username))
                     outputStream.close()
                     peer.addNeighbour(Neighbour(User(splitStr[3]), port = splitStr[2].toInt()))
+                    peer.printNeighbours()
                 }
             }
         }

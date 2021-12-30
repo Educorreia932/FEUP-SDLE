@@ -1,6 +1,7 @@
 package gnutella
 
 import User
+import gnutella.Connection.ConnectionMessage
 import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 import java.io.DataInputStream
@@ -31,7 +32,7 @@ fun main(){
 
 
 
-    dout.writeUTF(Constants.CONNECTION_REQUEST_STRING + Constants.CONNECTION_MESSAGE_SEPARATOR + myMessageAddress + Constants.CONNECTION_MESSAGE_SEPARATOR + myMessagePort + Constants.CONNECTION_MESSAGE_SEPARATOR + myPeerId)
+    dout.writeUTF(ConnectionMessage.getConnMsg(myMessageAddress, myMessagePort, myPeerId.toString()))
     dout.flush();
     //dout.close()
 
