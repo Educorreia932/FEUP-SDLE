@@ -8,7 +8,7 @@ fun main() {
     val peers = mutableListOf<Peer>()
 
     for (i in 0..4)
-        peers.add(Peer(User(i.toString()), port = 8000 + i))
+        peers.add(Peer(User(i.toString()), port = 8010 + (2 * i)))
 
     // Connect peers in star pattern
     peers[0].addNeighbour(peers[2])

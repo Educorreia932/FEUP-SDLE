@@ -1,5 +1,6 @@
 package gnutella.messages
 
+import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 
 // TODO: Implement as Serializable
@@ -7,8 +8,8 @@ abstract class Message {
     var destinationAddress: String? = null
     var destinationPort: Int? = null
 
-    fun to(peer: Peer): Message {
-        return to(peer.address, peer.port)
+    fun to(neighbour: Neighbour): Message {
+        return to(neighbour.address, neighbour.port)
     }
 
     fun to(address: String, port: Int): Message {
