@@ -22,7 +22,7 @@ class Query constructor(
 
     //Checks if the ping is a duplicate of this ping. Duplicates don't need to have the same time to live or number of hops.
     fun isDuplicateOf(query: Query): Boolean {
-        return sourceAddress.equals(query.sourceAddress) && sourcePort == query.sourcePort && destinationAddress.equals(
+        return sourceAddress == query.sourceAddress && sourcePort == query.sourcePort && destinationAddress.equals(
             query.destinationAddress
         ) && destinationPort == query.destinationPort
     }

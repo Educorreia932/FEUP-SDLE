@@ -1,7 +1,7 @@
 package gnutella
 
 import User
-import gnutella.Connection.ConnectionMessage
+import gnutella.connection.ConnectionMessage
 import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 import java.io.DataInputStream

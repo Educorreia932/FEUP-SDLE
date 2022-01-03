@@ -1,7 +1,7 @@
 package gnutella.peer
 
 import User
-import gnutella.Connection.ConnectionMessage
+import gnutella.connection.ConnectionMessage
 import gnutella.Constants
 import gnutella.handlers.PingHandler
 import gnutella.handlers.PongHandler

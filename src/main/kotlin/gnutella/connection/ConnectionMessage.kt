@@ -1,4 +1,4 @@
-package gnutella.Connection
+package gnutella.connection
 
 import gnutella.Constants
 
