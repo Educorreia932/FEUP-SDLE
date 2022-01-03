@@ -34,9 +34,9 @@ class Peer(
     }
 
     // Test function; Prints all neighbours' info
-    fun printNeighbours(){
+    fun printNeighbours() {
         println("Neighbours: ")
-        for (i in neighbours){
+        for (i in neighbours) {
             println("Username: ${i.user.username}; Address: ${i.address}; Port: ${i.port}")
         }
     }
@@ -66,7 +66,7 @@ class Peer(
         val msg = message.to(address, port)
         messageBroker.putMessage(message.to(address, port))
     }
-    
+
     fun sendMessage(message: Message, neighbour: Neighbour) {
         val msg = message.to(neighbour)
         messageBroker.putMessage(msg)

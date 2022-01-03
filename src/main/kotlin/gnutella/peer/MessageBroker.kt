@@ -8,12 +8,9 @@ import gnutella.handlers.PongHandler
 import gnutella.handlers.QueryHandler
 import gnutella.handlers.QueryHitHandler
 import gnutella.messages.*
-import gnutella.myMessagePort
-import gnutella.myPeerId
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.*
-import java.nio.charset.StandardCharsets
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.concurrent.thread
 
@@ -77,7 +74,7 @@ class MessageBroker(
         // Accept incoming (TCP) connection requests, then accept the connection message.
         thread {
             val serverSock = ServerSocket(peer.port + 1)
-            while (true){
+            while (true) {
                 val newSock = serverSock.accept()
                 newSock.soTimeout = Constants.CONNECTION_TIMEOUT_MILIS
 
@@ -85,8 +82,7 @@ class MessageBroker(
                 var stringReceived = ""
                 try {
                     stringReceived = inputStream.readUTF()
-                }
-                catch (exception: SocketTimeoutException){
+                } catch (exception: SocketTimeoutException) {
                     println("Too late.")
                     inputStream.close()
                     newSock.close()
@@ -94,14 +90,20 @@ class MessageBroker(
                 }
 
                 val splitStr = stringReceived.split(Constants.CONNECTION_MESSAGE_SEPARATOR)
-                if(splitStr.size != 4){
+                if (splitStr.size != 4) {
                     println("Peer tried to connect using an invalid mesasge. Exiting.")
                     continue
                 }
 
-                if(splitStr[0].equals(Constants.CONNECTION_REQUEST_STRING)){
+                if (splitStr[0].equals(Constants.CONNECTION_REQUEST_STRING)) {
                     val outputStream = DataOutputStream(newSock.getOutputStream())
-                    outputStream.writeUTF(ConnectionMessage.getConnAcceptMsg(peer.address, peer.port, peer.user.username))
+                    outputStream.writeUTF(
+                        ConnectionMessage.getConnAcceptMsg(
+                            peer.address,
+                            peer.port,
+                            peer.user.username
+                        )
+                    )
                     outputStream.close()
                     peer.addNeighbour(Neighbour(User(splitStr[3]), port = splitStr[2].toInt()))
                     peer.printNeighbours()

@@ -1,6 +1,6 @@
 package gnutella.messages
 
-class QueryHit: Message() {
+class QueryHit : Message() {
 
     override fun cloneThis(): Message {
         return QueryHit()

@@ -1,7 +1,6 @@
 package gnutella.messages
 
 import gnutella.peer.Neighbour
-import gnutella.peer.Peer
 
 // TODO: Implement as Serializable
 abstract class Message {

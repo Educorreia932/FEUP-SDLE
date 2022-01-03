@@ -10,12 +10,15 @@ class Ping(
     override fun cloneThis(): Message {
         return Ping(sourceAddress, sourcePort, timeToLive, hops)
     }
+
     override fun toString(): String {
         return "PING"
     }
 
     //Checks if the ping is a duplicate of this ping. Duplicates don't need to have the same time to live or number of hops.
-    fun isDuplicateOf(ping: Ping): Boolean{
-        return sourceAddress.equals(ping.sourceAddress) && sourcePort == ping.sourcePort && destinationAddress.equals(ping.destinationAddress) && destinationPort == ping.destinationPort
+    fun isDuplicateOf(ping: Ping): Boolean {
+        return sourceAddress.equals(ping.sourceAddress) && sourcePort == ping.sourcePort && destinationAddress.equals(
+            ping.destinationAddress
+        ) && destinationPort == ping.destinationPort
     }
 }

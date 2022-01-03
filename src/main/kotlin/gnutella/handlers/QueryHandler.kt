@@ -7,18 +7,18 @@ import gnutella.peer.Peer
 class QueryHandler(
     private val peer: Peer,
     private val query: Query
-) : MessageHandler(query){
+) : MessageHandler(query) {
     override fun run() {
         //Error check
-        if(query.timeToLive == null || query.hops == null){
+        if (query.timeToLive == null || query.hops == null) {
             println("No time to live and/or num hops left in this message. Not propagating.")
-            return;
+            return
         }
 
         //Duplicate query received. Ignore.
-        if(peer.cache.containsQuery(query)){
+        if (peer.cache.containsQuery(query)) {
             println("Peer ${peer.user.username} | Received duplicate query.")
-            return;
+            return
         }
         // Add to cache
         peer.cache.addQuery(query)
@@ -33,13 +33,13 @@ class QueryHandler(
         }
 
         //Increment hops and decrement time to live
-        query.hops = query.hops!! + 1;
-        query.timeToLive = query.timeToLive!! - 1;
+        query.hops = query.hops + 1
+        query.timeToLive = query.timeToLive - 1
 
         //Don't propagate if it's reached the hop limit
-        if(query.timeToLive!! <= 0){
+        if (query.timeToLive <= 0) {
             println("Not propagating. Reached TTL=0.")
-            return;
+            return
         }
         println("Peer ${peer.user.username} propagating")
         peer.forwardMessage(query)
