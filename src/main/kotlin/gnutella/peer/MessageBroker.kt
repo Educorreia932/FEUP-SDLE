@@ -1,8 +1,8 @@
 package gnutella.peer
 
 import User
-import gnutella.connection.ConnectionMessage
 import gnutella.Constants
+import gnutella.connection.ConnectionMessage
 import gnutella.handlers.PingHandler
 import gnutella.handlers.PongHandler
 import gnutella.handlers.QueryHandler
@@ -63,11 +63,13 @@ class MessageBroker(
 
         // Process messages
         thread {
-            when (val message = inbox.take()) {
-                is Ping -> PingHandler(peer, message).run()
-                is Pong -> PongHandler(peer, message).run()
-                is Query -> QueryHandler(peer, message).run()
-                is QueryHit -> QueryHitHandler(peer, message).run()
+            while (true) {
+                when (val message = inbox.take()) {
+                    is Ping -> PingHandler(peer, message).run()
+                    is Pong -> PongHandler(peer, message).run()
+                    is Query -> QueryHandler(peer, message).run()
+                    is QueryHit -> QueryHitHandler(peer, message).run()
+                }
             }
         }
 
@@ -91,11 +93,11 @@ class MessageBroker(
 
                 val splitStr = stringReceived.split(Constants.CONNECTION_MESSAGE_SEPARATOR)
                 if (splitStr.size != 4) {
-                    println("Peer tried to connect using an invalid mesasge. Exiting.")
+                    println("Peer tried to connect using an invalid message. Exiting.")
                     continue
                 }
 
-                if (splitStr[0].equals(Constants.CONNECTION_REQUEST_STRING)) {
+                if (splitStr[0] == Constants.CONNECTION_REQUEST_STRING) {
                     val outputStream = DataOutputStream(newSock.getOutputStream())
                     outputStream.writeUTF(
                         ConnectionMessage.getConnAcceptMsg(

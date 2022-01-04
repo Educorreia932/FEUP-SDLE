@@ -2,11 +2,13 @@ package gnutella.handlers
 
 import gnutella.messages.Query
 import gnutella.messages.QueryHit
+import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 
 class QueryHandler(
     private val peer: Peer,
-    private val query: Query
+    private val query: Query,
+    private val fromNeighbour: Neighbour,
 ) : MessageHandler(query) {
     override fun run() {
         //Error check
@@ -27,7 +29,7 @@ class QueryHandler(
         val posts = peer.storage.retrievePosts(query.keyword)
 
         if (posts.isNotEmpty()) {
-            val response = QueryHit()
+            val response = QueryHit(query.ID)
 
             peer.sendMessage(response, query.sourceAddress, query.sourcePort)
         }
@@ -42,6 +44,6 @@ class QueryHandler(
             return
         }
         println("Peer ${peer.user.username} propagating")
-        peer.forwardMessage(query)
+        peer.forwardMessage(query, fromNeighbour)
     }
 }

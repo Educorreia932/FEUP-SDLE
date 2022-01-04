@@ -1,9 +1,10 @@
 package gnutella.messages
 
 import gnutella.peer.Neighbour
+import java.util.*
 
 // TODO: Implement as Serializable
-abstract class Message {
+abstract class Message(ID: UUID) {
     var destinationAddress: String? = null
     var destinationPort: Int? = null
 
@@ -28,10 +29,10 @@ abstract class Message {
             println(fields)
 
             return when (fields[0]) {
-                "PING" -> Ping(fields[1], fields[2].toInt(), fields[3].toInt(), fields[4].toInt())
-                "PONG" -> Pong(fields[1], fields[2].toInt())
-                "QUERY" -> Query(fields[1], fields[2].toInt(), fields[3].toInt(), fields[4].toInt(), fields[5])
-                "QUERY_HIT" -> QueryHit()
+                "PING" -> Ping.fromBytes(bytes)
+                "PONG" -> Pong.fromBytes(bytes)
+                "QUERY" -> Query.fromBytes(bytes)
+                "QUERY_HIT" -> QueryHit.fromBytes(bytes)
 
                 else -> {
                     null

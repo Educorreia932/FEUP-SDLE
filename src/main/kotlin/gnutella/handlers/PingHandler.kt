@@ -1,11 +1,13 @@
 package gnutella.handlers
 
 import gnutella.messages.Ping
+import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 
 class PingHandler(
     private val peer: Peer,
-    private val ping: Ping
+    private val ping: Ping,
+    private val fromNeighbour: Neighbour,
 ) : MessageHandler(ping) {
     override fun run() {
         if (ping.timeToLive == null || ping.hops == null) {
@@ -29,7 +31,7 @@ class PingHandler(
         }
 
         // Forward ping to neighbours
-        peer.forwardMessage(ping)
+        peer.forwardMessage(ping, fromNeighbour)
 
     }
 }

@@ -1,6 +1,7 @@
 package gnutella.peer
 
 import User
+import java.util.*
 
 /**
  * Representation of a Gnutella node
@@ -9,6 +10,7 @@ class Neighbour {
     val user: User
     var address: String = "127.0.0.1"
     val port: Int
+    val seenIDs: Set<UUID> = mutableSetOf()
 
     constructor(user: User, address: String = "127.0.0.1", port: Int) {
         this.user = user

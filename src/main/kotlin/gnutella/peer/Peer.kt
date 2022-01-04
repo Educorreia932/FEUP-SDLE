@@ -5,6 +5,7 @@ import gnutella.Constants
 import gnutella.messages.Message
 import gnutella.messages.Ping
 import gnutella.messages.Query
+import java.util.*
 
 /**
  * Representation of a Gnutella node
@@ -51,15 +52,15 @@ class Peer(
     }
 
     fun ping() {
-        val message = Ping(address, port, Constants.MAX_HOPS, 0)
+        val message = Ping(UUID.randomUUID(), Constants.MAX_HOPS, 0)
 
-        forwardMessage(message)
+        forwardMessage(message, null)
     }
 
     fun search(keyword: String) {
-        val message = Query(address, port, Constants.MAX_HOPS, 0, keyword)
+        val message = Query(UUID.randomUUID(), Constants.MAX_HOPS, 0, keyword)
 
-        forwardMessage(message)
+        forwardMessage(message, null)
     }
 
     fun sendMessage(message: Message, address: String, port: Int) {
@@ -72,9 +73,10 @@ class Peer(
         messageBroker.putMessage(msg)
     }
 
-    fun forwardMessage(message: Message) {
+    fun forwardMessage(message: Message, neighbourToExclude: Neighbour?) {
         for (neighbour in neighbours)
-            sendMessage(message, neighbour)
+            if (neighbour != neighbourToExclude)
+                sendMessage(message, neighbour)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -82,9 +84,7 @@ class Peer(
     }
 
     override fun hashCode(): Int {
-        var result = user.username.hashCode()
-        //result = 31 * result + neighbours.hashCode()
-
-        return result
+        return user.username.hashCode()
+        // return  31 * result + neighbours.hashCode()
     }
 }
