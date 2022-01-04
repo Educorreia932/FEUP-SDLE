@@ -1,10 +1,11 @@
 package gnutella.messages
 
 import gnutella.peer.Neighbour
+import gnutella.peer.Peer
+import java.io.Serializable
 import java.util.*
 
-// TODO: Implement as Serializable
-abstract class Message(ID: UUID) {
+abstract class Message(ID: UUID): Serializable {
     var destinationAddress: String? = null
     var destinationPort: Int? = null
 
@@ -14,8 +15,10 @@ abstract class Message(ID: UUID) {
 
     fun to(address: String, port: Int): Message {
         val msg = cloneThis()
+        
         msg.destinationAddress = address
         msg.destinationPort = port
+        
         return msg
     }
 

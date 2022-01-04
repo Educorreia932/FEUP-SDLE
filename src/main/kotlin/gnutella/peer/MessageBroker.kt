@@ -8,11 +8,11 @@ import gnutella.handlers.PongHandler
 import gnutella.handlers.QueryHandler
 import gnutella.handlers.QueryHitHandler
 import gnutella.messages.*
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import java.io.*
 import java.net.*
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.concurrent.thread
+
 
 class MessageBroker(
     private val peer: Peer,
@@ -32,11 +32,15 @@ class MessageBroker(
                 socket.receive(packet)
 
                 val data = packet.data.slice(0 until packet.length).toByteArray()
-                val message = Message.fromBytes(data)
+                val byteArrayInputStream = ByteArrayInputStream(data)
+                val objectInputStream = ObjectInputStream(byteArrayInputStream)
+                val message = objectInputStream.readObject() as Message
+
+                objectInputStream.close()
 
                 println("Peer ${peer.user.username} | Received message $message")
 
-                inbox.put(message!!)
+                inbox.put(message)
             }
         }
 
@@ -46,7 +50,14 @@ class MessageBroker(
 
             while (true) {
                 val message = outbox.take()
-                val payload = message.toBytes()
+                val byteArrayOutputStream = ByteArrayOutputStream()
+                val objectOutputStream = ObjectOutputStream(byteArrayOutputStream)
+
+                objectOutputStream.writeObject(message)
+
+                val payload = byteArrayOutputStream.toByteArray()
+
+                objectOutputStream.close()
 
                 println("Peer ${peer.user.username} | Sent $message to ${message.destinationAddress}:${message.destinationPort}")
 
@@ -65,10 +76,10 @@ class MessageBroker(
         thread {
             while (true) {
                 when (val message = inbox.take()) {
-                    is Ping -> PingHandler(peer, message).run()
-                    is Pong -> PongHandler(peer, message).run()
-                    is Query -> QueryHandler(peer, message).run()
-                    is QueryHit -> QueryHitHandler(peer, message).run()
+                    is Ping -> PingHandler(peer, message, Neighbour(User(""), port = -1)).run()
+                    is Pong -> PongHandler(peer, message, Neighbour(User(""), port = -1)).run()
+                    is Query -> QueryHandler(peer, message, Neighbour(User(""), port = -1)).run()
+                    is QueryHit -> QueryHitHandler(peer, message, Neighbour(User(""), port = -1)).run()
                 }
             }
         }
@@ -81,7 +92,8 @@ class MessageBroker(
                 newSock.soTimeout = Constants.CONNECTION_TIMEOUT_MILIS
 
                 val inputStream = DataInputStream(newSock.getInputStream())
-                var stringReceived = ""
+                var stringReceived: String
+
                 try {
                     stringReceived = inputStream.readUTF()
                 } catch (exception: SocketTimeoutException) {

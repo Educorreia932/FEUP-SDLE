@@ -12,7 +12,7 @@ class QueryHandler(
 ) : MessageHandler(query) {
     override fun run() {
         //Error check
-        if (query.timeToLive == null || query.hops == null) {
+        if (query.timeToLive == 0 || query.hops == 0) {
             println("No time to live and/or num hops left in this message. Not propagating.")
             return
         }
@@ -31,7 +31,7 @@ class QueryHandler(
         if (posts.isNotEmpty()) {
             val response = QueryHit(query.ID)
 
-            peer.sendMessage(response, query.sourceAddress, query.sourcePort)
+//            peer.sendMessage(response, query.sourceAddress, query.sourcePort)
         }
 
         //Increment hops and decrement time to live
