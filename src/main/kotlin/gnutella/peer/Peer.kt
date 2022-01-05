@@ -1,10 +1,16 @@
 package gnutella.peer
 
 import User
-import gnutella.Constants
+import gnutella.*
+import gnutella.connection.ConnectionMessage
 import gnutella.messages.Message
 import gnutella.messages.Ping
 import gnutella.messages.Query
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.net.InetAddress
+import java.net.Socket
+import java.net.SocketTimeoutException
 import java.util.*
 
 /**
@@ -16,9 +22,54 @@ class Peer(
     val port: Int,
 ) {
     private val neighbours = mutableSetOf<Neighbour>()
-    private val messageBroker = MessageBroker(this)
+    private lateinit var messageBroker: MessageBroker
     val cache = Cache(this)
     val storage = Storage()
+
+    constructor(user: User, address: String, port: Int, myConnectionAddress: String, myConnectionPort: Int) : this(user, address, port) {
+        messageBroker = MessageBroker(this, myConnectionAddress, myConnectionPort)
+    }
+
+    constructor(user: User, address: String, port: Int, myConnectionAddress: String, myConnectionPort: Int, addressaddressToConnect: String, portToConnect: Int) : this(user, address, port) {
+        messageBroker = MessageBroker(this)
+        val tcpSocket = Socket(InetAddress.getLocalHost(), portToConnect, InetAddress.getLocalHost(), myConnectionPort)
+
+        val dout = DataOutputStream(tcpSocket.getOutputStream())
+
+
+
+        dout.writeUTF(ConnectionMessage.getConnMsg(address, port, user.username))
+        dout.flush()
+
+
+        // Read input
+        try {
+            // Only try to read for a certain amount of time
+            tcpSocket.soTimeout = Constants.CONNECTION_TIMEOUT_MILIS
+            val inputStream = DataInputStream(tcpSocket.getInputStream())
+            val stringReceived = inputStream.readUTF()
+
+            val splitStr = stringReceived.split(Constants.CONNECTION_MESSAGE_SEPARATOR)
+            if (splitStr.size != 4) {
+                println("Connection returned an invalid number of fields. Exiting.")
+                return
+            }
+
+            if (splitStr[0].equals(Constants.CONNECTION_ACCEPTANCE_STRING)) {
+                //Socket has to be closed before peer is created
+                tcpSocket.close()
+
+                var peer = Peer(User(user.username), port = myConnectionPort)
+                peer.addNeighbour(Neighbour(User(splitStr[3]), port = splitStr[2].toInt()))
+            }
+        } catch (exception: SocketTimeoutException) {
+            println("No response. Exiting.")
+            tcpSocket.close()
+            return
+        }
+        dout.close()
+        messageBroker.createConnectionAcceptSocket(myConnectionAddress, myConnectionPort)
+    }
 
     fun addNeighbour(address: String, port: Int) {
         addNeighbour(Neighbour(User(""), address, port))

@@ -10,7 +10,7 @@ import java.net.InetAddress
 import java.net.Socket
 import java.net.SocketTimeoutException
 
-
+/*
 //val entryAddress: String = "127.0.0.1" //localhost
 const val entryPort: Int = 8011
 
@@ -62,3 +62,4 @@ fun main() {
     dout.close()
     return
 }
+*/

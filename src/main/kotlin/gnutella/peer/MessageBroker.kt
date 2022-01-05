@@ -19,6 +19,7 @@ class MessageBroker(
 ) {
     private val inbox = LinkedBlockingQueue<Message>()
     private val outbox = LinkedBlockingQueue<Message>()
+    private var connectionAcceptSocket: ServerSocket? = null
 
     init {
         // Receive messages
@@ -86,9 +87,10 @@ class MessageBroker(
 
         // Accept incoming (TCP) connection requests, then accept the connection message.
         thread {
-            val serverSock = ServerSocket(peer.port + 1)
+            while(connectionAcceptSocket == null){
+            }
             while (true) {
-                val newSock = serverSock.accept()
+                val newSock = connectionAcceptSocket!!.accept()
                 newSock.soTimeout = Constants.CONNECTION_TIMEOUT_MILIS
 
                 val inputStream = DataInputStream(newSock.getInputStream())
@@ -124,6 +126,18 @@ class MessageBroker(
                 }
             }
         }
+    }
+
+    constructor(peer: Peer, serverSocketAddress: String, serverSocketPort: Int): this(peer){
+        connectionAcceptSocket = ServerSocket(serverSocketPort)
+    }
+
+    public fun setConnectionAcceptSocket(socket: ServerSocket){
+        connectionAcceptSocket = socket
+    }
+
+    public fun createConnectionAcceptSocket(serverSocketAddress: String, serverSocketPort: Int){
+        connectionAcceptSocket = ServerSocket(serverSocketPort)
     }
 
     fun putMessage(message: Message) {
