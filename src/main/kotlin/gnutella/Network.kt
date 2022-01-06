@@ -26,10 +26,10 @@ fun main() {
 
     peers[2].addNeighbour(peers[4])
     peers[4].addNeighbour(peers[2])*/
-    peers.add(Peer(User(0.toString()), "127.0.0.1", port = 8010, "127.0.0.1", 8011))
-    peers.add(Peer(User(1.toString()), address = "127.0.0.1", port = 8012, "127.0.0.1", 8013, "127.0.0.1", 8011))
-    peers.add(Peer(User(2.toString()), address = "127.0.0.1", port = 8014, "127.0.0.1", 8015, "127.0.0.1", 8013))
-    peers.add(Peer(User(3.toString()), address = "127.0.0.1", port = 8016, "127.0.0.1", 8017, "127.0.0.1", 8013))
+    peers.add(Peer(User(0.toString()), "127.0.0.1", port = 8020, "127.0.0.1", 8021))
+    peers.add(Peer(User(1.toString()), address = "127.0.0.1", port = 8022, "127.0.0.1", 8023, "127.0.0.1", 8021))
+    peers.add(Peer(User(2.toString()), address = "127.0.0.1", port = 8024, "127.0.0.1", 8025, "127.0.0.1", 8023))
+    peers.add(Peer(User(3.toString()), address = "127.0.0.1", port = 8026, "127.0.0.1", 8027, "127.0.0.1", 8023))
 
     peers[3].storage.addPost(Post("Rãs", peers[3].user))
 

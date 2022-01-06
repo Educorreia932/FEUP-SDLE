@@ -37,7 +37,6 @@ class Peer(
         val dout = DataOutputStream(tcpSocket.getOutputStream())
 
 
-
         dout.writeUTF(ConnectionMessage.getConnMsg(address, port, user.username))
         dout.flush()
 
@@ -68,6 +67,7 @@ class Peer(
             return
         }
         dout.close()
+
         messageBroker.createConnectionAcceptSocket(myConnectionAddress, myConnectionPort)
     }
 

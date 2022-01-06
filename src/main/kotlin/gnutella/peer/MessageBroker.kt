@@ -32,6 +32,8 @@ class MessageBroker(
 
                 socket.receive(packet)
 
+                println("Address: " + packet.socketAddress)
+
                 val data = packet.data.slice(0 until packet.length).toByteArray()
                 val byteArrayInputStream = ByteArrayInputStream(data)
                 val objectInputStream = ObjectInputStream(byteArrayInputStream)
@@ -68,7 +70,7 @@ class MessageBroker(
                     InetAddress.getByName(message.destinationAddress),
                     message.destinationPort!!
                 )
-
+                println("Peer : " + peer.user.username + " Sending packet on address: " + packet.address + ":" + packet.port + " to " + packet.socketAddress)
                 socket.send(packet)
             }
         }
@@ -85,10 +87,31 @@ class MessageBroker(
             }
         }
 
+
+    }
+
+    constructor(peer: Peer, serverSocketAddress: String, serverSocketPort: Int): this(peer){
+        connectionAcceptSocket = ServerSocket(serverSocketPort)
+        receiveConnectionsThread()
+    }
+
+    public fun setConnectionAcceptSocket(socket: ServerSocket){
+        connectionAcceptSocket = socket
+    }
+
+    public fun createConnectionAcceptSocket(serverSocketAddress: String, serverSocketPort: Int){
+        connectionAcceptSocket = ServerSocket(serverSocketPort)
+        receiveConnectionsThread()
+    }
+
+    fun putMessage(message: Message) {
+        println("Put message to outbox")
+        outbox.put(message)
+    }
+
+    fun receiveConnectionsThread(){
         // Accept incoming (TCP) connection requests, then accept the connection message.
         thread {
-            while(connectionAcceptSocket == null){
-            }
             while (true) {
                 val newSock = connectionAcceptSocket!!.accept()
                 newSock.soTimeout = Constants.CONNECTION_TIMEOUT_MILIS
@@ -126,22 +149,5 @@ class MessageBroker(
                 }
             }
         }
-    }
-
-    constructor(peer: Peer, serverSocketAddress: String, serverSocketPort: Int): this(peer){
-        connectionAcceptSocket = ServerSocket(serverSocketPort)
-    }
-
-    public fun setConnectionAcceptSocket(socket: ServerSocket){
-        connectionAcceptSocket = socket
-    }
-
-    public fun createConnectionAcceptSocket(serverSocketAddress: String, serverSocketPort: Int){
-        connectionAcceptSocket = ServerSocket(serverSocketPort)
-    }
-
-    fun putMessage(message: Message) {
-        println("Put message to outbox")
-        outbox.put(message)
     }
 }
