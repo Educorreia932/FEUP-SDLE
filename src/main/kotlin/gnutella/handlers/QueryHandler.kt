@@ -11,7 +11,7 @@ class QueryHandler(
 ) : MessageHandler(query) {
     override fun run() {
         //Error check
-        if (query.timeToLive == 0 || query.hops == 0) {
+        if (query.timeToLive == 0) {
             println("No time to live and/or num hops left in this message. Not propagating.")
             return
         }
