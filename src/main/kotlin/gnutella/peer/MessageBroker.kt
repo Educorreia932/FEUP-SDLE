@@ -70,7 +70,6 @@ class MessageBroker(
                     InetAddress.getByName(message.destinationAddress),
                     message.destinationPort!!
                 )
-                println("Peer : " + peer.user.username + " Sending packet on address: " + packet.address + ":" + packet.port + " to " + packet.socketAddress)
                 socket.send(packet)
             }
         }
