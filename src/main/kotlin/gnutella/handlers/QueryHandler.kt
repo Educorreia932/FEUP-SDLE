@@ -43,6 +43,12 @@ class QueryHandler(
             return
         }
         println("Peer ${peer.user.username} propagating")
-        peer.forwardMessage(query)
+
+
+        // We're the propagator now
+        val prevPropagator = query.propagatorId
+        query.propagatorId = peer.user.username
+
+        peer.forwardMessage(query, prevPropagator)
     }
 }

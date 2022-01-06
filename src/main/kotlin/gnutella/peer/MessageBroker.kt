@@ -27,7 +27,6 @@ class MessageBroker(
 
             while (true) {
                 val socket = serverSocket.accept()
-
                 val objectInputStream = ObjectInputStream(socket.getInputStream())
                 val message = objectInputStream.readObject() as Message
 
@@ -49,7 +48,7 @@ class MessageBroker(
                     InetAddress.getByName(message.destinationAddress),
                     message.destinationPort!!
                 )
-                
+
                 val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
 
                 println("Peer ${peer.user.username} | Sent $message to ${message.destinationAddress}:${message.destinationPort}")

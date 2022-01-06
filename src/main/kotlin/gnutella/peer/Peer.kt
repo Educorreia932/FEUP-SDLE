@@ -103,13 +103,13 @@ class Peer(
     }
 
     fun ping() {
-        val message = Ping(UUID.randomUUID(), Constants.MAX_HOPS, 0)
+        val message = Ping(UUID.randomUUID(), user.username, Constants.MAX_HOPS, 0)
 
         forwardMessage(message)
     }
 
     fun search(keyword: String) {
-        val message = Query(UUID.randomUUID(), Constants.MAX_HOPS, 0, keyword)
+        val message = Query(UUID.randomUUID(), user.username, Constants.MAX_HOPS, 0, keyword)
 
         forwardMessage(message)
     }
@@ -122,6 +122,13 @@ class Peer(
         for (neighbour in neighbours)
 //            if (neighbour != message.sender)
                 sendMessage(message, neighbour)
+    }
+
+    fun forwardMessage(message: Message, propagator: String){
+        for (neighbour in neighbours){
+            if (!neighbour.user.username.equals(propagator))
+                sendMessage(message, neighbour)
+        }
     }
 
     override fun equals(other: Any?): Boolean {
