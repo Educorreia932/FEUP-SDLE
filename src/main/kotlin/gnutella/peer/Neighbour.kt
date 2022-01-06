@@ -7,14 +7,13 @@ import java.util.*
  * Representation of a Gnutella node
  */
 class Neighbour(
-    val user: User,
-    var address: String = "127.0.0.1",
-    val port: Int,
-) {
+    user: User,
+    address: String = "127.0.0.1",
+    port: Int,
+) : Node(user, address, port) {
     val seenIDs: Set<UUID> = mutableSetOf()
 
     constructor(peer: Peer) : this(peer.user, peer.address, peer.port)
-
 
     override fun hashCode(): Int {
         return user.username.hashCode()

@@ -6,23 +6,15 @@ import gnutella.messages.Query
 class Cache(
     val peer: Peer
 ) {
-    private val previousPingList: MutableList<Ping> = mutableListOf<Ping>()
-    private val previousQueryList: MutableList<Query> = mutableListOf<Query>()
+    private val previousPingList: MutableList<Ping> = mutableListOf()
+    private val previousQueryList: MutableList<Query> = mutableListOf()
 
     fun containsPing(ping: Ping): Boolean {
-        for (p in previousPingList) {
-            if (ping.isDuplicateOf(p))
-                return true
-        }
-        return false
+        return ping in previousPingList
     }
 
     fun containsQuery(query: Query): Boolean {
-        for (q in previousQueryList) {
-            if (query.isDuplicateOf(q))
-                return true
-        }
-        return false
+        return query in previousQueryList
     }
 
     fun addPing(ping: Ping) {

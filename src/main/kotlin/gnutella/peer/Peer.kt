@@ -17,10 +17,10 @@ import java.util.*
  * Representation of a Gnutella node
  */
 class Peer(
-    val user: User,
-    val address: String = "127.0.0.1",
-    val port: Int,
-) {
+    user: User,
+    address: String = "127.0.0.1",
+    port: Int,
+) : Node(user, address, port) {
     private val neighbours = mutableSetOf<Neighbour>()
     private lateinit var messageBroker: MessageBroker
     val cache = Cache(this)
@@ -105,28 +105,22 @@ class Peer(
     fun ping() {
         val message = Ping(UUID.randomUUID(), Constants.MAX_HOPS, 0)
 
-        forwardMessage(message, null)
+        forwardMessage(message)
     }
 
     fun search(keyword: String) {
         val message = Query(UUID.randomUUID(), Constants.MAX_HOPS, 0, keyword)
 
-        forwardMessage(message, null)
+        forwardMessage(message)
     }
 
-    fun sendMessage(message: Message, address: String, port: Int) {
-        val msg = message.to(address, port)
-        messageBroker.putMessage(message.to(address, port))
+    private fun sendMessage(message: Message, neighbour: Neighbour) {
+        messageBroker.putMessage(message.to(neighbour))
     }
 
-    fun sendMessage(message: Message, neighbour: Neighbour) {
-        val msg = message.to(neighbour)
-        messageBroker.putMessage(msg)
-    }
-
-    fun forwardMessage(message: Message, neighbourToExclude: Neighbour?) {
+    fun forwardMessage(message: Message) {
         for (neighbour in neighbours)
-            if (neighbour != neighbourToExclude)
+//            if (neighbour != message.sender)
                 sendMessage(message, neighbour)
     }
 
@@ -136,6 +130,5 @@ class Peer(
 
     override fun hashCode(): Int {
         return user.username.hashCode()
-        // return  31 * result + neighbours.hashCode()
     }
 }

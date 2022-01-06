@@ -13,7 +13,6 @@ import java.net.*
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.concurrent.thread
 
-
 class MessageBroker(
     private val peer: Peer,
 ) {
@@ -24,52 +23,40 @@ class MessageBroker(
     init {
         // Receive messages
         thread {
-            val socket = DatagramSocket(peer.port)
+            val serverSocket = ServerSocket(peer.port)
 
             while (true) {
-                val response = ByteArray(65536)
-                val packet = DatagramPacket(response, response.size)
+                val socket = serverSocket.accept()
 
-                socket.receive(packet)
-
-
-                val data = packet.data.slice(0 until packet.length).toByteArray()
-                val byteArrayInputStream = ByteArrayInputStream(data)
-                val objectInputStream = ObjectInputStream(byteArrayInputStream)
+                val objectInputStream = ObjectInputStream(socket.getInputStream())
                 val message = objectInputStream.readObject() as Message
-
-                objectInputStream.close()
 
                 println("Peer ${peer.user.username} | Received message $message")
 
                 inbox.put(message)
+
+                objectInputStream.close()
+                socket.close()
             }
         }
 
         // Send messages
         thread {
-            val socket = DatagramSocket()
-
             while (true) {
                 val message = outbox.take()
-                val byteArrayOutputStream = ByteArrayOutputStream()
-                val objectOutputStream = ObjectOutputStream(byteArrayOutputStream)
 
-                objectOutputStream.writeObject(message)
-
-                val payload = byteArrayOutputStream.toByteArray()
-
-                objectOutputStream.close()
-
-                println("Peer ${peer.user.username} | Sent $message to ${message.destinationAddress}:${message.destinationPort}")
-
-                val packet = DatagramPacket(
-                    payload,
-                    payload.size,
+                val socket = Socket(
                     InetAddress.getByName(message.destinationAddress),
                     message.destinationPort!!
                 )
-                socket.send(packet)
+                
+                val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+
+                println("Peer ${peer.user.username} | Sent $message to ${message.destinationAddress}:${message.destinationPort}")
+
+                objectOutputStream.writeObject(message)
+                objectOutputStream.close()
+                socket.close()
             }
         }
 
@@ -77,10 +64,10 @@ class MessageBroker(
         thread {
             while (true) {
                 when (val message = inbox.take()) {
-                    is Ping -> PingHandler(peer, message, Neighbour(User(""), port = -1)).run()
-                    is Pong -> PongHandler(peer, message, Neighbour(User(""), port = -1)).run()
-                    is Query -> QueryHandler(peer, message, Neighbour(User(""), port = -1)).run()
-                    is QueryHit -> QueryHitHandler(peer, message, Neighbour(User(""), port = -1)).run()
+                    is Ping -> PingHandler(peer, message).run()
+                    is Pong -> PongHandler(peer, message).run()
+                    is Query -> QueryHandler(peer, message).run()
+                    is QueryHit -> QueryHitHandler(peer, message).run()
                 }
             }
         }

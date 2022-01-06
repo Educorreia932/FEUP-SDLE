@@ -7,7 +7,6 @@ import gnutella.peer.Peer
 class PingHandler(
     private val peer: Peer,
     private val ping: Ping,
-    private val fromNeighbour: Neighbour,
 ) : MessageHandler(ping) {
     override fun run() {
         if (ping.timeToLive == 0 || ping.hops == 0) {
@@ -30,6 +29,6 @@ class PingHandler(
             return
 
         // Forward ping to neighbours
-        peer.forwardMessage(ping, fromNeighbour)
+        peer.forwardMessage(ping)
     }
 }
