@@ -32,7 +32,6 @@ class MessageBroker(
 
                 socket.receive(packet)
 
-                println("Address: " + packet.socketAddress)
 
                 val data = packet.data.slice(0 until packet.length).toByteArray()
                 val byteArrayInputStream = ByteArrayInputStream(data)
