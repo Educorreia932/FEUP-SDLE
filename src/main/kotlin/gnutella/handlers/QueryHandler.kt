@@ -7,7 +7,7 @@ import gnutella.peer.Peer
 
 class QueryHandler(
     private val peer: Peer,
-    private val query: Query,
+    private var query: Query,
 ) : MessageHandler(query) {
     override fun run() {
         //Error check
@@ -46,7 +46,8 @@ class QueryHandler(
 
 
         // We're the propagator now
-        val prevPropagator = query.propagatorId
+        var prevPropagator = query.propagatorId
+        query = query.cloneThis() as Query
         query.propagatorId = peer.user.username
         query.propagatorAddress = peer.address
         query.propagatorPort = peer.port

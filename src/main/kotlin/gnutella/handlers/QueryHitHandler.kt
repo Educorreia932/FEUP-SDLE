@@ -11,13 +11,15 @@ class QueryHitHandler(
     private val message: QueryHit,
 ) : MessageHandler(message) {
     override fun run() {
-        if(message.destinationAddress == peer.address && message.destinationPort == peer.port){
-            println("Peer " + peer.user.username + " | " + "Received a queryhit for message of ID = " + message.ID)
+        // Destination address of queryHit isn't the target, it's the next one in line
+        /*if(message.destinationAddress == peer.address && message.destinationPort == peer.port){
+            println("Peer " + peer.user.username + " | " + "Got their query replied to by " + message)
             return
-        }
+        }*/
         val query = peer.cache.getCorrespondingQueryOrNull(message)
         if(query != null){
             println("Peer " + peer.user.username + " | Received known queryHit")
+            println(query.propagatorAddress + query.propagatorPort)
             peer.sendMessageTo(QueryHit(query.ID), query.propagatorAddress, query.propagatorPort)
             return
         }

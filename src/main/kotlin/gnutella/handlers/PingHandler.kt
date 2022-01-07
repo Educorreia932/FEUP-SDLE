@@ -6,7 +6,7 @@ import gnutella.peer.Peer
 
 class PingHandler(
     private val peer: Peer,
-    private val ping: Ping,
+    private var ping: Ping,
 ) : MessageHandler(ping) {
     override fun run() {
         if (ping.timeToLive == 0 || ping.hops == 0) {
@@ -30,6 +30,7 @@ class PingHandler(
 
         // We're the propagator now
         val prevPropagator = ping.propagatorId
+        ping = ping.cloneThis() as Ping
         ping.propagatorId = peer.user.username
         ping.propagatorAddress = peer.address
         ping.propagatorPort = peer.port
