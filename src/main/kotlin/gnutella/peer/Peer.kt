@@ -30,9 +30,9 @@ class Peer(
         messageBroker = MessageBroker(this, myConnectionAddress, myConnectionPort)
     }
 
-    constructor(user: User, address: String, port: Int, myConnectionAddress: String, myConnectionPort: Int, addressaddressToConnect: String, portToConnect: Int) : this(user, address, port) {
-        messageBroker = MessageBroker(this)
-        val tcpSocket = Socket(InetAddress.getLocalHost(), portToConnect, InetAddress.getLocalHost(), myConnectionPort)
+    constructor(user: User, address: String, port: Int, myConnectionAddress: String, myConnectionPort: Int, addressToConnect: String, portToConnect: Int) : this(user, address, port) {
+        messageBroker = MessageBroker(this, myConnectionAddress, myConnectionPort)
+        val tcpSocket = Socket(addressToConnect, portToConnect)
 
         val dout = DataOutputStream(tcpSocket.getOutputStream())
 
@@ -67,8 +67,6 @@ class Peer(
             return
         }
         dout.close()
-
-        messageBroker.createConnectionAcceptSocket(myConnectionAddress, myConnectionPort)
     }
 
     fun addNeighbour(address: String, port: Int) {

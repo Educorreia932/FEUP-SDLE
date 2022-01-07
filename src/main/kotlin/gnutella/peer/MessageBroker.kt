@@ -15,10 +15,11 @@ import kotlin.concurrent.thread
 
 class MessageBroker(
     private val peer: Peer,
+    serverSocketAddress: String,
+    serverSocketPort: Int
 ) {
     private val inbox = LinkedBlockingQueue<Message>()
     private val outbox = LinkedBlockingQueue<Message>()
-    private var connectionAcceptSocket: ServerSocket? = null
 
     init {
         // Receive messages
@@ -70,22 +71,7 @@ class MessageBroker(
                 }
             }
         }
-
-
-    }
-
-    constructor(peer: Peer, serverSocketAddress: String, serverSocketPort: Int): this(peer){
-        connectionAcceptSocket = ServerSocket(serverSocketPort)
-        receiveConnectionsThread()
-    }
-
-    public fun setConnectionAcceptSocket(socket: ServerSocket){
-        connectionAcceptSocket = socket
-    }
-
-    public fun createConnectionAcceptSocket(serverSocketAddress: String, serverSocketPort: Int){
-        connectionAcceptSocket = ServerSocket(serverSocketPort)
-        receiveConnectionsThread()
+        receiveConnectionsThread(serverSocketAddress, serverSocketPort)
     }
 
     fun putMessage(message: Message) {
@@ -93,11 +79,12 @@ class MessageBroker(
         outbox.put(message)
     }
 
-    fun receiveConnectionsThread(){
+    fun receiveConnectionsThread(serverSocketAddress: String, serverSocketPort: Int){
         // Accept incoming (TCP) connection requests, then accept the connection message.
+        var connectionAcceptSocket = ServerSocket(serverSocketPort)
         thread {
             while (true) {
-                val newSock = connectionAcceptSocket!!.accept()
+                val newSock = connectionAcceptSocket.accept()
                 newSock.soTimeout = Constants.CONNECTION_TIMEOUT_MILIS
 
                 val inputStream = DataInputStream(newSock.getInputStream())
