@@ -1,7 +1,9 @@
 package gnutella.peer
 
+import gnutella.messages.Message
 import gnutella.messages.Ping
 import gnutella.messages.Query
+import gnutella.messages.QueryHit
 
 class Cache(
     val peer: Peer
@@ -15,6 +17,26 @@ class Cache(
 
     fun containsQuery(query: Query): Boolean {
         return query in previousQueryList
+    }
+
+    //For queryHit
+    fun containsQuery(queryHit: Message): Boolean {
+        for (q in previousQueryList){
+            if (q.ID == queryHit.ID){
+                return true
+            }
+        }
+        return false
+    }
+
+    //For queryHit
+    fun getCorrespondingQueryOrNull(queryHit: Message): Query? {
+        for (q in previousQueryList){
+            if (q.ID == queryHit.ID){
+                return q
+            }
+        }
+        return null
     }
 
     fun addPing(ping: Ping) {

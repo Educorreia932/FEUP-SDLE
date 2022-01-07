@@ -28,9 +28,9 @@ class QueryHandler(
         val posts = peer.storage.retrievePosts(query.keyword)
 
         if (posts.isNotEmpty()) {
-//            val response = QueryHit(query.ID, )
-
-//            peer.sendMessage(response, query.sourceAddress, query.sourcePort)
+            println("I have (a) post(s)")
+            val response = QueryHit(query.ID)
+            peer.sendMessageTo(response, query.propagatorAddress, query.propagatorPort)
         }
 
         //Increment hops and decrement time to live
@@ -48,6 +48,8 @@ class QueryHandler(
         // We're the propagator now
         val prevPropagator = query.propagatorId
         query.propagatorId = peer.user.username
+        query.propagatorAddress = peer.address
+        query.propagatorPort = peer.port
 
         peer.forwardMessage(query, prevPropagator)
     }

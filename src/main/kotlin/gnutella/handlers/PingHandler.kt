@@ -31,6 +31,8 @@ class PingHandler(
         // We're the propagator now
         val prevPropagator = ping.propagatorId
         ping.propagatorId = peer.user.username
+        ping.propagatorAddress = peer.address
+        ping.propagatorPort = peer.port
 
         // Forward ping to neighbours
         peer.forwardMessage(ping, prevPropagator)
