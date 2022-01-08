@@ -18,6 +18,7 @@ class HostCache {
     private val peers: MutableSet<Node> = ConcurrentHashMap.newKeySet()
 
     init {
+
         thread {
             val serverSocket = ServerSocket(Constants.HOST_CACHE_PORT)
 
@@ -43,19 +44,16 @@ class HostCache {
                                 objectOutputStream.use {
                                     objectOutputStream.writeObject(
                                         ConnectTo(
-                                            UUID.randomUUID(),
-                                            Neighbour(
+                                            UUID.randomUUID(), Neighbour(
                                                 User("host_cache"),
                                                 Constants.HOST_CACHE_ADDRESS,
                                                 Constants.HOST_CACHE_PORT
-                                            ),
-                                            possibleNeighbours
+                                            ), possibleNeighbours
                                         )
                                     )
                                 }
                             }
                         }
-
                     }
                 }
             }

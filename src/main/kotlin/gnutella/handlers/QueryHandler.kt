@@ -10,7 +10,6 @@ class QueryHandler(
     private var query: Query,
 ) : MessageHandler(query) {
     override fun run() {
-        // Error check 
         if (query.timeToLive == 0) {
             println("No time to live and/or num hops left in this message. Not propagating.")
 
@@ -28,25 +27,16 @@ class QueryHandler(
         peer.cache.addQuery(query)
 
         // Send QueryHit back if node had the desired data
-        val digest = peer.storage.digest(User(query.keyword)) - query.digest
-
-        if (digest.postIDs.isNotEmpty()) {
-            val response = QueryHit(query.ID, peer, digest)
+        if (User(query.keyword) in peer.storage.posts) {
+            val response = QueryHit(query.ID, peer, peer.storage.digest(User(query.keyword)))
 
             peer.sendMessage(response, query.source)
         }
 
         // Increment hops and decrement time to live
-        query = query.cloneThis() as Query
+        query = query.cloneThis()
         query.hops++
         query.timeToLive--
-
-        // Don't propagate if it's reached the hop limit
-        if (query.timeToLive <= 0) {
-            println("Not propagating. Reached TTL=0.")
-
-            return
-        }
 
         println("Peer ${peer.user.username} propagating")
 

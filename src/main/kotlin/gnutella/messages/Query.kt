@@ -10,11 +10,10 @@ class Query(
     source: Node,
     var propagator: Node,
     val keyword: String,
-    val digest: Digest,
     var timeToLive: Int = Constants.TTL,
     var hops: Int = Constants.MAX_HOPS,
 ) : Message(ID, source) {
-    override fun cloneThis(): Message {
+    override fun cloneThis(): Query {
         return Query(ID, source, propagator, keyword, digest, timeToLive, hops)
     }
 

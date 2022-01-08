@@ -6,7 +6,7 @@ import User
 import java.util.*
 
 class Storage {
-    private val posts = mutableMapOf<User, MutableList<Post>>()
+    val posts = mutableMapOf<User, MutableList<Post>>()
 
     fun addPost(post: Post) {
         if (post.author !in posts)

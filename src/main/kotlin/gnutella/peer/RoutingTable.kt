@@ -11,7 +11,7 @@ class RoutingTable(
     val peer: Peer, private val graph: Graph
 ) {
     val neighbours = mutableSetOf<Neighbour>()
-    private val friends = mutableMapOf<String, Pair<Set<Neighbour>, Int>>()
+    private val friends = mutableMapOf<String, Map<Neighbour, Float>>() // Topic -> (Friends -> Relationship score)
 
     fun addNeighbour(username: String, address: InetAddress, port: Int) {
         addNeighbour(Neighbour(User(username), address, port))
@@ -36,14 +36,20 @@ class RoutingTable(
         }
     }
 
+    fun removeNeighbour(neighbour: Neighbour) {
+        neighbours.remove(neighbour)
+    }
+
     fun forwardMessage(message: Message, nodes: Set<Neighbour> = neighbours) {
         for (node in nodes) peer.sendMessage(message, node)
     }
 
     fun forwardMessage(query: Query) {
         // Forward message to friends lists, if there is one for the given keyword
-        if (query.keyword in friends.keys) forwardMessage(query, friends[query.keyword]!!.first)
-        else forwardMessage(query, neighbours)
+        if (query.keyword in friends.keys)
+            forwardMessage(query, friends[query.keyword]!!.keys)
+        else
+            forwardMessage(query, neighbours)
     }
 
     fun forwardMessage(message: Message, propagator: Node) {

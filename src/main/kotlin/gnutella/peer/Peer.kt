@@ -33,6 +33,9 @@ class Peer(
     @Transient
     val storage = Storage()
 
+    @Transient
+    val sentQueryIDs = mutableSetOf<UUID>()
+
     init {
         val node = graph.addNode(port.toString())
 
@@ -74,6 +77,7 @@ class Peer(
     private fun ping() {
         val message = Ping(UUID.randomUUID(), this, this, Constants.TTL, Constants.MAX_HOPS)
 
+        cache.addPing(message)
         routingTable.forwardMessage(message)
     }
 
@@ -83,9 +87,9 @@ class Peer(
             this,
             this,
             username,
-            storage.digest(user)
         )
-
+        cache.addQuery(message)
+        sentQueryIDs.add(message.ID)
         routingTable.forwardMessage(message)
     }
 
@@ -115,6 +119,10 @@ class Peer(
 
     fun addNeighbour(peer: Peer) {
         routingTable.addNeighbour(peer)
+    }
+
+    fun removeNeighbour(neighbour: Neighbour) {
+        routingTable.removeNeighbour(neighbour)
     }
 
     fun hasNoNeighbours(): Boolean {

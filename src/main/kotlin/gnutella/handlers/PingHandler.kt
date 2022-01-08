@@ -34,6 +34,7 @@ class PingHandler(
 
         val previousPropagator = ping.propagator
         ping.propagator = peer
+
         // Forward ping to neighbours
         peer.forwardMessage(ping, previousPropagator)
     }

@@ -47,11 +47,13 @@ class MessageBroker(
             while (true) {
                 val message = outbox.take()
                 var sent = true
+
                 for (i in 0..5) {
                     try {
                         val socket = Socket(
                             message.destination!!.address, message.destination!!.port
                         )
+
                         socket.use {
                             val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
                             objectOutputStream.use {
@@ -66,9 +68,11 @@ class MessageBroker(
                         sent = false
                     }
 
-                    if (sent) break
+                    if (sent)
+                        break
+                    else // Assume the peer as dead
+                        peer.removeNeighbour(message.destination!! as Neighbour)
                 }
-
             }
         }
 

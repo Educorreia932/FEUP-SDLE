@@ -1,25 +1,44 @@
 package gnutella.handlers
 
+import User
 import gnutella.messages.QueryHit
 import gnutella.peer.Peer
 
 class QueryHitHandler(
     private val peer: Peer,
-    private val message: QueryHit,
-) : MessageHandler(message) {
+    private val queryHit: QueryHit,
+) : MessageHandler(queryHit) {
     override fun run() {
-        // Destination address of queryHit isn't the target, it's the next one in line
-        /*if(message.destinationAddress == peer.address && message.destinationPort == peer.port){
-            println("Peer " + peer.user.username + " | " + "Got their query replied to by " + message)
-            return
-        }*/
-        val query = peer.cache.getCorrespondingQueryOrNull(message)
+        val query = peer.cache.getCorrespondingQueryOrNull(queryHit)
+
         if (query != null) {
-            println("Peer " + peer.user.username + " | Received known queryHit")
-            println(query.propagator.address.toString() + " " + query.propagator.port)
-            peer.sendMessageTo(QueryHit(query.ID, message.source, message.digest), query.propagator)
-            return
+            val user = User(query.keyword)
+
+            if (peer.user.isFollowing(user)) {
+                // Select only the wanted posts (by removing the ones we already have)
+                val wanted = queryHit.digest - peer.storage.digest(user)
+
+                if (wanted.postIDs.isNotEmpty() && peer.user.isFollowing()) {
+
+                }
+
+                // There are wanted posts and we're following
+            }
         }
-        println("Peer " + peer.user.username + " | Received unknown queryHit")
+
+
+
+
+        if (peer.sentQueryIDs.contains(queryHit.ID))
+            println("Peer ${peer.user.username} | Received a QueryHit response to it's previous query (MsgID = $queryHit.ID)")
+
+        println("Peer " + peer.user.username + " | Received known queryHit")
+        println("${query.propagator.address} ${query.propagator.port}")
+
+        peer.sendMessageTo(QueryHit(query.ID, queryHit.source, queryHit.digest), query.propagator)
+    } else
+    {
+        println("Peer ${peer.user.username} | Received unknown $queryHit")
     }
+}
 }
