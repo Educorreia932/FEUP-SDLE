@@ -18,7 +18,7 @@ class Peer(
     port: Int, // TODO: Get a free port, if none is specified
 ) : Node(user, InetAddress.getByName(address), port) {
     @Transient
-    private val neighbours = mutableSetOf<Neighbour>()
+    val neighbours = mutableSetOf<Neighbour>()
 
     @Transient
     private val messageBroker = MessageBroker(this)
@@ -34,20 +34,12 @@ class Peer(
     }
 
     fun addNeighbour(peer: Peer) {
-        addNeighbour(Neighbour(peer.user, peer.address, peer.port))
+        addNeighbour(Neighbour(peer))
     }
 
-    fun addNeighbour(neighbour: Neighbour) {
+    private fun addNeighbour(neighbour: Neighbour) {
         if ((!neighbour.sameAsPeer(this)) && neighbour !in neighbours)
             neighbours.add(neighbour)
-    }
-
-    // Test function; Prints all neighbours' info
-    fun printNeighbours() {
-        println("Neighbours: ")
-
-        for (i in neighbours)
-            println("Username: ${i.user.username}; Address: ${i.address}; Port: ${i.port}")
     }
 
     fun removeNeighbour(neighbour: Neighbour) {
