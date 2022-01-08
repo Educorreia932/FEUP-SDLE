@@ -21,7 +21,6 @@ fun main() {
         val peer = Peer(User(i.toString()), graph = graph)
         peer.connect()
         peers.add(peer)
-        sleep(100)
     }
 
     peers[3].storage.addPost(Post(UUID.randomUUID(), "Rãs", peers[3].user))
