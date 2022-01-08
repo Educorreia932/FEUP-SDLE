@@ -5,6 +5,7 @@ import gnutella.Constants
 import gnutella.messages.Message
 import gnutella.messages.Ping
 import gnutella.messages.Query
+import org.graphstream.graph.Graph
 import java.net.DatagramSocket
 import java.net.InetAddress
 import java.util.*
@@ -16,6 +17,8 @@ class Peer(
     user: User,
     address: String = "127.0.0.1",
     port: Int, // TODO: Get a free port, if none is specified
+    @Transient
+    val graph: Graph
 ) : Node(user, InetAddress.getByName(address), port) {
     @Transient
     val neighbours = mutableSetOf<Neighbour>()
@@ -28,6 +31,12 @@ class Peer(
 
     @Transient
     val storage = Storage()
+
+    init {
+        val node = graph.addNode(port.toString())
+
+        node.setAttribute("ui.label", "Peer ${user.username}")
+    }
 
     fun connect(peer: Peer) {
         addNeighbour(peer)
@@ -44,8 +53,16 @@ class Peer(
     }
 
     private fun addNeighbour(neighbour: Neighbour) {
-        if (neighbour.user.username != user.username)
+        if (neighbour.user.username != user.username && neighbour !in neighbours) {
             neighbours.add(neighbour)
+
+            graph.addEdge(
+                "${port}-${neighbour.port}",
+                port.toString(),
+                neighbour.port.toString(),
+                true
+            )
+        }
     }
 
     fun ping() {
