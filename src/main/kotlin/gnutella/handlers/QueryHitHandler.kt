@@ -1,9 +1,6 @@
 package gnutella.handlers
 
-import gnutella.messages.Message
-import gnutella.messages.Query
 import gnutella.messages.QueryHit
-import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 
 class QueryHitHandler(

@@ -29,7 +29,7 @@ class QueryHandler(
 
         // Send QueryHit back if node had the desired data
         val digest = peer.storage.digest(User(query.keyword)) - query.digest
-        
+
         if (digest.postIDs.isNotEmpty()) {
             val response = QueryHit(query.ID, peer, digest)
 

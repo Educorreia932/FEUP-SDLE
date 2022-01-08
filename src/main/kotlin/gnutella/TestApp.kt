@@ -1,10 +1,10 @@
 package gnutella
 
-import java.io.File
-import gnutella.peer.Peer
 import User
+import gnutella.peer.Peer
 import org.graphstream.graph.Graph
 import org.graphstream.graph.implementations.SingleGraph
+import java.io.File
 
 fun main() {
     val graph: Graph = SingleGraph("Network")

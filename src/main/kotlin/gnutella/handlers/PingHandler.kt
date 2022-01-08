@@ -2,8 +2,6 @@ package gnutella.handlers
 
 import gnutella.messages.Ping
 import gnutella.messages.Pong
-import gnutella.messages.Query
-import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 import java.util.*
 
@@ -18,12 +16,10 @@ class PingHandler(
             return
         }
 
-        if (peer.hasNoNeighbours())
-            peer.addNeighbour(ping.source as Peer)
+        if (peer.hasNoNeighbours()) peer.addNeighbour(ping.source as Peer)
 
         // Duplicate ping received. Ignore.
-        if (ping in peer.cache)
-            return
+        if (ping in peer.cache) return
 
         ping = ping.cloneThis() as Ping
         peer.cache.addPing(ping)

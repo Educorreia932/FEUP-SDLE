@@ -1,7 +1,6 @@
 package gnutella.handlers
 
 import gnutella.messages.Message
-import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 
 class PongHandler(

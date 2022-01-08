@@ -2,7 +2,6 @@ package gnutella.peer
 
 import User
 import java.net.InetAddress
-import java.net.InetSocketAddress
 import java.util.*
 
 /**

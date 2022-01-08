@@ -5,7 +5,6 @@ import User
 import gnutella.peer.Peer
 import org.graphstream.graph.Graph
 import org.graphstream.graph.implementations.SingleGraph
-import java.lang.Thread.sleep
 import java.util.*
 
 fun main() {
@@ -17,7 +16,7 @@ fun main() {
 
     graph.display()
 
-    for (i in 1..100) {
+    for (i in 1..50) {
         val peer = Peer(User(i.toString()), graph = graph)
         peer.connect()
         peers.add(peer)

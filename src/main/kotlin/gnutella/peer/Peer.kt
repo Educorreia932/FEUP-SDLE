@@ -9,7 +9,7 @@ import java.io.ObjectOutputStream
 import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
-import java.util.UUID
+import java.util.*
 
 /**
  * Representation of a Gnutella node
@@ -61,7 +61,7 @@ class Peer(
         }
 
         println(possibleNeighbours)
-        
+
         if (possibleNeighbours.isNotEmpty()) {
             // TODO: What do here?
             for (possibleNeighbour in possibleNeighbours)
