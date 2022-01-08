@@ -6,12 +6,12 @@ import java.util.*
 class Ping(
     ID: UUID,
     source: Node,
-    var propagatorId: String,
+    var propagator: Node,
     var timeToLive: Int,
     var hops: Int,
 ) : Message(ID, source) {
     override fun cloneThis(): Message {
-        return Ping(ID, source, propagatorId, timeToLive, hops)
+        return Ping(ID, source, propagator, timeToLive, hops)
     }
 
     override fun toString(): String {

@@ -2,7 +2,7 @@ package gnutella.messages
 
 import gnutella.peer.Node
 import java.io.Serializable
-import java.util.*
+import java.util.UUID
 
 abstract class Message(
     val ID: UUID,

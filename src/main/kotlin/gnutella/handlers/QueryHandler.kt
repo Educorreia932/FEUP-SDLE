@@ -10,7 +10,6 @@ class QueryHandler(
 ) : MessageHandler(query) {
     override fun run() {
         // Error check 
-        // TODO: This may go to a super class method
         if (query.timeToLive == 0) {
             println("No time to live and/or num hops left in this message. Not propagating.")
 
@@ -18,7 +17,7 @@ class QueryHandler(
         }
 
         // Duplicate query received. Ignore.
-        if (peer.cache.containsQuery(query)) {
+        if (query in peer.cache) {
             println("Peer ${peer.user.username} | Received duplicate query.")
 
             return
@@ -50,8 +49,8 @@ class QueryHandler(
         println("Peer ${peer.user.username} propagating")
 
         // We're the propagator now
-        val prevPropagator = query.propagatorId
-        query.propagatorId = peer.user.username
+        val prevPropagator = query.propagator
+        query.propagator = peer
 
         peer.forwardMessage(query, prevPropagator)
     }

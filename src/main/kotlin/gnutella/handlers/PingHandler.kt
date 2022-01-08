@@ -2,8 +2,6 @@ package gnutella.handlers
 
 import gnutella.messages.Ping
 import gnutella.messages.Pong
-import gnutella.messages.QueryHit
-import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 import java.util.*
 
@@ -23,7 +21,7 @@ class PingHandler(
         peer.sendMessage(response, ping.source)
 
         // Duplicate ping received. Ignore.
-        if (peer.cache.containsPing(ping))
+        if (ping in peer.cache)
             return
 
         peer.cache.addPing(ping)
@@ -32,15 +30,11 @@ class PingHandler(
         ping.hops++
         ping.timeToLive--
 
-        // Don't propagate if it's reached the hop limit
-        if (ping.timeToLive <= 0)
-            return
-
         // We're the propagator now
-        val prevPropagator = ping.propagatorId
-        ping.propagatorId = peer.user.username
+        val previousPropagator = ping.propagator
+        ping.propagator = peer
 
         // Forward ping to neighbours
-        peer.forwardMessage(ping, prevPropagator)
+        peer.forwardMessage(ping, previousPropagator)
     }
 }

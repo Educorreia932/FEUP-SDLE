@@ -8,7 +8,7 @@ import gnutella.messages.Query
 import org.graphstream.graph.Graph
 import java.net.InetAddress
 import java.net.ServerSocket
-import java.util.*
+import java.util.UUID
 
 /**
  * Representation of a Gnutella node
@@ -66,13 +66,13 @@ class Peer(
     }
 
     private fun ping() {
-        val message = Ping(UUID.randomUUID(), this, user.username, 3000, Constants.MAX_HOPS)
+        val message = Ping(UUID.randomUUID(), this, this, Constants.TTL, Constants.MAX_HOPS)
 
         forwardMessage(message)
     }
 
     fun search(keyword: String) {
-        val message = Query(UUID.randomUUID(), this, user.username, Constants.MAX_HOPS, 0, keyword)
+        val message = Query(UUID.randomUUID(), this, this, Constants.MAX_HOPS, 0, keyword)
 
         forwardMessage(message)
     }
@@ -86,9 +86,9 @@ class Peer(
             sendMessage(message, neighbour)
     }
 
-    fun forwardMessage(message: Message, propagator: String) {
+    fun forwardMessage(message: Message, propagator: Node) {
         for (neighbour in neighbours) {
-            if (neighbour.user.username != propagator)
+            if (neighbour != propagator)
                 sendMessage(message, neighbour)
         }
     }
