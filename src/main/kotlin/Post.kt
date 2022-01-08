@@ -4,5 +4,5 @@ import java.util.*
 data class Post(
     val content: String,
     val author: User,
-    val date: Date
+    val date: Date = Date()
 ): Serializable

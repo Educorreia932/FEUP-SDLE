@@ -29,8 +29,14 @@ class Peer(
     @Transient
     val storage = Storage()
 
-    fun addNeighbour(address: InetAddress, port: Int) {
-        addNeighbour(Neighbour(User(""), address, port))
+    fun connect(peer: Peer) {
+        addNeighbour(peer)
+
+        ping()
+    }
+
+    fun addNeighbour(username: String, address: InetAddress, port: Int) {
+        addNeighbour(Neighbour(User(username), address, port))
     }
 
     fun addNeighbour(peer: Peer) {
@@ -38,17 +44,12 @@ class Peer(
     }
 
     private fun addNeighbour(neighbour: Neighbour) {
-        if ((!neighbour.sameAsPeer(this)) && neighbour !in neighbours)
+        if (neighbour.user.username != user.username)
             neighbours.add(neighbour)
     }
 
-    fun removeNeighbour(neighbour: Neighbour) {
-        if ((!neighbour.sameAsPeer(this)) && neighbour in neighbours)
-            neighbours.remove(neighbour)
-    }
-
     fun ping() {
-        val message = Ping(UUID.randomUUID(), this, user.username, Constants.MAX_HOPS, 0)
+        val message = Ping(UUID.randomUUID(), this, user.username, 3000, Constants.MAX_HOPS)
 
         forwardMessage(message)
     }
@@ -65,7 +66,6 @@ class Peer(
 
     private fun forwardMessage(message: Message) {
         for (neighbour in neighbours)
-//            if (neighbour != message.sender)
             sendMessage(message, neighbour)
     }
 

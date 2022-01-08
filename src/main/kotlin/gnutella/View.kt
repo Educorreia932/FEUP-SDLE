@@ -10,25 +10,30 @@ class View {
             System.setProperty("org.graphstream.ui", "swing")
 
             val peers = Network().peers
-            val graph: Graph = SingleGraph("Tulicreme Network")
+            
+            Thread.sleep(1000) // TODO: Needed, because graph is not updating in real time yet
+            
+            val graph: Graph = SingleGraph("Network")
 
             for (peer in peers) {
                 val node = graph.addNode(peer.port.toString())
 
-                node.setAttribute("ui.label", "Peer ${peer.port}");
+                node.setAttribute("ui.label", "Peer ${peer.user.username}")
             }
 
             for (peer in peers) {
-                for (neighbour in peer.neighbours)
+                for (neighbour in peer.neighbours) {
                     graph.addEdge(
                         "${peer.port}-${neighbour.port}",
                         peer.port.toString(),
                         neighbour.port.toString(),
                         true
                     )
+                }
+                    
             }
 
-            graph.display();
+            graph.display()
         }
     }
 }

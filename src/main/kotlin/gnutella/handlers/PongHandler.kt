@@ -9,8 +9,6 @@ class PongHandler(
     private val message: Message,
 ) : MessageHandler(message) {
     override fun run() {
-        peer.addNeighbour(message.destinationAddress!!, message.destinationPort!!)
-
-        // TODO: Set timeout to remove neighbour
+        peer.addNeighbour(message.source.user.username, message.source.address, message.source.port)
     }
 }

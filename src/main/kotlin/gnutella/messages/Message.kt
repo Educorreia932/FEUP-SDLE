@@ -9,6 +9,7 @@ abstract class Message(
     val ID: UUID,
     val source: Node
 ) : Serializable, Cloneable {
+    // TODO: Use node instead
     var destinationAddress: InetAddress? = null
     var destinationPort: Int? = null
 
