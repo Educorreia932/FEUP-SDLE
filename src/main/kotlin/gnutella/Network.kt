@@ -15,14 +15,14 @@ fun main() {
     graph.display()
 
     for (i in 1..4)
-        peers.add(Peer(User(i.toString()), port = 8000 + i, graph = graph))
+        peers.add(Peer(User(i.toString()), graph = graph))
 
     peers[0].connect(peers[1])
     peers[1].connect(peers[2])
     peers[2].connect(peers[3])
 
     peers[3].storage.addPost(Post("Rãs", peers[3].user))
-    
+
     peers[0].search("3")
 }
 

@@ -7,6 +7,7 @@ import gnutella.messages.Ping
 import gnutella.messages.Query
 import org.graphstream.graph.Graph
 import java.net.InetAddress
+import java.net.ServerSocket
 import java.util.*
 
 /**
@@ -15,7 +16,7 @@ import java.util.*
 class Peer(
     user: User,
     address: String = "127.0.0.1",
-    port: Int, // TODO: Get a free port, if none is specified
+    port: Int = freePort(),
     @Transient
     val graph: Graph
 ) : Node(user, InetAddress.getByName(address), port) {
@@ -64,7 +65,7 @@ class Peer(
         }
     }
 
-    fun ping() {
+    private fun ping() {
         val message = Ping(UUID.randomUUID(), this, user.username, 3000, Constants.MAX_HOPS)
 
         forwardMessage(message)
@@ -98,5 +99,19 @@ class Peer(
 
     override fun hashCode(): Int {
         return user.username.hashCode()
+    }
+
+    companion object {
+        fun freePort(): Int {
+            val socket = ServerSocket(0)
+
+            socket.reuseAddress = true
+
+            val port = socket.localPort
+
+            socket.close()
+
+            return port
+        }
     }
 }
