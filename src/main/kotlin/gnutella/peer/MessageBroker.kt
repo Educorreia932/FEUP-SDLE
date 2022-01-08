@@ -1,8 +1,5 @@
 package gnutella.peer
 
-import User
-import gnutella.Constants
-import gnutella.connection.ConnectionMessage
 import gnutella.handlers.PingHandler
 import gnutella.handlers.PongHandler
 import gnutella.handlers.QueryHandler
@@ -15,8 +12,6 @@ import kotlin.concurrent.thread
 
 class MessageBroker(
     private val peer: Peer,
-    serverSocketAddress: String,
-    serverSocketPort: Int
 ) {
     private val inbox = LinkedBlockingQueue<Message>()
     private val outbox = LinkedBlockingQueue<Message>()
@@ -46,7 +41,7 @@ class MessageBroker(
                 val message = outbox.take()
 
                 val socket = Socket(
-                    InetAddress.getByName(message.destinationAddress),
+                    message.destinationAddress!!,
                     message.destinationPort!!
                 )
 
@@ -71,54 +66,9 @@ class MessageBroker(
                 }
             }
         }
-        receiveConnectionsThread(serverSocketAddress, serverSocketPort)
     }
 
     fun putMessage(message: Message) {
-        println("Put message to outbox")
         outbox.put(message)
-    }
-
-    fun receiveConnectionsThread(serverSocketAddress: String, serverSocketPort: Int){
-        // Accept incoming (TCP) connection requests, then accept the connection message.
-        var connectionAcceptSocket = ServerSocket(serverSocketPort)
-        thread {
-            while (true) {
-                val newSock = connectionAcceptSocket.accept()
-                newSock.soTimeout = Constants.CONNECTION_TIMEOUT_MILIS
-
-                val inputStream = DataInputStream(newSock.getInputStream())
-                var stringReceived: String
-
-                try {
-                    stringReceived = inputStream.readUTF()
-                } catch (exception: SocketTimeoutException) {
-                    println("Too late.")
-                    inputStream.close()
-                    newSock.close()
-                    continue
-                }
-
-                val splitStr = stringReceived.split(Constants.CONNECTION_MESSAGE_SEPARATOR)
-                if (splitStr.size != 4) {
-                    println("Peer tried to connect using an invalid message. Exiting.")
-                    continue
-                }
-
-                if (splitStr[0] == Constants.CONNECTION_REQUEST_STRING) {
-                    val outputStream = DataOutputStream(newSock.getOutputStream())
-                    outputStream.writeUTF(
-                        ConnectionMessage.getConnAcceptMsg(
-                            peer.address,
-                            peer.port,
-                            peer.user.username
-                        )
-                    )
-                    outputStream.close()
-                    peer.addNeighbour(Neighbour(User(splitStr[3]), port = splitStr[2].toInt()))
-                    peer.printNeighbours()
-                }
-            }
-        }
     }
 }

@@ -1,26 +1,28 @@
 package gnutella.messages
 
-import gnutella.peer.Neighbour
+import gnutella.peer.Node
 import java.io.Serializable
+import java.net.InetAddress
 import java.util.*
 
 abstract class Message(
-    val ID: UUID
+    val ID: UUID,
+    val source: Node
 ) : Serializable, Cloneable {
-    var destinationAddress: String? = null
+    var destinationAddress: InetAddress? = null
     var destinationPort: Int? = null
 
-    fun to(neighbour: Neighbour): Message {
+    fun to(neighbour: Node): Message {
         return to(neighbour.address, neighbour.port)
     }
 
-    fun to(address: String, port: Int): Message {
-        val msg = cloneThis()
+    private fun to(address: InetAddress, port: Int): Message {
+        val message = cloneThis()
 
-        msg.destinationAddress = address
-        msg.destinationPort = port
+        message.destinationAddress = address
+        message.destinationPort = port
 
-        return msg
+        return message
     }
 
     abstract fun cloneThis(): Message

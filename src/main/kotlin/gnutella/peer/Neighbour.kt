@@ -1,6 +1,8 @@
 package gnutella.peer
 
 import User
+import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.util.*
 
 /**
@@ -8,7 +10,7 @@ import java.util.*
  */
 class Neighbour(
     user: User,
-    address: String = "127.0.0.1",
+    address: InetAddress,
     port: Int,
 ) : Node(user, address, port) {
     val seenIDs: Set<UUID> = mutableSetOf()

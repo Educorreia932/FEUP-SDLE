@@ -2,7 +2,6 @@ package gnutella.handlers
 
 import gnutella.messages.Query
 import gnutella.messages.QueryHit
-import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 
 class QueryHandler(
@@ -10,17 +9,21 @@ class QueryHandler(
     private val query: Query,
 ) : MessageHandler(query) {
     override fun run() {
-        //Error check
+        // Error check 
+        // TODO: This may go to a super class method
         if (query.timeToLive == 0) {
             println("No time to live and/or num hops left in this message. Not propagating.")
+
             return
         }
 
-        //Duplicate query received. Ignore.
+        // Duplicate query received. Ignore.
         if (peer.cache.containsQuery(query)) {
             println("Peer ${peer.user.username} | Received duplicate query.")
+
             return
         }
+
         // Add to cache
         peer.cache.addQuery(query)
 
@@ -28,22 +31,23 @@ class QueryHandler(
         val posts = peer.storage.retrievePosts(query.keyword)
 
         if (posts.isNotEmpty()) {
-//            val response = QueryHit(query.ID, )
+            val response = QueryHit(query.ID, peer, posts)
 
-//            peer.sendMessage(response, query.sourceAddress, query.sourcePort)
+            peer.sendMessage(response, query.source)
         }
 
-        //Increment hops and decrement time to live
-        query.hops = query.hops + 1
-        query.timeToLive = query.timeToLive - 1
+        // Increment hops and decrement time to live
+        query.hops++
+        query.timeToLive--
 
-        //Don't propagate if it's reached the hop limit
+        // Don't propagate if it's reached the hop limit
         if (query.timeToLive <= 0) {
             println("Not propagating. Reached TTL=0.")
+
             return
         }
-        println("Peer ${peer.user.username} propagating")
 
+        println("Peer ${peer.user.username} propagating")
 
         // We're the propagator now
         val prevPropagator = query.propagatorId
