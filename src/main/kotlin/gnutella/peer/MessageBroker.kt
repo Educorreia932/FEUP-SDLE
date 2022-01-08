@@ -1,22 +1,19 @@
 package gnutella.peer
 
-import User
-import gnutella.Constants
-import gnutella.connection.ConnectionMessage
 import gnutella.handlers.PingHandler
 import gnutella.handlers.PongHandler
 import gnutella.handlers.QueryHandler
 import gnutella.handlers.QueryHitHandler
 import gnutella.messages.*
-import java.io.*
-import java.net.*
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.net.ServerSocket
+import java.net.Socket
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.concurrent.thread
 
 class MessageBroker(
     private val peer: Peer,
-    serverSocketAddress: String,
-    serverSocketPort: Int
 ) {
     private val inbox = LinkedBlockingQueue<Message>()
     private val outbox = LinkedBlockingQueue<Message>()
@@ -28,15 +25,20 @@ class MessageBroker(
 
             while (true) {
                 val socket = serverSocket.accept()
-                val objectInputStream = ObjectInputStream(socket.getInputStream())
-                val message = objectInputStream.readObject() as Message
+                thread {
 
-                println("Peer ${peer.user.username} | Received message $message")
+                    socket.use {
+                        val objectInputStream = ObjectInputStream(socket.getInputStream())
+                        objectInputStream.use {
+                            val message = objectInputStream.readObject() as Message
 
-                inbox.put(message)
+                            println("Peer ${peer.user.username} | Received message $message")
 
-                objectInputStream.close()
-                socket.close()
+                            inbox.put(message)
+
+                        }
+                    }
+                }
             }
         }
 
@@ -44,19 +46,29 @@ class MessageBroker(
         thread {
             while (true) {
                 val message = outbox.take()
+                var sent = true
+                for (i in 0..5) {
+                    try {
+                        val socket = Socket(
+                            message.destination!!.address, message.destination!!.port
+                        )
+                        socket.use {
+                            val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+                            objectOutputStream.use {
+                                println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
 
-                val socket = Socket(
-                    InetAddress.getByName(message.destinationAddress),
-                    message.destinationPort!!
-                )
+                                objectOutputStream.writeObject(message)
+                            }
+                        }
 
-                val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+                    } catch (e: Exception) {
+                        println("FAILED....Retrying")
+                        sent = false
+                    }
 
-                println("Peer ${peer.user.username} | Sent $message to ${message.destinationAddress}:${message.destinationPort}")
+                    if (sent) break
+                }
 
-                objectOutputStream.writeObject(message)
-                objectOutputStream.close()
-                socket.close()
             }
         }
 
@@ -71,54 +83,9 @@ class MessageBroker(
                 }
             }
         }
-        receiveConnectionsThread(serverSocketAddress, serverSocketPort)
     }
 
     fun putMessage(message: Message) {
-        println("Put message to outbox")
         outbox.put(message)
-    }
-
-    fun receiveConnectionsThread(serverSocketAddress: String, serverSocketPort: Int){
-        // Accept incoming (TCP) connection requests, then accept the connection message.
-        var connectionAcceptSocket = ServerSocket(serverSocketPort)
-        thread {
-            while (true) {
-                val newSock = connectionAcceptSocket.accept()
-                newSock.soTimeout = Constants.CONNECTION_TIMEOUT_MILIS
-
-                val inputStream = DataInputStream(newSock.getInputStream())
-                var stringReceived: String
-
-                try {
-                    stringReceived = inputStream.readUTF()
-                } catch (exception: SocketTimeoutException) {
-                    println("Too late.")
-                    inputStream.close()
-                    newSock.close()
-                    continue
-                }
-
-                val splitStr = stringReceived.split(Constants.CONNECTION_MESSAGE_SEPARATOR)
-                if (splitStr.size != 4) {
-                    println("Peer tried to connect using an invalid message. Exiting.")
-                    continue
-                }
-
-                if (splitStr[0] == Constants.CONNECTION_REQUEST_STRING) {
-                    val outputStream = DataOutputStream(newSock.getOutputStream())
-                    outputStream.writeUTF(
-                        ConnectionMessage.getConnAcceptMsg(
-                            peer.address,
-                            peer.port,
-                            peer.user.username
-                        )
-                    )
-                    outputStream.close()
-                    peer.addNeighbour(Neighbour(User(splitStr[3]), port = splitStr[2].toInt()))
-                    peer.printNeighbours()
-                }
-            }
-        }
     }
 }

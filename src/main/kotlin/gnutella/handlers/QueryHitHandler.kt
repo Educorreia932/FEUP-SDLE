@@ -17,10 +17,10 @@ class QueryHitHandler(
             return
         }*/
         val query = peer.cache.getCorrespondingQueryOrNull(message)
-        if(query != null){
+        if (query != null) {
             println("Peer " + peer.user.username + " | Received known queryHit")
-            println(query.propagatorAddress + query.propagatorPort)
-            peer.sendMessageTo(QueryHit(query.ID), query.propagatorAddress, query.propagatorPort)
+            println(query.propagator.address.toString() + " " + query.propagator.port)
+            peer.sendMessageTo(QueryHit(query.ID, message.source, message.digest), query.propagator)
             return
         }
         println("Peer " + peer.user.username + " | Received unknown queryHit")

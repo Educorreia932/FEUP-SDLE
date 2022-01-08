@@ -1,17 +1,15 @@
 package gnutella.peer
 
 import User
-import gnutella.*
-import gnutella.connection.ConnectionMessage
-import gnutella.messages.Message
-import gnutella.messages.Ping
-import gnutella.messages.Query
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import gnutella.Constants
+import gnutella.messages.*
+import org.graphstream.graph.Graph
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.net.InetAddress
+import java.net.ServerSocket
 import java.net.Socket
-import java.net.SocketTimeoutException
-import java.util.*
+import java.util.UUID
 
 /**
  * Representation of a Gnutella node
@@ -19,117 +17,84 @@ import java.util.*
 class Peer(
     user: User,
     address: String = "127.0.0.1",
-    port: Int,
-) : Node(user, address, port) {
-    private val neighbours = mutableSetOf<Neighbour>()
-    private lateinit var messageBroker: MessageBroker
+    port: Int = freePort(),
+    @Transient
+    val graph: Graph
+) : Node(user, InetAddress.getByName(address), port) {
+    @Transient
+    private val routingTable = RoutingTable(this, graph)
+
+    @Transient
+    private val messageBroker = MessageBroker(this)
+
+    @Transient
     val cache = Cache(this)
+
+    @Transient
     val storage = Storage()
 
-    constructor(user: User, address: String, port: Int, myConnectionAddress: String, myConnectionPort: Int) : this(user, address, port) {
-        messageBroker = MessageBroker(this, myConnectionAddress, myConnectionPort)
+    init {
+        val node = graph.addNode(port.toString())
+
+        node.setAttribute("ui.label", "Peer ${user.username}")
     }
 
-    constructor(user: User, address: String, port: Int, myConnectionAddress: String, myConnectionPort: Int, addressToConnect: String, portToConnect: Int) : this(user, address, port) {
-        messageBroker = MessageBroker(this, myConnectionAddress, myConnectionPort)
-        val tcpSocket = Socket(addressToConnect, portToConnect)
+    fun connect() {
+        val socket = Socket(Constants.HOST_CACHE_ADDRESS, Constants.HOST_CACHE_PORT)
+        var possibleNeighbours: Set<Node>
 
-        val dout = DataOutputStream(tcpSocket.getOutputStream())
+        socket.use {
+            val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
 
+            objectOutputStream.use {
+                objectOutputStream.writeObject(RequestConnect(UUID.randomUUID(), this))
 
-        dout.writeUTF(ConnectionMessage.getConnMsg(address, port, user.username))
-        dout.flush()
+                var response: ConnectTo
+                val objectInputStream = ObjectInputStream(socket.getInputStream())
 
+                objectInputStream.use {
+                    response = objectInputStream.readObject() as ConnectTo
+                }
 
-        // Read input
-        try {
-            // Only try to read for a certain amount of time
-            tcpSocket.soTimeout = Constants.CONNECTION_TIMEOUT_MILIS
-            val inputStream = DataInputStream(tcpSocket.getInputStream())
-            val stringReceived = inputStream.readUTF()
-
-            val splitStr = stringReceived.split(Constants.CONNECTION_MESSAGE_SEPARATOR)
-            if (splitStr.size != 4) {
-                println("Connection returned an invalid number of fields. Exiting.")
-                return
+                possibleNeighbours = response.possibleNeighbours
             }
-
-            if (splitStr[0].equals(Constants.CONNECTION_ACCEPTANCE_STRING)) {
-                //Socket has to be closed before peer is created
-                tcpSocket.close()
-
-                var peer = Peer(User(user.username), port = myConnectionPort)
-                peer.addNeighbour(Neighbour(User(splitStr[3]), port = splitStr[2].toInt()))
-            }
-        } catch (exception: SocketTimeoutException) {
-            println("No response. Exiting.")
-            tcpSocket.close()
-            return
         }
-        dout.close()
-    }
 
-    fun addNeighbour(address: String, port: Int) {
-        addNeighbour(Neighbour(User(""), address, port))
-    }
+        println(possibleNeighbours)
+        
+        if (possibleNeighbours.isNotEmpty()) {
+            // TODO: What do here?
+            for (possibleNeighbour in possibleNeighbours)
+                routingTable.addNeighbour(Neighbour(possibleNeighbour as Peer))
 
-    fun addNeighbour(neighbour: Neighbour) {
-        if ((!neighbour.sameAsPeer(this)) && neighbour !in neighbours)
-            neighbours.add(neighbour)
-    }
-
-    fun addNeighbour(peer: Peer) {
-        val neighbour = Neighbour(peer)
-        addNeighbour(neighbour)
-    }
-
-    // Test function; Prints all neighbours' info
-    fun printNeighbours() {
-        println("Neighbours: ")
-        for (i in neighbours) {
-            println("Username: ${i.user.username}; Address: ${i.address}; Port: ${i.port}")
+            ping()
         }
     }
 
-    fun removeNeighbour(address: String, port: Int) {
-        neighbours.remove(Neighbour(User(""), address, port))
+    private fun ping() {
+        val message = Ping(UUID.randomUUID(), this, this, Constants.TTL, Constants.MAX_HOPS)
+
+        routingTable.forwardMessage(message)
     }
 
-    fun removeNeighbour(neighbour: Neighbour) {
-        if ((!neighbour.sameAsPeer(this)) && neighbour in neighbours)
-            neighbours.remove(neighbour)
+    fun search(username: String) {
+        val message = Query(
+            UUID.randomUUID(),
+            this,
+            this,
+            username,
+            storage.digest(user)
+        )
+
+        routingTable.forwardMessage(message)
     }
 
-    fun ping() {
-        val message = Ping(UUID.randomUUID(), user.username, address, port, Constants.MAX_HOPS, 0)
-
-        forwardMessage(message)
+    fun forwardMessage(message: Message, propagator: Node) {
+        routingTable.forwardMessage(message, propagator)
     }
 
-    fun search(keyword: String) {
-        val message = Query(UUID.randomUUID(), user.username, address, port, Constants.MAX_HOPS, 0, keyword)
-
-        forwardMessage(message)
-    }
-
-    private fun sendMessage(message: Message, neighbour: Neighbour) {
-        messageBroker.putMessage(message.to(neighbour))
-    }
-
-    fun sendMessageTo(message: Message, propagatorTargetAddress: String, propagatorTargetPort: Int) {
-        messageBroker.putMessage(message.to(propagatorTargetAddress, propagatorTargetPort))
-    }
-
-    fun forwardMessage(message: Message) {
-        for (neighbour in neighbours)
-                sendMessage(message, neighbour)
-    }
-
-    fun forwardMessage(message: Message, propagator: String){
-        for (neighbour in neighbours){
-            if (!neighbour.user.username.equals(propagator))
-                sendMessage(message, neighbour)
-        }
+    fun sendMessage(message: Message, destination: Node) {
+        messageBroker.putMessage(message.to(destination))
     }
 
     override fun equals(other: Any?): Boolean {
@@ -138,5 +103,35 @@ class Peer(
 
     override fun hashCode(): Int {
         return user.username.hashCode()
+    }
+
+    fun addNeighbour(username: String, address: InetAddress, port: Int) {
+        routingTable.addNeighbour(username, address, port)
+    }
+
+    fun sendMessageTo(message: Message, propagator: Node) {
+        messageBroker.putMessage(message.to(propagator))
+    }
+
+    fun addNeighbour(peer: Peer) {
+        routingTable.addNeighbour(peer)
+    }
+
+    fun hasNoNeighbours(): Boolean {
+        return routingTable.neighbours.isEmpty()
+    }
+
+    companion object {
+        fun freePort(): Int {
+            val socket = ServerSocket(0)
+
+            socket.reuseAddress = true
+
+            val port = socket.localPort
+
+            socket.close()
+
+            return port
+        }
     }
 }

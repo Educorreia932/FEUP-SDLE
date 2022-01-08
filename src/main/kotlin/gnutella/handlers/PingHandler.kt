@@ -1,8 +1,11 @@
 package gnutella.handlers
 
 import gnutella.messages.Ping
+import gnutella.messages.Pong
+import gnutella.messages.Query
 import gnutella.peer.Neighbour
 import gnutella.peer.Peer
+import java.util.*
 
 class PingHandler(
     private val peer: Peer,
@@ -11,31 +14,31 @@ class PingHandler(
     override fun run() {
         if (ping.timeToLive == 0 || ping.hops == 0) {
             println("No time to live and/or num hops left in this message. Not propagating.")
+
             return
         }
 
-        // Duplicate query received. Ignore.
-        if (peer.cache.containsPing(ping))
+        if (peer.hasNoNeighbours())
+            peer.addNeighbour(ping.source as Peer)
+
+        // Duplicate ping received. Ignore.
+        if (ping in peer.cache)
             return
 
+        ping = ping.cloneThis() as Ping
         peer.cache.addPing(ping)
+
+        val response = Pong(UUID.randomUUID(), peer)
+
+        peer.sendMessage(response, ping.source)
 
         // Increment hops and decrement time to live
         ping.hops++
         ping.timeToLive--
 
-        // Don't propagate if it's reached the hop limit
-        if (ping.timeToLive <= 0)
-            return
-
-        // We're the propagator now
-        val prevPropagator = ping.propagatorId
-        ping = ping.cloneThis() as Ping
-        ping.propagatorId = peer.user.username
-        ping.propagatorAddress = peer.address
-        ping.propagatorPort = peer.port
-
+        val previousPropagator = ping.propagator
+        ping.propagator = peer
         // Forward ping to neighbours
-        peer.forwardMessage(ping, prevPropagator)
+        peer.forwardMessage(ping, previousPropagator)
     }
 }
