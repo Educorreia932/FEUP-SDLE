@@ -1,7 +1,6 @@
 package gnutella.messages
 
 import Digest
-import Post
 import gnutella.peer.Node
 import java.util.*
 

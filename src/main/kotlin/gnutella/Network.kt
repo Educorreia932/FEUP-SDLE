@@ -16,7 +16,7 @@ fun main() {
 
     graph.display()
 
-    for (i in 1..30) {
+    for (i in 1..100) {
         val peer = Peer(User(i.toString()), graph = graph)
 
         peer.connect()

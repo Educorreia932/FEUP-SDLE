@@ -5,8 +5,10 @@ import gnutella.handlers.PongHandler
 import gnutella.handlers.QueryHandler
 import gnutella.handlers.QueryHitHandler
 import gnutella.messages.*
-import java.io.*
-import java.net.*
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.net.ServerSocket
+import java.net.Socket
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.concurrent.thread
 
@@ -44,20 +46,29 @@ class MessageBroker(
         thread {
             while (true) {
                 val message = outbox.take()
+                var sent = true
+                for (i in 0..5) {
+                    try {
+                        val socket = Socket(
+                            message.destination!!.address, message.destination!!.port
+                        )
+                        socket.use {
+                            val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+                            objectOutputStream.use {
+                                println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
 
-                val socket = Socket(
-                    message.destination!!.address,
-                    message.destination!!.port
-                )
-                
-                socket.use {
-                    val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
-                    objectOutputStream.use {
-                        println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
+                                objectOutputStream.writeObject(message)
+                            }
+                        }
 
-                        objectOutputStream.writeObject(message)
+                    } catch (e: Exception) {
+                        println("FAILED....Retrying")
+                        sent = false
                     }
+
+                    if (sent) break
                 }
+
             }
         }
 
