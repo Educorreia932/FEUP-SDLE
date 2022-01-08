@@ -41,13 +41,13 @@ class MessageBroker(
                 val message = outbox.take()
 
                 val socket = Socket(
-                    message.destinationAddress!!,
-                    message.destinationPort!!
+                    message.destination!!.address,
+                    message.destination!!.port
                 )
 
                 val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
 
-                println("Peer ${peer.user.username} | Sent $message to ${message.destinationAddress}:${message.destinationPort}")
+                println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
 
                 objectOutputStream.writeObject(message)
                 objectOutputStream.close()

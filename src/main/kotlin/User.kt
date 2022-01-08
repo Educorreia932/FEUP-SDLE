@@ -1,5 +1,5 @@
 import java.io.Serializable
 
-class User(
+data class User(
     val username: String
 ) : Serializable

@@ -6,7 +6,6 @@ import gnutella.messages.Message
 import gnutella.messages.Ping
 import gnutella.messages.Query
 import org.graphstream.graph.Graph
-import java.net.DatagramSocket
 import java.net.InetAddress
 import java.util.*
 
@@ -77,8 +76,8 @@ class Peer(
         forwardMessage(message)
     }
 
-    fun sendMessage(message: Message, node: Node) {
-        messageBroker.putMessage(message.to(node))
+    fun sendMessage(message: Message, destination: Node) {
+        messageBroker.putMessage(message.to(destination))
     }
 
     private fun forwardMessage(message: Message) {

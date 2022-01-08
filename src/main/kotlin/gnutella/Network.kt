@@ -21,9 +21,9 @@ fun main() {
     peers[1].connect(peers[2])
     peers[2].connect(peers[3])
 
-//    peers[3].storage.addPost(Post("Rãs", peers[3].user))
-//
-//    peers[0].search("3")
+    peers[3].storage.addPost(Post("Rãs", peers[3].user))
+    
+    peers[0].search("3")
 }
 
  
