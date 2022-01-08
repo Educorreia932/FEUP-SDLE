@@ -21,7 +21,7 @@ class Peer(
     val graph: Graph
 ) : Node(user, InetAddress.getByName(address), port) {
     @Transient
-    val neighbours = mutableSetOf<Neighbour>()
+    private val routingTable = RoutingTable(this, graph)
 
     @Transient
     private val messageBroker = MessageBroker(this)
@@ -39,58 +39,29 @@ class Peer(
     }
 
     fun connect(peer: Peer) {
-        addNeighbour(peer)
+        routingTable.addNeighbour(peer)
 
         ping()
-    }
-
-    fun addNeighbour(username: String, address: InetAddress, port: Int) {
-        addNeighbour(Neighbour(User(username), address, port))
-    }
-
-    fun addNeighbour(peer: Peer) {
-        addNeighbour(Neighbour(peer))
-    }
-
-    private fun addNeighbour(neighbour: Neighbour) {
-        if (neighbour.user.username != user.username && neighbour !in neighbours) {
-            neighbours.add(neighbour)
-
-            graph.addEdge(
-                "${port}-${neighbour.port}",
-                port.toString(),
-                neighbour.port.toString(),
-                true
-            )
-        }
     }
 
     private fun ping() {
         val message = Ping(UUID.randomUUID(), this, this, Constants.TTL, Constants.MAX_HOPS)
 
-        forwardMessage(message)
+        routingTable.forwardMessage(message)
     }
 
     fun search(keyword: String) {
         val message = Query(UUID.randomUUID(), this, this, Constants.MAX_HOPS, 0, keyword)
 
-        forwardMessage(message)
+        routingTable.forwardMessage(message)
+    }
+
+    fun forwardMessage(message: Message, propagator: Node) {
+        routingTable.forwardMessage(message, propagator)
     }
 
     fun sendMessage(message: Message, destination: Node) {
         messageBroker.putMessage(message.to(destination))
-    }
-
-    private fun forwardMessage(message: Message) {
-        for (neighbour in neighbours)
-            sendMessage(message, neighbour)
-    }
-
-    fun forwardMessage(message: Message, propagator: Node) {
-        for (neighbour in neighbours) {
-            if (neighbour != propagator)
-                sendMessage(message, neighbour)
-        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -99,6 +70,10 @@ class Peer(
 
     override fun hashCode(): Int {
         return user.username.hashCode()
+    }
+
+    fun addNeighbour(username: String, address: InetAddress, port: Int) {
+        routingTable.addNeighbour(username, address, port)
     }
 
     companion object {
