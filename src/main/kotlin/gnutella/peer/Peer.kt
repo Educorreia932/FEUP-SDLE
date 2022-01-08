@@ -2,12 +2,13 @@ package gnutella.peer
 
 import User
 import gnutella.Constants
-import gnutella.messages.Message
-import gnutella.messages.Ping
-import gnutella.messages.Query
+import gnutella.messages.*
 import org.graphstream.graph.Graph
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.net.InetAddress
 import java.net.ServerSocket
+import java.net.Socket
 import java.util.UUID
 
 /**
@@ -38,10 +39,36 @@ class Peer(
         node.setAttribute("ui.label", "Peer ${user.username}")
     }
 
-    fun connect(peer: Peer) {
-        routingTable.addNeighbour(peer)
+    fun connect() {
+        val socket = Socket(Constants.HOST_CACHE_ADDRESS, Constants.HOST_CACHE_PORT)
+        var possibleNeighbours: Set<Node>
 
-        ping()
+        socket.use {
+            val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+
+            objectOutputStream.use {
+                objectOutputStream.writeObject(RequestConnect(UUID.randomUUID(), this))
+
+                var response: ConnectTo
+                val objectInputStream = ObjectInputStream(socket.getInputStream())
+
+                objectInputStream.use {
+                    response = objectInputStream.readObject() as ConnectTo
+                }
+
+                possibleNeighbours = response.possibleNeighbours
+            }
+        }
+
+        println(possibleNeighbours)
+        
+        if (possibleNeighbours.isNotEmpty()) {
+            // TODO: What do here?
+            for (possibleNeighbour in possibleNeighbours)
+                routingTable.addNeighbour(Neighbour(possibleNeighbour as Peer))
+
+            ping()
+        }
     }
 
     private fun ping() {
@@ -50,8 +77,14 @@ class Peer(
         routingTable.forwardMessage(message)
     }
 
-    fun search(keyword: String) {
-        val message = Query(UUID.randomUUID(), this, this, Constants.MAX_HOPS, 0, keyword)
+    fun search(username: String) {
+        val message = Query(
+            UUID.randomUUID(),
+            this,
+            this,
+            username,
+            storage.digest(user)
+        )
 
         routingTable.forwardMessage(message)
     }
@@ -74,6 +107,14 @@ class Peer(
 
     fun addNeighbour(username: String, address: InetAddress, port: Int) {
         routingTable.addNeighbour(username, address, port)
+    }
+
+    fun addNeighbour(peer: Peer) {
+        routingTable.addNeighbour(peer)
+    }
+
+    fun hasNoNeighbours(): Boolean {
+        return routingTable.neighbours.isEmpty()
     }
 
     companion object {

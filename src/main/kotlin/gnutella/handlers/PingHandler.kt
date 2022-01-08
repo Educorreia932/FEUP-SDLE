@@ -2,12 +2,14 @@ package gnutella.handlers
 
 import gnutella.messages.Ping
 import gnutella.messages.Pong
+import gnutella.messages.Query
+import gnutella.peer.Neighbour
 import gnutella.peer.Peer
 import java.util.*
 
 class PingHandler(
     private val peer: Peer,
-    private val ping: Ping,
+    private var ping: Ping,
 ) : MessageHandler(ping) {
     override fun run() {
         if (ping.timeToLive == 0 || ping.hops == 0) {
@@ -16,15 +18,19 @@ class PingHandler(
             return
         }
 
-        val response = Pong(UUID.randomUUID(), peer)
-
-        peer.sendMessage(response, ping.source)
+        if (peer.hasNoNeighbours())
+            peer.addNeighbour(ping.source as Peer)
 
         // Duplicate ping received. Ignore.
         if (ping in peer.cache)
             return
 
+        ping = ping.cloneThis() as Ping
         peer.cache.addPing(ping)
+
+        val response = Pong(UUID.randomUUID(), peer)
+
+        peer.sendMessage(response, ping.source)
 
         // Increment hops and decrement time to live
         ping.hops++

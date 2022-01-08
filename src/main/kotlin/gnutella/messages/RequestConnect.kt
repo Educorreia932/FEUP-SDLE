@@ -1,20 +1,18 @@
 package gnutella.messages
 
-import Digest
-import Post
+
 import gnutella.peer.Node
 import java.util.*
 
-class QueryHit(
+class RequestConnect(
     ID: UUID,
     source: Node,
-    val digest: Digest
 ) : Message(ID, source) {
     override fun cloneThis(): Message {
-        return QueryHit(ID, source, digest)
+        return RequestConnect(ID, source)
     }
 
     override fun toString(): String {
-        return "QueryHit"
+        return "RequestConnect"
     }
 }

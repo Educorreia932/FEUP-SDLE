@@ -1,12 +1,13 @@
 package gnutella.handlers
 
+import User
 import gnutella.messages.Query
 import gnutella.messages.QueryHit
 import gnutella.peer.Peer
 
 class QueryHandler(
     private val peer: Peer,
-    private val query: Query,
+    private var query: Query,
 ) : MessageHandler(query) {
     override fun run() {
         // Error check 
@@ -26,16 +27,17 @@ class QueryHandler(
         // Add to cache
         peer.cache.addQuery(query)
 
-        // Send query hit back if node had the desired data
-        val posts = peer.storage.retrievePosts(query.keyword)
-
-        if (posts.isNotEmpty()) {
-            val response = QueryHit(query.ID, peer, posts)
+        // Send QueryHit back if node had the desired data
+        val digest = peer.storage.digest(User(query.keyword)) - query.digest
+        
+        if (digest.postIDs.isNotEmpty()) {
+            val response = QueryHit(query.ID, peer, digest)
 
             peer.sendMessage(response, query.source)
         }
 
         // Increment hops and decrement time to live
+        query = query.cloneThis() as Query
         query.hops++
         query.timeToLive--
 

@@ -5,10 +5,11 @@ import gnutella.peer.Peer
 
 class QueryHitHandler(
     private val peer: Peer,
-    val message: QueryHit,
-) : MessageHandler(message) {
+    val queryHit: QueryHit,
+) : MessageHandler(queryHit) {
     override fun run() {
-        for (post in message.posts)
-            println(post.content)
+        // TODO: Add sender to list of friends of the given category
+        
+        println(queryHit.digest)
     }
 }

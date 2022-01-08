@@ -1,15 +1,27 @@
 package gnutella.peer
 
+import Digest
 import Post
+import User
+import java.util.*
 
 class Storage {
-    private val posts = mutableListOf<Post>()
+    private val posts = mutableMapOf<User, MutableList<Post>>()
 
     fun addPost(post: Post) {
-        posts.add(post)
+        if (post.author !in posts)
+            posts[post.author] = mutableListOf()
+
+        posts[post.author]?.add(post)
     }
 
-    fun retrievePosts(username: String): List<Post> {
-        return posts.filter { post -> post.author.username == username }
+    fun digest(user: User): Digest {
+        val postIDs = mutableSetOf<UUID>()
+
+        if (user in posts)
+            for (post in posts[user]!!)
+                postIDs.add(post.ID)
+
+        return Digest(postIDs)
     }
 }

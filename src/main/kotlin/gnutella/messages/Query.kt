@@ -1,5 +1,7 @@
 package gnutella.messages
 
+import Digest
+import gnutella.Constants
 import gnutella.peer.Node
 import java.util.*
 
@@ -7,12 +9,13 @@ class Query(
     ID: UUID,
     source: Node,
     var propagator: Node,
-    var timeToLive: Int,
-    var hops: Int,
     val keyword: String,
+    val digest: Digest,
+    var timeToLive: Int = Constants.TTL,
+    var hops: Int = Constants.MAX_HOPS,
 ) : Message(ID, source) {
     override fun cloneThis(): Message {
-        return Query(ID, source, propagator, timeToLive, hops, keyword)
+        return Query(ID, source, propagator, keyword, digest, timeToLive, hops)
     }
 
     override fun toString(): String {

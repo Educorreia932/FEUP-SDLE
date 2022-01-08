@@ -6,7 +6,7 @@ import gnutella.messages.Query
 class Cache(
     val peer: Peer
 ) {
-    private val previousPingList: MutableList<Ping> = mutableListOf()
+    val previousPingList: MutableList<Ping> = mutableListOf()
     private val previousQueryList: MutableList<Query> = mutableListOf()
 
     fun addPing(ping: Ping) {
