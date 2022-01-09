@@ -10,16 +10,14 @@ import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Representation of a Gnutella node
  */
 class Peer(
-    user: User,
-    address: String = "127.0.0.1",
-    port: Int = freePort(),
-    @Transient
-    val graph: Graph
+    user: User, address: String = "127.0.0.1", port: Int = freePort(), @Transient val graph: Graph
 ) : Node(user, InetAddress.getByName(address), port) {
     @Transient
     private val routingTable = RoutingTable(this, graph)
@@ -67,11 +65,18 @@ class Peer(
 
         if (possibleNeighbours.isNotEmpty()) {
             // TODO: What do here?
-            for (possibleNeighbour in possibleNeighbours)
-                routingTable.addNeighbour(Neighbour(possibleNeighbour as Peer))
+            for (possibleNeighbour in possibleNeighbours) {
+                routingTable.addNeighbour(Neighbour(possibleNeighbour as Peer), true)
+                //sendMessageTo(AddNeighbour(UUID.randomUUID(), this), possibleNeighbour)
+            }
 
             ping()
         }
+
+
+//        Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
+//            ping()
+//        }, 0, 10, TimeUnit.SECONDS);
     }
 
     private fun ping() {
@@ -101,10 +106,6 @@ class Peer(
         routingTable.forwardMessage(message, propagator)
     }
 
-    fun sendMessage(message: Message, destination: Node) {
-        messageBroker.putMessage(message.to(destination))
-    }
-
     override fun equals(other: Any?): Boolean {
         return user.username == (other as Peer).user.username
     }
@@ -113,24 +114,30 @@ class Peer(
         return user.username.hashCode()
     }
 
-    fun addNeighbour(username: String, address: InetAddress, port: Int) {
-        routingTable.addNeighbour(username, address, port)
-    }
-
     fun sendMessageTo(message: Message, propagator: Node) {
         messageBroker.putMessage(message.to(propagator))
     }
 
-    fun addNeighbour(peer: Peer) {
-        routingTable.addNeighbour(peer)
+    fun addNeighbour(peer: Peer, notify: Boolean) {
+        routingTable.addNeighbour(peer, notify)
     }
 
     fun removeNeighbour(neighbour: Neighbour) {
         routingTable.removeNeighbour(neighbour)
     }
 
+    fun removeRandomNeighbour(): Neighbour {
+        val ret = routingTable.neighbours.random()
+        routingTable.removeNeighbour(ret)
+        return ret
+    }
+
     fun hasNoNeighbours(): Boolean {
         return routingTable.neighbours.isEmpty()
+    }
+
+    fun hasMaxNeighbours(): Boolean {
+        return routingTable.neighbours.size == Constants.maxNeighbours
     }
 
     fun addFriendMessage(queryHit: QueryHit, me: Peer) {

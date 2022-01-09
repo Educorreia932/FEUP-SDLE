@@ -16,7 +16,7 @@ class PingHandler(
             return
         }
 
-        if (peer.hasNoNeighbours()) peer.addNeighbour(ping.source as Peer)
+        if (peer.hasNoNeighbours()) peer.addNeighbour(ping.source as Peer, true)
 
         // Duplicate ping received. Ignore.
         if (ping in peer.cache) return
@@ -26,7 +26,7 @@ class PingHandler(
 
         val response = Pong(UUID.randomUUID(), peer)
 
-        peer.sendMessage(response, ping.source)
+        peer.sendMessageTo(response, ping.source)
 
         // Increment hops and decrement time to live
         ping.hops++

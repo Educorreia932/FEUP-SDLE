@@ -41,7 +41,7 @@ class QueryHandler(
         if (User(query.keyword) in peer.storage.posts) {
             val response = QueryHit(query.ID, peer, peer.storage.digest(User(query.keyword)))
 
-            peer.sendMessage(response, prevPropagator)
+            peer.sendMessageTo(response, prevPropagator)
         }
 
         println("Peer " + peer.user.username + " | 's Previous propagator is " + prevPropagator.user.username)

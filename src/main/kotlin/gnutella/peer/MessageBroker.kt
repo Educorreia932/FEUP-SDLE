@@ -83,6 +83,8 @@ class MessageBroker(
                     is QueryHit -> QueryHitHandler(peer, message).run()
                     is Get -> GetHandler(peer, message).run()
                     is Send -> SendHandler(peer, message).run()
+                    is AddNeighbour -> AddNeighbourHandler(peer, message).run()
+                    is RemoveNeighbour -> RemoveNeighbourHandler(peer, message).run()
                 }
             }
         }

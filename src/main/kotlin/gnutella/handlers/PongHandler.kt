@@ -8,6 +8,6 @@ class PongHandler(
     private val message: Message,
 ) : MessageHandler(message) {
     override fun run() {
-        peer.addNeighbour(message.source as Peer)
+        peer.addNeighbour(message.source as Peer, true)
     }
 }
