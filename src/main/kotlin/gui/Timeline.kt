@@ -14,55 +14,40 @@ class Timeline(private val gui: GUI, val peer: Peer) : JPanel(), ActionListener 
     private val postButton = JButton("Post")
     private val postText = JTextArea(12, 24)
     private var postLabel = JLabel("Post:")
+    private val panel = JPanel()
+    private val scrollPane = JScrollPane(panel)
 
     init {
         add(logoutButton)
-        
-        val refreshButton = JButton("Refresh") // TODO
-        val panel = JPanel()
 
         panel.layout = BoxLayout(panel, BoxLayout.PAGE_AXIS)
-        
+
         logoutButton.addActionListener(this)
-        
-        panel.add(logoutButton)
-
-        add(postLabel)
-        add(postButton)
-        add(postText)
-        
         postButton.addActionListener(this)
-        
-        for (post in peer.timeline()) {
-            panel.add(PostPanel(post))
 
-            val separator = JSeparator(SwingConstants.HORIZONTAL)
-            
-            separator.preferredSize = Dimension(800, 25)
+        for (post in peer.timeline())
+            addPost(post)
 
-            panel.add(separator)
-        }
-        
-        val scrollPane = JScrollPane(panel)
-        
         scrollPane.add(logoutButton)
 
         scrollPane.verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
         scrollPane.preferredSize = Dimension(800, 600)
-        
-        add(logoutButton)
-        add(scrollPane)
-    }
-
-    private fun startNew(){
-        add(logoutButton)
-
-        for (post in peer.timeline())
-            add(PostPanel(post))
 
         add(postLabel)
         add(postButton)
         add(postText)
+        add(logoutButton)
+        add(scrollPane)
+    }
+
+    fun addPost(post: Post) {
+        panel.add(PostPanel(post))
+
+        val separator = JSeparator(SwingConstants.HORIZONTAL)
+
+        separator.preferredSize = Dimension(800, 25)
+
+        panel.add(separator)
     }
 
     override fun actionPerformed(event: ActionEvent) {
@@ -70,14 +55,18 @@ class Timeline(private val gui: GUI, val peer: Peer) : JPanel(), ActionListener 
             logoutButton -> {
                 gui.replacePanel(Login(gui))
             }
+
             postButton -> {
-                removeAll()
-                if(postText.text == "")
-                    peer.storage.addPost(Post(UUID.randomUUID(), "Empty", peer.user))
-                else
-                    peer.storage.addPost(Post(UUID.randomUUID(), postText.text, peer.user))
-                postText.text = ""
-                startNew()
+                val post =
+                    if (postText.text == "")
+                        Post(UUID.randomUUID(), "Empty", peer.user)
+                    else
+                        Post(UUID.randomUUID(), postText.text, peer.user)
+
+                peer.storage.addPost(post)
+
+                addPost(post)
+
                 gui.frame.revalidate()
             }
         }
