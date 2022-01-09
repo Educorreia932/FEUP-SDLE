@@ -29,8 +29,10 @@ class QueryHitHandler(
                 }
             }
 
-            if (peer.sentQueryIDs.contains(queryHit.ID))
+            if (peer.sentQueryIDs.contains(queryHit.ID)){
                 println("Peer ${peer.user.username} | Received a QueryHit response to it's previous query (MsgID = $queryHit.ID)")
+                return
+            }
 
             println("Peer ${peer.user.username} | Received known queryHit")
             println("${query.propagator.address} ${query.propagator.port}")

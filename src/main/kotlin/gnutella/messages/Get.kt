@@ -12,4 +12,8 @@ class Get(
     override fun cloneThis(): Get {
         return Get(ID, source, digest)
     }
+
+    override fun toString(): String {
+        return "GET"
+    }
 }

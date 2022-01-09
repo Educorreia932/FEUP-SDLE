@@ -25,14 +25,7 @@ class QueryHandler(
 
         // Add to cache
         peer.cache.addQuery(query)
-
-        // Send QueryHit back if node had the desired data
-        if (User(query.keyword) in peer.storage.posts) {
-            val response = QueryHit(query.ID, peer, peer.storage.digest(User(query.keyword)))
-
-            peer.sendMessage(response, query.source)
-        }
-
+        
         // Increment hops and decrement time to live
         query = query.cloneThis()
         query.hops++
@@ -43,6 +36,13 @@ class QueryHandler(
         // We're the propagator now
         val prevPropagator = query.propagator
         query.propagator = peer
+
+        // Send QueryHit back if node had the desired data
+        if (User(query.keyword) in peer.storage.posts) {
+            val response = QueryHit(query.ID, peer, peer.storage.digest(User(query.keyword)))
+
+            peer.sendMessage(response, prevPropagator)
+        }
 
         println("Peer " + peer.user.username + " | 's Previous propagator is " + prevPropagator.user.username)
         peer.forwardMessage(query, prevPropagator)

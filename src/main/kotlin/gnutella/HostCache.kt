@@ -18,7 +18,6 @@ class HostCache {
     private val peers: MutableSet<Node> = ConcurrentHashMap.newKeySet()
 
     init {
-
         thread {
             val serverSocket = ServerSocket(Constants.HOST_CACHE_PORT)
 

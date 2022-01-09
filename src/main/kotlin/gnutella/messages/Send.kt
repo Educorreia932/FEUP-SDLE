@@ -12,4 +12,8 @@ class Send(
     override fun cloneThis(): Message {
         return Send(ID, source, posts)
     }
+
+    override fun toString(): String {
+        return "SEND"
+    }
 }

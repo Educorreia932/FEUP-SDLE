@@ -14,5 +14,5 @@ class Neighbour(
 ) : Node(user, address, port) {
     val seenIDs: Set<UUID> = mutableSetOf()
 
-    constructor(peer: Peer) : this(peer.user, peer.address, peer.port)
+    constructor(node: Node) : this(node.user, node.address, node.port)
 }

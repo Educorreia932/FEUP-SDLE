@@ -6,4 +6,9 @@ data class Post(
     val content: String,
     val author: User,
     val date: Date = Date()
-) : Serializable
+) : Serializable {
+    override fun toString(): String {
+        return "$content, $author, $date"
+    }
+
+}

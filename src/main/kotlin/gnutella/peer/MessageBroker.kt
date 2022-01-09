@@ -68,7 +68,7 @@ class MessageBroker(
                     if (sent)
                         break
                     else // Assume the peer as dead
-                        peer.removeNeighbour(message.destination!! as Neighbour)
+                        peer.removeNeighbour(Neighbour(message.destination!!))
                 }
             }
         }
