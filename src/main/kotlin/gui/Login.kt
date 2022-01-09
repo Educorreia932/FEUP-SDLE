@@ -1,65 +1,23 @@
 package gui
 
 import gnutella.peer.Peer
-import java.awt.Container
+import java.awt.Frame
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.*
-import javax.swing.text.AbstractDocument
-import javax.swing.text.AttributeSet
-import javax.swing.text.BadLocationException
-import javax.swing.text.DocumentFilter
 
-
-class Login(val peers: List<Peer>) : JFrame(), ActionListener {
-    private class UsernameFilter : DocumentFilter() {
-        override fun insertString(
-            fb: FilterBypass?,
-            offset: Int,
-            string: String?,
-            attr: AttributeSet?
-        ) {
-            if (offset >= 1) {
-                super.insertString(fb, offset, string, attr)
-            }
-        }
-
-        override fun remove(fb: FilterBypass, offset: Int, length: Int) {
-            if (offset >= 1) {
-                super.remove(fb, offset, length)
-            }
-        }
-
-        @kotlin.Throws(BadLocationException::class)
-        override fun replace(
-            fb: FilterBypass?,
-            offset: Int,
-            length: Int,
-            text: String?,
-            attrs: AttributeSet?
-        ) {
-            if (offset >= 1) {
-                super.replace(fb, offset, length, text, attrs)
-            }
-        }
-    }
-
-    private val container: Container = contentPane
+class Login(private val frame: JFrame, private val peers: List<Peer>) : JPanel(), ActionListener {
     private var userLabel = JLabel("Username")
     private var passwordLabel = JLabel("Password")
-    private var userTextField = JTextField("@")
+    private var userTextField = JTextField()
     private var passwordField = JPasswordField()
     private var loginButton = JButton("Login")
     private var resetButton = JButton("Reset")
     private var showPassword = JCheckBox("Show Password")
 
     init {
-        title = "Tulicreme | Login"
         isVisible = true
-        defaultCloseOperation = EXIT_ON_CLOSE
-        isResizable = false
 
-        setBounds(10, 10, 370, 600)
         setLayoutManager()
         setLocationAndSize()
         addComponentsToContainer()
@@ -67,7 +25,7 @@ class Login(val peers: List<Peer>) : JFrame(), ActionListener {
     }
 
     private fun setLayoutManager() {
-        container.layout = null
+        layout = null
     }
 
     private fun setLocationAndSize() {
@@ -81,15 +39,13 @@ class Login(val peers: List<Peer>) : JFrame(), ActionListener {
     }
 
     private fun addComponentsToContainer() {
-        (userTextField.document as AbstractDocument).documentFilter = UsernameFilter()
-
-        container.add(userLabel)
-        container.add(passwordLabel)
-        container.add(userTextField)
-        container.add(passwordField)
-        container.add(showPassword)
-        container.add(loginButton)
-        container.add(resetButton)
+        add(userLabel)
+        add(passwordLabel)
+        add(userTextField)
+        add(passwordField)
+        add(showPassword)
+        add(loginButton)
+        add(resetButton)
     }
 
     private fun addActionEvent() {
@@ -102,19 +58,18 @@ class Login(val peers: List<Peer>) : JFrame(), ActionListener {
     override fun actionPerformed(event: ActionEvent) {
         when (event.source) {
             loginButton -> {
-                val username = userTextField.text.drop(1)
+                val username = userTextField.text
 
                 val peer = peers.find { it.user.username == username }
 
                 if (peer != null) {
                     val timeline = Timeline(peer)
 
-                    timeline.isVisible = true
-                    
-                    dispose()
+                    frame.contentPane.removeAll()
+                    frame.contentPane.add(timeline)
+                    frame.revalidate()
                 }
-                
-                else 
+                else
                     println("No such user")
             }
 
