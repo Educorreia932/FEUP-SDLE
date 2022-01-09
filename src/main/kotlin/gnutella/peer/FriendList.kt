@@ -13,6 +13,7 @@ class FriendList {
         for (i in 0 until (min(friends.size, numFriends))) {
             if (friends[i].getInterestInUser(topic) == 0f) {
                 numberFriends = i - 1
+                break
             }
         }
         if (friends.isEmpty()) {
@@ -34,10 +35,11 @@ class FriendList {
         // Get best friends for this topic
         val friends = fList.sortedByDescending { it.getInterestInUser(topic) }
 
-        var numberFriends = numFriends
+        var numberFriends = min(friends.size, numFriends)
         for (i in 0 until (min(friends.size, numFriends))) {
             if (friends[i].getInterestInUser(topic) == 0f) {
                 numberFriends = i - 1
+                break
             }
         }
         if (friends.isEmpty()) {
