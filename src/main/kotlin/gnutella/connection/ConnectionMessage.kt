@@ -14,6 +14,4 @@ class ConnectionMessage {
             return Constants.CONNECTION_ACCEPTANCE_STRING + Constants.CONNECTION_MESSAGE_SEPARATOR + address + Constants.CONNECTION_MESSAGE_SEPARATOR + port + Constants.CONNECTION_MESSAGE_SEPARATOR + username
         }
     }
-
-
 }
