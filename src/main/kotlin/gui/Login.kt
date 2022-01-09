@@ -1,6 +1,8 @@
 package gui
 
 import java.awt.Container
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 import javax.swing.*
 import javax.swing.text.AbstractDocument
 import javax.swing.text.AttributeSet
@@ -8,7 +10,7 @@ import javax.swing.text.BadLocationException
 import javax.swing.text.DocumentFilter
 
 
-class Login : JFrame() {
+class Login : JFrame(), ActionListener {
     private class UsernameFilter : DocumentFilter() {
         override fun insertString(
             fb: FilterBypass?,
@@ -56,10 +58,11 @@ class Login : JFrame() {
         defaultCloseOperation = EXIT_ON_CLOSE
         isResizable = false
 
-        setBounds(10, 10, 370, 600);
+        setBounds(10, 10, 370, 600)
         setLayoutManager()
         setLocationAndSize()
         addComponentsToContainer()
+        addActionEvent();
     }
 
     private fun setLayoutManager() {
@@ -86,5 +89,31 @@ class Login : JFrame() {
         container.add(showPassword)
         container.add(loginButton)
         container.add(resetButton)
+    }
+
+    private fun addActionEvent() {
+        loginButton.addActionListener(this)
+        resetButton.addActionListener(this)
+        showPassword.addActionListener(this)
+    }
+
+    override fun actionPerformed(e: ActionEvent) {
+        when (e.source) {
+            loginButton -> {
+                val username: String = userTextField.text
+            }
+
+            resetButton -> {
+                userTextField.text = ""
+                passwordField.text = ""
+            }
+            
+            showPassword -> {
+                if (showPassword.isSelected)
+                    passwordField.echoChar = 0.toChar()
+                else
+                    passwordField.echoChar = '*'
+            }
+        }
     }
 }

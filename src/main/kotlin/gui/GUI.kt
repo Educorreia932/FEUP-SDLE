@@ -1,7 +1,7 @@
 package gui
 
+import com.formdev.flatlaf.FlatLightLaf
 import java.awt.EventQueue
-
 
 private fun createAndShowGUI() {
     val frame = Login()
@@ -10,5 +10,7 @@ private fun createAndShowGUI() {
 }
 
 fun main() {
+    FlatLightLaf.setup();
+    
     EventQueue.invokeLater(::createAndShowGUI)
 }
