@@ -1,12 +1,12 @@
 package gui
 
-import gnutella.peer.Peer
-import java.awt.Frame
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.*
 
-class Login(private val frame: JFrame, private val peers: List<Peer>) : JPanel(), ActionListener {
+class Login(private val gui: GUI) : JPanel(), ActionListener {
+    private val peers = gui.peers
+    
     private var userLabel = JLabel("Username")
     private var passwordLabel = JLabel("Password")
     private var userTextField = JTextField()
@@ -62,13 +62,8 @@ class Login(private val frame: JFrame, private val peers: List<Peer>) : JPanel()
 
                 val peer = peers.find { it.user.username == username }
 
-                if (peer != null) {
-                    val timeline = Timeline(peer)
-
-                    frame.contentPane.removeAll()
-                    frame.contentPane.add(timeline)
-                    frame.revalidate()
-                }
+                if (peer != null)
+                    gui.replacePanel(Timeline(gui, peer))
                 else
                     println("No such user")
             }

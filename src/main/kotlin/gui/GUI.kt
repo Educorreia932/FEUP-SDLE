@@ -4,18 +4,16 @@ import com.formdev.flatlaf.FlatLightLaf
 import gnutella.peer.Peer
 import java.awt.EventQueue
 import javax.swing.JFrame
+import javax.swing.JPanel
 import javax.swing.WindowConstants.EXIT_ON_CLOSE
-import kotlin.math.log
 
+class GUI(val peers: List<Peer>) {
+    private val frame = JFrame("Tulicreme")
 
-class GUI(private val peers: List<Peer>) {
     private fun createAndShowGUI() {
         FlatLightLaf.setup()
 
-        val frame = JFrame("Tulicreme")
-        frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-
-        val login = Login(frame, peers)
+        val login = Login(this)
 
         frame.contentPane.add(login)
 
@@ -23,6 +21,12 @@ class GUI(private val peers: List<Peer>) {
         frame.defaultCloseOperation = EXIT_ON_CLOSE
         frame.isResizable = false
         frame.isVisible = true
+    }
+
+    fun replacePanel(panel: JPanel) {
+        frame.contentPane.removeAll()
+        frame.contentPane.add(panel)
+        frame.revalidate()
     }
 
     fun start() {
