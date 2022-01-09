@@ -8,7 +8,7 @@ import javax.swing.JPanel
 import javax.swing.WindowConstants.EXIT_ON_CLOSE
 
 class GUI(val peers: List<Peer>) {
-    private val frame = JFrame("Tulicreme")
+    val frame = JFrame("Tulicreme")
 
     private fun createAndShowGUI() {
         FlatLightLaf.setup()

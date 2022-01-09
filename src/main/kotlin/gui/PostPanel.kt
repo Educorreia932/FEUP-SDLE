@@ -8,7 +8,7 @@ import javax.swing.JPanel
 class PostPanel(val post: Post) : JPanel() {
     init {
         val name = Label("Eduardo Correia")
-        val username = Label("@${post.author.username}")
+        val username = Label(post.author.username)
         val content = Label(post.content)
         val date = Label(post.date.toString())
 
