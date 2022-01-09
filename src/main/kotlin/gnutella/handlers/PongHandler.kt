@@ -1,13 +1,14 @@
 package gnutella.handlers
 
-import gnutella.messages.Message
+import gnutella.messages.Pong
 import gnutella.peer.Peer
 
 class PongHandler(
     private val peer: Peer,
-    private val message: Message,
+    private val message: Pong,
 ) : MessageHandler(message) {
     override fun run() {
-        peer.addNeighbour(message.source as Peer, true)
+        if (message.available)
+            peer.addNeighbour(message.source as Peer, true)
     }
 }

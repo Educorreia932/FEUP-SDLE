@@ -11,6 +11,7 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.TimeUnit
 
 /**
@@ -70,20 +71,20 @@ class Peer(
                 //sendMessageTo(AddNeighbour(UUID.randomUUID(), this), possibleNeighbour)
             }
 
-            ping()
+//            ping()
         }
 
 
-//        Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
-//            ping()
-//        }, 0, 10, TimeUnit.SECONDS);
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
+            ping()
+        }, 0, ThreadLocalRandom.current().nextLong(5,16), TimeUnit.SECONDS);
     }
 
     private fun ping() {
-        val message = Ping(UUID.randomUUID(), this, this, Constants.TTL, Constants.MAX_HOPS)
+        val message = Ping(UUID.randomUUID(), this, this, Constants.TTL, 0)
 
         cache.addPing(message)
-        routingTable.forwardMessage(message)
+        routingTable.forwardMessage(message, routingTable.neighbours.take(routingTable.neighbours.size / 2).toSet())
     }
 
     fun search(username: String) {
