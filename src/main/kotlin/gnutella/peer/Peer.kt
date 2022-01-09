@@ -11,6 +11,8 @@ import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Representation of a Gnutella node
@@ -70,6 +72,11 @@ class Peer(
 
             ping()
         }
+        // Search followers for posts every x milliseconds
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
+            { searchAllFollowers() }, Constants.INITIAL_SEARCH_FOLLOWERS_TIME_MILIS.toLong(),
+            Constants.SEARCH_FOLLOWERS_INTERVAL_MILLIS.toLong(), TimeUnit.MILLISECONDS
+        )
     }
 
     private fun ping() {
@@ -89,6 +96,13 @@ class Peer(
         cache.addQuery(message)
         sentQueryIDs.add(message.ID)
         routingTable.forwardMessage(message)
+    }
+
+    private fun searchAllFollowers() {
+        for (f in user.following) {
+            println("Peer " + user.username + " | Searching for follower" + f.username + ".")
+            search(f.username)
+        }
     }
 
     fun forwardMessage(query: Query, propagator: Node) {
@@ -130,7 +144,7 @@ class Peer(
     fun hasNoNeighbours(): Boolean {
         return routingTable.neighbours.isEmpty()
     }
-    
+
     fun timeline(): List<Post> {
         return storage.timeline(user)
     }
