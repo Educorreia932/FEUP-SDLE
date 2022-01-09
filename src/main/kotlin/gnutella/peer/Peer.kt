@@ -100,7 +100,7 @@ class Peer(
 
     private fun searchAllFollowers() {
         for (f in user.following) {
-            println("Peer " + user.username + " | Searching for follower" + f.username + ".")
+            println("Peer " + user.username + " | Searching for follower " + f.username + ".")
             search(f.username)
         }
     }
