@@ -12,17 +12,14 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.TimeUnit
 
 /**
  * Representation of a Gnutella node
  */
 class Peer(
-    user: User,
-    address: String = "127.0.0.1",
-    port: Int = freePort(),
-    @Transient
-    val graph: Graph
+    user: User, address: String = "127.0.0.1", port: Int = freePort(), @Transient val graph: Graph
 ) : Node(user, InetAddress.getByName(address), port) {
     @Transient
     private val routingTable = RoutingTable(this, graph)
@@ -67,23 +64,34 @@ class Peer(
         }
 
         if (possibleNeighbours.isNotEmpty()) {
-            for (possibleNeighbour in possibleNeighbours)
-                routingTable.addNeighbour(Neighbour(possibleNeighbour as Peer))
+            // TODO: What do here?
+            for (possibleNeighbour in possibleNeighbours) {
+                routingTable.addNeighbour(Neighbour(possibleNeighbour as Peer), true)
+                //sendMessageTo(AddNeighbour(UUID.randomUUID(), this), possibleNeighbour)
+            }
 
-            ping()
+//            ping()
         }
+
+
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
+            ping()
+        }, 0, ThreadLocalRandom.current().nextLong(5, 16), TimeUnit.SECONDS)
+
         // Search followers for posts every x milliseconds
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
-            { searchAllFollowers() }, Constants.INITIAL_SEARCH_FOLLOWERS_TIME_MILIS.toLong(),
-            Constants.SEARCH_FOLLOWERS_INTERVAL_MILLIS.toLong(), TimeUnit.MILLISECONDS
+            { searchAllFollowers() },
+            Constants.INITIAL_SEARCH_FOLLOWERS_TIME_MILIS.toLong(),
+            Constants.SEARCH_FOLLOWERS_INTERVAL_MILLIS.toLong(),
+            TimeUnit.MILLISECONDS
         )
     }
 
     private fun ping() {
-        val message = Ping(UUID.randomUUID(), this, this, Constants.TTL, Constants.MAX_HOPS)
+        val message = Ping(UUID.randomUUID(), this, this, Constants.TTL, 0)
 
         cache.addPing(message)
-        routingTable.forwardMessage(message)
+        routingTable.forwardMessage(message, routingTable.neighbours.take(routingTable.neighbours.size / 2).toSet())
     }
 
     fun search(username: String) {
@@ -113,10 +121,6 @@ class Peer(
         routingTable.forwardMessage(message, propagator)
     }
 
-    fun sendMessage(message: Message, destination: Node) {
-        messageBroker.putMessage(message.to(destination))
-    }
-
     override fun equals(other: Any?): Boolean {
         return user.username == (other as Peer).user.username
     }
@@ -125,28 +129,35 @@ class Peer(
         return user.username.hashCode()
     }
 
-    fun addNeighbour(username: String, address: InetAddress, port: Int) {
-        routingTable.addNeighbour(username, address, port)
-    }
-
     fun sendMessageTo(message: Message, propagator: Node) {
         messageBroker.putMessage(message.to(propagator))
     }
 
-    fun addNeighbour(peer: Peer) {
-        routingTable.addNeighbour(peer)
+    fun addNeighbour(peer: Peer, notify: Boolean) {
+        routingTable.addNeighbour(peer, notify)
     }
 
     fun removeNeighbour(neighbour: Neighbour) {
         routingTable.removeNeighbour(neighbour)
     }
 
+    fun removeRandomNeighbour(): Neighbour {
+        val ret = routingTable.neighbours.random()
+        routingTable.removeNeighbour(ret)
+        return ret
+    }
+
     fun hasNoNeighbours(): Boolean {
         return routingTable.neighbours.isEmpty()
     }
 
+    fun hasMaxNeighbours(): Boolean {
+        return routingTable.neighbours.size == Constants.maxNeighbours
+    }
+
     fun timeline(): List<Post> {
         return storage.timeline(user)
+
     }
 
     fun addFriendMessage(queryHit: QueryHit, me: Peer) {

@@ -3,16 +3,15 @@ package gnutella.messages
 import gnutella.peer.Node
 import java.util.*
 
-class Pong(
+class AddNeighbour(
     ID: UUID,
     source: Node,
-    val available: Boolean
 ) : Message(ID, source) {
     override fun cloneThis(): Message {
-        return Pong(ID, source, available)
+        return AddNeighbour(ID, source)
     }
 
     override fun toString(): String {
-        return "Pong"
+        return "AddNeighbour"
     }
 }

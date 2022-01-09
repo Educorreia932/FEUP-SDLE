@@ -10,11 +10,6 @@ class QueryHandler(
     private var query: Query,
 ) : MessageHandler(query) {
     override fun run() {
-        if (query.timeToLive == 0) {
-            println("No time to live and/or num hops left in this message. Not propagating.")
-
-            return
-        }
 
         // Duplicate query received. Ignore.
         if (query in peer.cache) {
@@ -41,7 +36,12 @@ class QueryHandler(
         if (User(query.keyword) in peer.storage.posts) {
             val response = QueryHit(query.ID, peer, peer.storage.digest(User(query.keyword)))
 
-            peer.sendMessage(response, prevPropagator)
+            peer.sendMessageTo(response, prevPropagator)
+        }
+
+        if (query.timeToLive == 0) {
+            println("No time to live and/or num hops left in this message. Not propagating.")
+            return
         }
 
         println("Peer " + peer.user.username + " | 's Previous propagator is " + prevPropagator.user.username)
