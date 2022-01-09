@@ -6,3 +6,5 @@ build/
 gradle/
 gradlew.bat
 gradlew
+
+.DS_store
