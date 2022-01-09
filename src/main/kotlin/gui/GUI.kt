@@ -14,10 +14,11 @@ class GUI(val peers: List<Peer>) {
         FlatLightLaf.setup()
 
         val login = Login(this)
+        val timeline = Timeline(this, peers[7])
 
-        frame.contentPane.add(login)
+        frame.contentPane.add(timeline)
 
-        frame.setBounds(10, 10, 370, 600)
+        frame.setBounds(10, 10, 800, 600)
         frame.defaultCloseOperation = EXIT_ON_CLOSE
         frame.isResizable = false
         frame.isVisible = true

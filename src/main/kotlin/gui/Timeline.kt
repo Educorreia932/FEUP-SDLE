@@ -2,10 +2,12 @@ package gui
 
 import Post
 import gnutella.peer.Peer
+import java.awt.Dimension
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.util.*
 import javax.swing.*
+
 
 class Timeline(private val gui: GUI, val peer: Peer) : JPanel(), ActionListener {
     private val logoutButton = JButton("Log out")
@@ -14,20 +16,42 @@ class Timeline(private val gui: GUI, val peer: Peer) : JPanel(), ActionListener 
     private var postLabel = JLabel("Post:")
 
     init {
-        start()
-    }
-
-    private fun start(){
         add(logoutButton)
-        logoutButton.addActionListener(this)
+        
+        val refreshButton = JButton("Refresh") // TODO
+        val panel = JPanel()
 
-        for (post in peer.timeline())
-            add(PostPanel(post))
+        panel.layout = BoxLayout(panel, BoxLayout.PAGE_AXIS)
+        
+        logoutButton.addActionListener(this)
+        
+        panel.add(logoutButton)
 
         add(postLabel)
         add(postButton)
         add(postText)
+        
         postButton.addActionListener(this)
+        
+        for (post in peer.timeline()) {
+            panel.add(PostPanel(post))
+
+            val separator = JSeparator(SwingConstants.HORIZONTAL)
+            
+            separator.preferredSize = Dimension(800, 25)
+
+            panel.add(separator)
+        }
+        
+        val scrollPane = JScrollPane(panel)
+        
+        scrollPane.add(logoutButton)
+
+        scrollPane.verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+        scrollPane.preferredSize = Dimension(800, 600)
+        
+        add(logoutButton)
+        add(scrollPane)
     }
 
     private fun startNew(){

@@ -29,13 +29,13 @@ class Login(private val gui: GUI) : JPanel(), ActionListener {
     }
 
     private fun setLocationAndSize() {
-        userLabel.setBounds(50, 150, 100, 30)
-        passwordLabel.setBounds(50, 220, 100, 30)
-        userTextField.setBounds(150, 150, 150, 30)
-        passwordField.setBounds(150, 220, 150, 30)
-        showPassword.setBounds(150, 250, 150, 30)
-        loginButton.setBounds(50, 300, 100, 30)
-        resetButton.setBounds(200, 300, 100, 30)
+        userLabel.setBounds(250, 200, 100, 30)
+        userTextField.setBounds(350, 200, 200, 30)
+        passwordLabel.setBounds(250, 270, 100, 30)
+        passwordField.setBounds(350, 270, 200, 30)
+        showPassword.setBounds(350, 300, 150, 30)
+        loginButton.setBounds(275, 350, 100, 30)
+        resetButton.setBounds(425, 350, 100, 30)
     }
 
     private fun addComponentsToContainer() {
@@ -64,6 +64,7 @@ class Login(private val gui: GUI) : JPanel(), ActionListener {
 
                 if (peer != null)
                     gui.replacePanel(Timeline(gui, peer))
+                
                 else
                     println("No such user")
             }
