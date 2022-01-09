@@ -10,5 +10,4 @@ data class Post(
     override fun toString(): String {
         return "$content, $author, $date"
     }
-
 }

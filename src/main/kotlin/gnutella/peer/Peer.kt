@@ -1,5 +1,6 @@
 package gnutella.peer
 
+import Post
 import User
 import gnutella.Constants
 import gnutella.messages.*
@@ -62,8 +63,6 @@ class Peer(
             }
         }
 
-        println(possibleNeighbours)
-
         if (possibleNeighbours.isNotEmpty()) {
             // TODO: What do here?
             for (possibleNeighbour in possibleNeighbours) {
@@ -77,7 +76,15 @@ class Peer(
 
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
             ping()
-        }, 0, ThreadLocalRandom.current().nextLong(5,16), TimeUnit.SECONDS);
+        }, 0, ThreadLocalRandom.current().nextLong(5, 16), TimeUnit.SECONDS)
+
+        // Search followers for posts every x milliseconds
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
+            { searchAllFollowers() },
+            Constants.INITIAL_SEARCH_FOLLOWERS_TIME_MILIS.toLong(),
+            Constants.SEARCH_FOLLOWERS_INTERVAL_MILLIS.toLong(),
+            TimeUnit.MILLISECONDS
+        )
     }
 
     private fun ping() {
@@ -97,6 +104,13 @@ class Peer(
         cache.addQuery(message)
         sentQueryIDs.add(message.ID)
         routingTable.forwardMessage(message)
+    }
+
+    private fun searchAllFollowers() {
+        for (f in user.following) {
+            println("Peer " + user.username + " | Searching for follower " + f.username + ".")
+            search(f.username)
+        }
     }
 
     fun forwardMessage(query: Query, propagator: Node) {
@@ -139,6 +153,11 @@ class Peer(
 
     fun hasMaxNeighbours(): Boolean {
         return routingTable.neighbours.size == Constants.maxNeighbours
+    }
+
+    fun timeline(): List<Post> {
+        return storage.timeline(user)
+
     }
 
     fun addFriendMessage(queryHit: QueryHit, me: Peer) {
