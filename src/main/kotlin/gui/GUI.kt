@@ -1,16 +1,19 @@
 package gui
 
 import com.formdev.flatlaf.FlatLightLaf
+import gnutella.peer.Peer
 import java.awt.EventQueue
 
-private fun createAndShowGUI() {
-    val frame = Login()
+class GUI(private val peers: List<Peer>) {
+    private fun createAndShowGUI() {
+        FlatLightLaf.setup()
 
-    frame.isVisible = true
-}
+        val frame = Login(peers)
 
-fun main() {
-    FlatLightLaf.setup();
+        frame.isVisible = true
+    }
     
-    EventQueue.invokeLater(::createAndShowGUI)
+    fun start() {
+        EventQueue.invokeLater(::createAndShowGUI)
+    }
 }

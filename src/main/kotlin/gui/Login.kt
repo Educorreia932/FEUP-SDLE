@@ -1,5 +1,6 @@
 package gui
 
+import gnutella.peer.Peer
 import java.awt.Container
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
@@ -10,7 +11,7 @@ import javax.swing.text.BadLocationException
 import javax.swing.text.DocumentFilter
 
 
-class Login : JFrame(), ActionListener {
+class Login(val peers: List<Peer>) : JFrame(), ActionListener {
     private class UsernameFilter : DocumentFilter() {
         override fun insertString(
             fb: FilterBypass?,
@@ -101,13 +102,20 @@ class Login : JFrame(), ActionListener {
     override fun actionPerformed(event: ActionEvent) {
         when (event.source) {
             loginButton -> {
-                val username = userTextField.text
+                val username = userTextField.text.drop(1)
 
-                val timeline = Timeline()
+                val peer = peers.find { it.user.username == username }
 
-                timeline.isVisible = true
+                if (peer != null) {
+                    val timeline = Timeline(peer)
 
-                dispose()
+                    timeline.isVisible = true
+                    
+                    dispose()
+                }
+                
+                else 
+                    println("No such user")
             }
 
             resetButton -> {

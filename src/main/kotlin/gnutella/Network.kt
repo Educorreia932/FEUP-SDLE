@@ -3,6 +3,7 @@ package gnutella
 import Post
 import User
 import gnutella.peer.Peer
+import gui.GUI
 import org.graphstream.graph.Graph
 import org.graphstream.graph.implementations.SingleGraph
 import java.util.*
@@ -29,5 +30,7 @@ fun main() {
     
     Thread.sleep(200)
     
-    println("Timeline " + peers[7].timeline())
+    val gui = GUI(peers)
+    
+    gui.start()
 }

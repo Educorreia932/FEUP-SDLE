@@ -1,9 +1,10 @@
 package gui
 
+import gnutella.peer.Peer
 import java.awt.Container
 import javax.swing.JFrame
 
-class Timeline: JFrame() {
+class Timeline(val peer: Peer): JFrame() {
     private val container: Container = contentPane
 
     init {
@@ -14,6 +15,7 @@ class Timeline: JFrame() {
 
         setBounds(10, 10, 370, 600)
         
-        container.add(PostPanel())
+        for (post in peer.timeline())
+            container.add(PostPanel(post))
     }
 }
