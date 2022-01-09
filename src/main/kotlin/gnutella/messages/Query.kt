@@ -14,7 +14,7 @@ class Query(
     var hops: Int = Constants.MAX_HOPS,
 ) : Message(ID, source) {
     override fun cloneThis(): Query {
-        return Query(ID, source, propagator, keyword, digest, timeToLive, hops)
+        return Query(ID, source, propagator, keyword, timeToLive, hops)
     }
 
     override fun toString(): String {

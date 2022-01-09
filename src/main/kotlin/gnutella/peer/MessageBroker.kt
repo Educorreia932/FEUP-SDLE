@@ -1,9 +1,6 @@
 package gnutella.peer
 
-import gnutella.handlers.PingHandler
-import gnutella.handlers.PongHandler
-import gnutella.handlers.QueryHandler
-import gnutella.handlers.QueryHitHandler
+import gnutella.handlers.*
 import gnutella.messages.*
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -84,6 +81,8 @@ class MessageBroker(
                     is Pong -> PongHandler(peer, message).run()
                     is Query -> QueryHandler(peer, message).run()
                     is QueryHit -> QueryHitHandler(peer, message).run()
+                    is Get -> GetHandler(peer, message).run()
+                    is Send -> SendHandler(peer, message).run()
                 }
             }
         }

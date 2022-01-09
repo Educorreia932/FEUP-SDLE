@@ -37,7 +37,7 @@ class HostCache {
                             if (message is RequestConnect) {
                                 peers.add(message.source)
 
-                                //Reply to peer with list of possible neighbours
+                                // Reply to peer with list of possible neighbours
                                 val possibleNeighbours = takeNRandomNeighbours(amountNeighbours)
                                 val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
 
