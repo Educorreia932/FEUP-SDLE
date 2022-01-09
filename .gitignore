@@ -6,3 +6,8 @@ build/
 gradle/
 gradlew.bat
 gradlew
+
+.DS_store
+
+posts/*
+!posts/.keep

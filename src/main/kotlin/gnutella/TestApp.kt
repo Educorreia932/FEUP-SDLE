@@ -16,12 +16,10 @@ fun main() {
     File("test.txt").forEachLine {
         println(it)
         val args = it.split(" ")
-        val origin = args[0]
-        when (origin) {
+        when (val origin = args[0]) {
             "PEER" -> {
                 val username: String = args[1]
-                val action = args[2]
-                when (action) {
+                when (val action = args[2]) {
                     "CONNECT" -> {
                         when (args.size) {
                             3 -> {
@@ -40,7 +38,7 @@ fun main() {
                 }
             }
             else -> {
-                print("Option " + origin + " does not exist.")
+                print("Option $origin does not exist.")
                 return@forEachLine;
             }
         }
