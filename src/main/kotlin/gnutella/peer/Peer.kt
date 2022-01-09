@@ -93,6 +93,10 @@ class Peer(
         routingTable.forwardMessage(message)
     }
 
+    fun forwardMessage(query: Query, propagator: Node) {
+        routingTable.forwardMessage(query, propagator)
+    }
+
     fun forwardMessage(message: Message, propagator: Node) {
         routingTable.forwardMessage(message, propagator)
     }
@@ -127,6 +131,10 @@ class Peer(
 
     fun hasNoNeighbours(): Boolean {
         return routingTable.neighbours.isEmpty()
+    }
+
+    fun addFriendMessage(queryHit: QueryHit, me : Peer){
+        routingTable.friends.addFriendMessage(queryHit, queryHit.digest.user.username, me)
     }
 
     companion object {

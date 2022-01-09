@@ -7,7 +7,7 @@ import java.util.*
 /**
  * Representation of a Gnutella node
  */
-class Neighbour(
+open class Neighbour(
     user: User,
     address: InetAddress,
     port: Int,

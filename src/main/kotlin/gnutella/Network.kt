@@ -22,8 +22,8 @@ fun main() {
         peers.add(peer)
     }
 
-    peers[7].user.follow(peers[3].user)
+    peers[9].user.follow(peers[3].user)
     
     peers[3].storage.addPost(Post(UUID.randomUUID(), "Rãs", peers[3].user))
-    peers[7].search("4")
+    peers[9].search("4")
 }

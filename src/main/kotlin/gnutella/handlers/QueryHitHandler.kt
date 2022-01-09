@@ -16,8 +16,11 @@ class QueryHitHandler(
         if (query != null) {
             val user = User(query.keyword)
 
+            // TODO: Place in is following and the commented if (?)
+            peer.addFriendMessage(queryHit, peer)
             // We're following the user
             if (peer.user.isFollowing(user)) {
+                //peer.addFriendMessage(queryHit, peer)
                 // Select only the wanted posts (by removing the ones we already have)
                 val wanted = queryHit.digest - peer.storage.digest(user)
 
@@ -28,6 +31,9 @@ class QueryHitHandler(
                     peer.sendMessageTo(get, queryHit.source)
                 }
             }
+            /*if(queryHit.digest.user.username == peer.user.username){
+                peer.addFriendMessage(queryHit, peer)
+            }*/
 
             if (peer.sentQueryIDs.contains(queryHit.ID)){
                 println("Peer ${peer.user.username} | Received a QueryHit response to it's previous query (MsgID = $queryHit.ID)")
