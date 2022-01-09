@@ -1,15 +1,17 @@
 package gnutella.messages
 
-data class Pong(
-    val address: String,
-    val port: Int
-) : Message() {
+import gnutella.peer.Node
+import java.util.*
 
+class Pong(
+    ID: UUID,
+    source: Node,
+) : Message(ID, source) {
     override fun cloneThis(): Message {
-        return Pong(address, port)
+        return Pong(ID, source)
     }
 
     override fun toString(): String {
-        return "PONG"
+        return "Pong"
     }
 }

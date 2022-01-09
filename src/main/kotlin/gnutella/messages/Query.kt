@@ -1,30 +1,23 @@
 package gnutella.messages
 
-class Query constructor(
-    val sourceAddress: String,
-    val sourcePort: Int,
-    var timeToLive: Int,
-    var hops: Int,
+import Digest
+import gnutella.Constants
+import gnutella.peer.Node
+import java.util.*
+
+class Query(
+    ID: UUID,
+    source: Node,
+    var propagator: Node,
     val keyword: String,
-) : Message() {
-
-    override fun cloneThis(): Message {
-        return Query(sourceAddress, sourcePort, timeToLive, hops, keyword)
-    }
-
-    override fun toBytes(): ByteArray {
-        return "${toString()}|${sourceAddress}|${sourcePort}|${timeToLive}|${hops}|${keyword}".toByteArray()
+    var timeToLive: Int = Constants.TTL,
+    var hops: Int = Constants.MAX_HOPS,
+) : Message(ID, source) {
+    override fun cloneThis(): Query {
+        return Query(ID, source, propagator, keyword, timeToLive, hops)
     }
 
     override fun toString(): String {
-        return "QUERY"
+        return "Query"
     }
-
-    //Checks if the ping is a duplicate of this ping. Duplicates don't need to have the same time to live or number of hops.
-    fun isDuplicateOf(query: Query): Boolean {
-        return sourceAddress == query.sourceAddress && sourcePort == query.sourcePort && destinationAddress.equals(
-            query.destinationAddress
-        ) && destinationPort == query.destinationPort
-    }
-
 }

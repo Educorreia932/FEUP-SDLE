@@ -1,9 +1,14 @@
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 import java.io.Serializable
+import java.util.*
 
 data class Post(
+    val ID: UUID,
     val content: String,
-    val date: String? = DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-    val author: User
-) : Serializable
+    val author: User,
+    val date: Date = Date()
+) : Serializable {
+    override fun toString(): String {
+        return "$content, $author, $date"
+    }
+
+}

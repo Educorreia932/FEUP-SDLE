@@ -3,30 +3,27 @@ package gnutella
 import Post
 import User
 import gnutella.peer.Peer
+import org.graphstream.graph.Graph
+import org.graphstream.graph.implementations.SingleGraph
+import java.util.*
 
 fun main() {
+    System.setProperty("org.graphstream.ui", "swing")
+
     val peers = mutableListOf<Peer>()
+    val graph: Graph = SingleGraph("Network")
+    HostCache()
 
-    for (i in 0..4)
-        peers.add(Peer(User(i.toString()), port = 8010 + (2 * i)))
+    graph.display()
 
-    // Connect peers in star pattern
-    peers[0].addNeighbour(peers[2])
-    peers[2].addNeighbour(peers[0])
+    for (i in 1..10) {
+        val peer = Peer(User(i.toString()), graph = graph)
+        peer.connect()
+        peers.add(peer)
+    }
 
-    //peers[0].addNeighbour(peers[3])
-    //peers[3].addNeighbour(peers[0])
-
-    peers[1].addNeighbour(peers[3])
-    peers[3].addNeighbour(peers[1])
-
-    peers[1].addNeighbour(peers[4])
-    peers[4].addNeighbour(peers[1])
-
-    peers[2].addNeighbour(peers[4])
-    peers[4].addNeighbour(peers[2])
-
-    peers[3].storage.addPost(Post("Rãs", peers[3].user))
-
-    peers[0].search("4")
+    peers[7].user.follow(peers[3].user)
+    
+    peers[3].storage.addPost(Post(UUID.randomUUID(), "Rãs", peers[3].user))
+    peers[7].search("4")
 }

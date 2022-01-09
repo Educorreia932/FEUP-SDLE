@@ -1,44 +1,41 @@
 package gnutella.messages
 
-import gnutella.peer.Neighbour
+import gnutella.peer.Node
+import java.io.Serializable
+import java.util.*
 
-// TODO: Implement as Serializable
-abstract class Message {
-    var destinationAddress: String? = null
-    var destinationPort: Int? = null
+abstract class Message(
+    val ID: UUID,
+    val source: Node,
+) : Serializable, Cloneable {
+    var destination: Node? = null
 
-    fun to(neighbour: Neighbour): Message {
-        return to(neighbour.address, neighbour.port)
-    }
+    fun to(destination: Node): Message {
+        val message = cloneThis()
 
-    fun to(address: String, port: Int): Message {
-        val msg = cloneThis()
-        msg.destinationAddress = address
-        msg.destinationPort = port
-        return msg
-    }
+        message.destination = destination
 
-    open fun toBytes(): ByteArray {
-        return "${toString()}|${destinationAddress}|${destinationPort}".toByteArray()
-    }
-
-    companion object {
-        fun fromBytes(bytes: ByteArray): Message? {
-            val fields = String(bytes).split("|")
-            println(fields)
-
-            return when (fields[0]) {
-                "PING" -> Ping(fields[1], fields[2].toInt(), fields[3].toInt(), fields[4].toInt())
-                "PONG" -> Pong(fields[1], fields[2].toInt())
-                "QUERY" -> Query(fields[1], fields[2].toInt(), fields[3].toInt(), fields[4].toInt(), fields[5])
-                "QUERY_HIT" -> QueryHit()
-
-                else -> {
-                    null
-                }
-            }
-        }
+        return message
     }
 
     abstract fun cloneThis(): Message
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other)
+            return true
+
+        if (javaClass != other?.javaClass)
+            return false
+
+        other as Message
+
+        if (ID != other.ID)
+            return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return ID.hashCode()
+    }
 }

@@ -1,8 +1,12 @@
 import java.io.*
+import java.util.*
 
 class User(
     val username: String,
-): Serializable {
+    @Transient
+    val following: MutableSet<User> = mutableSetOf()
+
+) : Serializable {
     private var posts = ArrayList<Post>()
 
     init {
@@ -12,7 +16,7 @@ class User(
 
     // Create post and save it to file.
     fun createPost(content: String) {
-        val post = Post(content, author = this)
+        val post = Post(UUID.randomUUID(), content, author = this)
         posts.add(post)
         savePostsToFile()
     }
@@ -59,5 +63,39 @@ class User(
             c.printStackTrace()
             return
         }
+    }
+
+
+    fun isFollowing(user: User): Boolean {
+        return user in following
+    }
+
+    fun follow(user: User) {
+        if (user != this)
+            following.add(user)
+    }
+
+    fun unfollow(user: User) {
+        following.remove(user)
+    }
+
+    override fun toString(): String {
+        return "User $username"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other)
+            return true
+
+        if (javaClass != other?.javaClass)
+            return false
+
+        other as User
+
+        return username == other.username
+    }
+
+    override fun hashCode(): Int {
+        return username.hashCode()
     }
 }

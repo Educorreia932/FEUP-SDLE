@@ -1,20 +1,19 @@
 package gnutella.messages
 
+import Post
 import gnutella.peer.Node
 import java.util.*
 
-class Ping(
+class Send(
     ID: UUID,
     source: Node,
-    var propagator: Node,
-    var timeToLive: Int,
-    var hops: Int,
+    val posts: List<Post>
 ) : Message(ID, source) {
     override fun cloneThis(): Message {
-        return Ping(ID, source, propagator, timeToLive, hops)
+        return Send(ID, source, posts)
     }
 
     override fun toString(): String {
-        return "Ping"
+        return "SEND"
     }
 }

@@ -1,47 +1,50 @@
 package gnutella.handlers
 
+import User
 import gnutella.messages.Query
 import gnutella.messages.QueryHit
 import gnutella.peer.Peer
 
 class QueryHandler(
     private val peer: Peer,
-    private val query: Query
+    private var query: Query,
 ) : MessageHandler(query) {
     override fun run() {
-        //Error check
-        if (query.timeToLive == null || query.hops == null) {
+        if (query.timeToLive == 0) {
             println("No time to live and/or num hops left in this message. Not propagating.")
+
             return
         }
 
-        //Duplicate query received. Ignore.
-        if (peer.cache.containsQuery(query)) {
+        // Duplicate query received. Ignore.
+        if (query in peer.cache) {
             println("Peer ${peer.user.username} | Received duplicate query.")
+
             return
         }
+
         // Add to cache
         peer.cache.addQuery(query)
+        
+        // Increment hops and decrement time to live
+        query = query.cloneThis()
+        query.hops++
+        query.timeToLive--
 
-        // Send query hit back if node had the desired data
-        val posts = peer.storage.retrievePosts(query.keyword)
-
-        if (posts.isNotEmpty()) {
-            val response = QueryHit()
-
-            peer.sendMessage(response, query.sourceAddress, query.sourcePort)
-        }
-
-        //Increment hops and decrement time to live
-        query.hops = query.hops + 1
-        query.timeToLive = query.timeToLive - 1
-
-        //Don't propagate if it's reached the hop limit
-        if (query.timeToLive <= 0) {
-            println("Not propagating. Reached TTL=0.")
-            return
-        }
         println("Peer ${peer.user.username} propagating")
-        peer.forwardMessage(query)
+
+        // We're the propagator now
+        val prevPropagator = query.propagator
+        query.propagator = peer
+
+        // Send QueryHit back if node had the desired data
+        if (User(query.keyword) in peer.storage.posts) {
+            val response = QueryHit(query.ID, peer, peer.storage.digest(User(query.keyword)))
+
+            peer.sendMessage(response, prevPropagator)
+        }
+
+        println("Peer " + peer.user.username + " | 's Previous propagator is " + prevPropagator.user.username)
+        peer.forwardMessage(query, prevPropagator)
     }
 }

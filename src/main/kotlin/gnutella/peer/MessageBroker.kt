@@ -1,16 +1,11 @@
 package gnutella.peer
 
-import User
-import gnutella.connection.ConnectionMessage
-import gnutella.Constants
-import gnutella.handlers.PingHandler
-import gnutella.handlers.PongHandler
-import gnutella.handlers.QueryHandler
-import gnutella.handlers.QueryHitHandler
+import gnutella.handlers.*
 import gnutella.messages.*
-import java.io.DataInputStream
-import java.io.DataOutputStream
-import java.net.*
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.net.ServerSocket
+import java.net.Socket
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.concurrent.thread
 
@@ -23,97 +18,77 @@ class MessageBroker(
     init {
         // Receive messages
         thread {
-            val socket = DatagramSocket(peer.port)
+            val serverSocket = ServerSocket(peer.port)
 
             while (true) {
-                val response = ByteArray(65536)
-                val packet = DatagramPacket(response, response.size)
+                val socket = serverSocket.accept()
+                thread {
 
-                socket.receive(packet)
+                    socket.use {
+                        val objectInputStream = ObjectInputStream(socket.getInputStream())
+                        objectInputStream.use {
+                            val message = objectInputStream.readObject() as Message
 
-                val data = packet.data.slice(0 until packet.length).toByteArray()
-                val message = Message.fromBytes(data)
+                            println("Peer ${peer.user.username} | Received message $message")
 
-                println("Peer ${peer.user.username} | Received message $message")
+                            inbox.put(message)
 
-                inbox.put(message!!)
+                        }
+                    }
+                }
             }
         }
 
         // Send messages
         thread {
-            val socket = DatagramSocket()
-
             while (true) {
                 val message = outbox.take()
-                val payload = message.toBytes()
+                var sent = true
 
-                println("Peer ${peer.user.username} | Sent $message to ${message.destinationAddress}:${message.destinationPort}")
+                for (i in 0..5) {
+                    try {
+                        val socket = Socket(
+                            message.destination!!.address, message.destination!!.port
+                        )
 
-                val packet = DatagramPacket(
-                    payload,
-                    payload.size,
-                    InetAddress.getByName(message.destinationAddress),
-                    message.destinationPort!!
-                )
+                        socket.use {
+                            val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+                            objectOutputStream.use {
+                                println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
 
-                socket.send(packet)
+                                objectOutputStream.writeObject(message)
+                            }
+                        }
+
+                    } catch (e: Exception) {
+                        println("FAILED....Retrying")
+                        sent = false
+                    }
+
+                    if (sent)
+                        break
+                    else // Assume the peer as dead
+                        peer.removeNeighbour(Neighbour(message.destination!!))
+                }
             }
         }
 
         // Process messages
         thread {
-            when (val message = inbox.take()) {
-                is Ping -> PingHandler(peer, message).run()
-                is Pong -> PongHandler(peer, message).run()
-                is Query -> QueryHandler(peer, message).run()
-                is QueryHit -> QueryHitHandler(peer, message).run()
-            }
-        }
-
-        // Accept incoming (TCP) connection requests, then accept the connection message.
-        thread {
-            val serverSock = ServerSocket(peer.port + 1)
             while (true) {
-                val newSock = serverSock.accept()
-                newSock.soTimeout = Constants.CONNECTION_TIMEOUT_MILIS
-
-                val inputStream = DataInputStream(newSock.getInputStream())
-                var stringReceived = ""
-                try {
-                    stringReceived = inputStream.readUTF()
-                } catch (exception: SocketTimeoutException) {
-                    println("Too late.")
-                    inputStream.close()
-                    newSock.close()
-                    continue
-                }
-
-                val splitStr = stringReceived.split(Constants.CONNECTION_MESSAGE_SEPARATOR)
-                if (splitStr.size != 4) {
-                    println("Peer tried to connect using an invalid mesasge. Exiting.")
-                    continue
-                }
-
-                if (splitStr[0].equals(Constants.CONNECTION_REQUEST_STRING)) {
-                    val outputStream = DataOutputStream(newSock.getOutputStream())
-                    outputStream.writeUTF(
-                        ConnectionMessage.getConnAcceptMsg(
-                            peer.address,
-                            peer.port,
-                            peer.user.username
-                        )
-                    )
-                    outputStream.close()
-                    peer.addNeighbour(Neighbour(User(splitStr[3]), port = splitStr[2].toInt()))
-                    peer.printNeighbours()
+                when (val message = inbox.take()) {
+                    is Ping -> PingHandler(peer, message).run()
+                    is Pong -> PongHandler(peer, message).run()
+                    is Query -> QueryHandler(peer, message).run()
+                    is QueryHit -> QueryHitHandler(peer, message).run()
+                    is Get -> GetHandler(peer, message).run()
+                    is Send -> SendHandler(peer, message).run()
                 }
             }
         }
     }
 
     fun putMessage(message: Message) {
-        println("Put message to outbox")
         outbox.put(message)
     }
 }

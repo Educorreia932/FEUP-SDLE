@@ -4,16 +4,16 @@ import Digest
 import gnutella.peer.Node
 import java.util.*
 
-class QueryHit(
+class Get(
     ID: UUID,
     source: Node,
     val digest: Digest
 ) : Message(ID, source) {
-    override fun cloneThis(): Message {
-        return QueryHit(ID, source, digest)
+    override fun cloneThis(): Get {
+        return Get(ID, source, digest)
     }
 
     override fun toString(): String {
-        return "QueryHit"
+        return "GET"
     }
 }
