@@ -11,7 +11,7 @@ class Constants {
         const val MAX_FRIENDS_TO_MESSAGE = 5 // Send querries to (up to) this many friends
         const val INITIAL_SEARCH_FOLLOWERS_TIME_MILIS = 15000
         const val SEARCH_FOLLOWERS_INTERVAL_MILLIS = 25000
-        const val MIN_PING_INTERVAL = 99999//5 // In seconds
-        const val MAX_PING_INTERVAL = 999999//16 // In seconds
+        const val MIN_PING_INTERVAL = 5 // In seconds
+        const val MAX_PING_INTERVAL = 16 // In seconds
     }
 }
