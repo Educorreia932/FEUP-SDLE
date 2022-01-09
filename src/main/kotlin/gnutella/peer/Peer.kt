@@ -76,7 +76,7 @@ class Peer(
 
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
             ping()
-        }, 0, ThreadLocalRandom.current().nextLong(5, 16), TimeUnit.SECONDS)
+        }, 0, ThreadLocalRandom.current().nextLong(Constants.MIN_PING_INTERVAL.toLong(), Constants.MAX_PING_INTERVAL.toLong()), TimeUnit.SECONDS)
 
         // Search followers for posts every x milliseconds
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(

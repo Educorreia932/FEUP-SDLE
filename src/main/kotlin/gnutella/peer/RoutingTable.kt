@@ -5,6 +5,7 @@ import gnutella.messages.AddNeighbour
 import gnutella.messages.Message
 import gnutella.messages.Query
 import org.graphstream.graph.Graph
+import java.lang.Integer.min
 import java.util.*
 
 class RoutingTable(
@@ -53,10 +54,25 @@ class RoutingTable(
         for (node in nodes) peer.sendMessageTo(message, node)
     }
 
+    fun forwardMessageN(message: Message, nodes: Set<Neighbour> = neighbours, max_targets: Int) {
+        var i = 0
+        for (node in nodes){
+            peer.sendMessageTo(message, node)
+            i++
+            if(i >= max_targets)
+                break
+        }
+    }
+
     fun forwardMessage(query: Query) {
         val friends = friends.getBestFriendsForTopic(Constants.MAX_FRIENDS_TO_MESSAGE, query.keyword)
         // Forward message to friends lists, if there is one for the given keyword
-        if (friends.isNotEmpty()) forwardMessage(query, friends.toSet())
+        if (friends.isNotEmpty()){
+            forwardMessage(query, friends.toSet())
+            if(friends.size < Constants.MAX_FRIENDS_TO_MESSAGE){
+                forwardMessageN(query, neighbours, Constants.MAX_FRIENDS_TO_MESSAGE - friends.size)
+            }
+        }
         else forwardMessage(query, neighbours)
     }
 
