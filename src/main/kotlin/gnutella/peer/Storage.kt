@@ -14,6 +14,7 @@ class Storage {
 
         posts[post.author]?.add(post)
     }
+
     fun digest(user: User): Digest {
         val postIDs = mutableSetOf<UUID>()
 

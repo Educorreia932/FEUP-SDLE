@@ -1,6 +1,5 @@
 package gnutella.messages
 
-import Digest
 import gnutella.Constants
 import gnutella.peer.Node
 import java.util.*

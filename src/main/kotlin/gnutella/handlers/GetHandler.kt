@@ -6,7 +6,7 @@ import gnutella.peer.Peer
 
 class GetHandler(
     private val peer: Peer,
-    private val get : Get
+    private val get: Get
 ) : MessageHandler(get) {
     override fun run() {
         val posts = peer.storage.retrievePosts(get.digest)

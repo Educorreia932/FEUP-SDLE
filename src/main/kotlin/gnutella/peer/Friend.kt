@@ -7,30 +7,30 @@ class Friend(
     user: User,
     address: InetAddress,
     port: Int,
-    val topicInterests: MutableMap<String, Int> = mutableMapOf()
-) : Neighbour(user, address, port){
+    private val topicInterests: MutableMap<String, Float> = mutableMapOf()
+) : Neighbour(user, address, port) {
 
-    fun getInterestInUser(topic: String): Float{
-        if(topicInterests[topic] != null){
-            if(topicInterests[topic] == 0)
+    fun getInterestInUser(topic: String): Float {
+        if (topicInterests[topic] != null) {
+            if (topicInterests[topic] == 0f)
                 return 0f
-            return (topicInterests[topic] as Float) / (topicInterests.values.sum() as Float)
+            return (topicInterests[topic])!! / (topicInterests.values.sum())
         }
         return 0f
     }
 
-    fun addTopicInterest(topic: String){
-        if(topicInterests[topic] != null){
+    fun addTopicInterest(topic: String) {
+        if (topicInterests[topic] != null) {
             topicInterests[topic]!!.plus(1)
+        } else {
+            topicInterests[topic] = 1f
         }
-        topicInterests[topic] = 1
     }
 
-    companion object{
+    companion object {
         @JvmStatic
-        fun create(node: Node): Friend{
-            val friend = Friend(node.user, node.address, node.port)
-            return friend
+        fun create(node: Node): Friend {
+            return Friend(node.user, node.address, node.port)
         }
     }
 }

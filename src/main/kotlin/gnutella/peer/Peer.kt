@@ -133,7 +133,7 @@ class Peer(
         return routingTable.neighbours.isEmpty()
     }
 
-    fun addFriendMessage(queryHit: QueryHit, me : Peer){
+    fun addFriendMessage(queryHit: QueryHit, me: Peer) {
         routingTable.friends.addFriendMessage(queryHit, queryHit.digest.user.username, me)
     }
 

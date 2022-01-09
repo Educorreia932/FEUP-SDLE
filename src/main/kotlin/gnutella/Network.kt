@@ -23,7 +23,11 @@ fun main() {
     }
 
     peers[9].user.follow(peers[3].user)
-    
+
     peers[3].storage.addPost(Post(UUID.randomUUID(), "Rãs", peers[3].user))
     peers[9].search("4")
+    //sleep(15000)
+    //println("Second search start: ")
+    //peers[9].search("4")
+
 }

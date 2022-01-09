@@ -30,7 +30,7 @@ data class User(
             return false
 
         other as User
-        
+
         return username == other.username
     }
 

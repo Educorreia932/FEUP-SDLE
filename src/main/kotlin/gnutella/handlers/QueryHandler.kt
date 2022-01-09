@@ -25,7 +25,7 @@ class QueryHandler(
 
         // Add to cache
         peer.cache.addQuery(query)
-        
+
         // Increment hops and decrement time to live
         query = query.cloneThis()
         query.hops++
