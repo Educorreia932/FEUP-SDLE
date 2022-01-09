@@ -14,6 +14,7 @@ class Storage {
 
         posts[post.author]?.add(post)
     }
+
     fun digest(user: User): Digest {
         val postIDs = mutableSetOf<UUID>()
 
@@ -27,4 +28,6 @@ class Storage {
     fun retrievePosts(digest: Digest): List<Post>? {
         return posts[digest.user]?.filter { it.ID in digest.postIDs }
     }
+
+    fun timeline(user: User): List<Post> = posts.filter { it.key in user.following }.values.flatten()
 }

@@ -1,5 +1,6 @@
 package gnutella.peer
 
+import Post
 import User
 import gnutella.Constants
 import gnutella.messages.*
@@ -63,10 +64,7 @@ class Peer(
             }
         }
 
-        println(possibleNeighbours)
-
         if (possibleNeighbours.isNotEmpty()) {
-            // TODO: What do here?
             for (possibleNeighbour in possibleNeighbours)
                 routingTable.addNeighbour(Neighbour(possibleNeighbour as Peer))
 
@@ -127,6 +125,10 @@ class Peer(
 
     fun hasNoNeighbours(): Boolean {
         return routingTable.neighbours.isEmpty()
+    }
+    
+    fun timeline(): List<Post> {
+        return storage.timeline(user)
     }
 
     companion object {

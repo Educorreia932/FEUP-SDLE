@@ -26,4 +26,8 @@ fun main() {
     
     peers[3].storage.addPost(Post(UUID.randomUUID(), "Rãs", peers[3].user))
     peers[7].search("4")
+    
+    Thread.sleep(200)
+    
+    println("Timeline " + peers[7].timeline())
 }
