@@ -43,7 +43,7 @@ class Login : JFrame(), ActionListener {
         }
     }
 
-    private var container: Container = contentPane
+    private val container: Container = contentPane
     private var userLabel = JLabel("Username")
     private var passwordLabel = JLabel("Password")
     private var userTextField = JTextField("@")
@@ -62,7 +62,7 @@ class Login : JFrame(), ActionListener {
         setLayoutManager()
         setLocationAndSize()
         addComponentsToContainer()
-        addActionEvent();
+        addActionEvent()
     }
 
     private fun setLayoutManager() {
@@ -95,19 +95,26 @@ class Login : JFrame(), ActionListener {
         loginButton.addActionListener(this)
         resetButton.addActionListener(this)
         showPassword.addActionListener(this)
+        loginButton.addActionListener(this)
     }
 
-    override fun actionPerformed(e: ActionEvent) {
-        when (e.source) {
+    override fun actionPerformed(event: ActionEvent) {
+        when (event.source) {
             loginButton -> {
-                val username: String = userTextField.text
+                val username = userTextField.text
+
+                val timeline = Timeline()
+
+                timeline.isVisible = true
+
+                dispose()
             }
 
             resetButton -> {
                 userTextField.text = ""
                 passwordField.text = ""
             }
-            
+
             showPassword -> {
                 if (showPassword.isSelected)
                     passwordField.echoChar = 0.toChar()
