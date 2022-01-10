@@ -12,9 +12,11 @@ class PostPanel(post: Post) : JPanel() {
     init {
         layout = GridBagLayout()
 
-        val container = JPanel()
+        val right = JPanel()
+        val left = JPanel()
 
-        container.layout = BoxLayout(container, BoxLayout.PAGE_AXIS)
+        left.layout = BoxLayout(left, BoxLayout.PAGE_AXIS)
+        right.layout = BoxLayout(right, BoxLayout.PAGE_AXIS)
 
         val panel = JPanel()
 
@@ -37,24 +39,29 @@ class PostPanel(post: Post) : JPanel() {
 
         // Avatar 
         val path = "https://avatars.dicebear.com/api/initials/${username.text}.png"
-        val imageIcon = ImageIcon(ImageIO.read(URL(path)).getScaledInstance(100, 100, Image.SCALE_DEFAULT))
+        val imageIcon = ImageIcon(ImageIO.read(URL(path)).getScaledInstance(75, 75, Image.SCALE_DEFAULT))
         val avatar = JLabel(imageIcon)
 
-        avatar.preferredSize = Dimension(100, 100)
+        avatar.preferredSize = Dimension(75, 75)
+
+        val followButton = JButton("Follow")
 
         // Add components
         panel.add(name)
         panel.add(username)
         panel.add(date)
 
-        container.add(panel)
-        container.add(content)
+        right.add(panel)
+        right.add(content)
 
         val constraints = GridBagConstraints()
 
         constraints.anchor = GridBagConstraints.PAGE_START
 
-        add(avatar, constraints)
-        add(container)
+        left.add(avatar)
+        left.add(followButton)
+        
+        add(left, constraints)
+        add(right, constraints)
     }
 }
