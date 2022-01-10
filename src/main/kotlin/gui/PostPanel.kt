@@ -1,14 +1,20 @@
 package gui
 
 import Post
+import gnutella.peer.Peer
 import java.awt.*
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 import java.net.URL
 import java.util.*
 import javax.imageio.ImageIO
 import javax.swing.*
 
 
-class PostPanel(post: Post) : JPanel() {
+class PostPanel(val post: Post, val peer: Peer, val timeline: Timeline) : JPanel(), ActionListener {
+    val followButton = JButton("")
+    val panel = JPanel()
+
     init {
         layout = GridBagLayout()
 
@@ -16,7 +22,6 @@ class PostPanel(post: Post) : JPanel() {
 
         container.layout = BoxLayout(container, BoxLayout.PAGE_AXIS)
 
-        val panel = JPanel()
 
         // Name 
         val name = Label("Eduardo Correia")
@@ -46,6 +51,17 @@ class PostPanel(post: Post) : JPanel() {
         panel.add(name)
         panel.add(username)
         panel.add(date)
+        if (peer.user != post.author){
+            followButton.addActionListener(this)
+            if(peer.user.isFollowing(post.author)){
+                followButton.text = "Following"
+                panel.add(followButton)
+            }
+            else{
+                followButton.text = "Follow"
+                panel.add(followButton)
+            }
+        }
 
         container.add(panel)
         container.add(content)
@@ -56,5 +72,26 @@ class PostPanel(post: Post) : JPanel() {
 
         add(avatar, constraints)
         add(container)
+    }
+
+    override fun actionPerformed(event: ActionEvent) {
+        when (event.source) {
+            followButton -> {
+                if (peer.user != post.author){
+                    if(peer.user.isFollowing(post.author)){
+                        followButton.text = "Follow"
+                        peer.user.unfollow(post.author)
+                        panel.revalidate()
+                        timeline.updateFollowButtons(post.author, false)
+                    }
+                    else{
+                        followButton.text = "Following"
+                        peer.user.follow(post.author)
+                        panel.revalidate()
+                        timeline.updateFollowButtons(post.author, true)
+                    }
+                }
+            }
+        }
     }
 }

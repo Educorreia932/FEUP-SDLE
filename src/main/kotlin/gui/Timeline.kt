@@ -1,6 +1,7 @@
 package gui
 
 import Post
+import User
 import gnutella.peer.Peer
 import java.awt.Dimension
 import java.awt.event.ActionEvent
@@ -16,6 +17,7 @@ class Timeline(private val gui: GUI, val peer: Peer) : JPanel(), ActionListener 
     private var postLabel = JLabel("Post:")
     private val panel = JPanel()
     private val scrollPane = JScrollPane(panel)
+    private var posts = mutableListOf<PostPanel>()
 
     init {
         add(logoutButton)
@@ -41,7 +43,9 @@ class Timeline(private val gui: GUI, val peer: Peer) : JPanel(), ActionListener 
     }
 
     fun addPost(post: Post) {
-        panel.add(PostPanel(post))
+        val post = PostPanel(post, peer, this)
+        posts.add(post)
+        panel.add(post)
 
         val separator = JSeparator(SwingConstants.HORIZONTAL)
 
@@ -49,6 +53,7 @@ class Timeline(private val gui: GUI, val peer: Peer) : JPanel(), ActionListener 
 
         panel.add(separator)
     }
+
 
     override fun actionPerformed(event: ActionEvent) {
         when (event.source) {
@@ -68,6 +73,21 @@ class Timeline(private val gui: GUI, val peer: Peer) : JPanel(), ActionListener 
                 addPost(post)
 
                 gui.frame.revalidate()
+            }
+        }
+    }
+
+    fun updateFollowButtons(user: User, isFollow: Boolean){
+        for(p in posts){
+            if(p.post.author == user){
+                if(isFollow){
+                    p.followButton.text = "Following"
+                    p.panel.revalidate()
+                }
+                else{
+                    p.followButton.text = "Follow"
+                    p.panel.revalidate()
+                }
             }
         }
     }
