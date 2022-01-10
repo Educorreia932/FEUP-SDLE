@@ -4,14 +4,16 @@ import gnutella.messages.QueryHit
 import kotlin.math.min
 
 class FriendList {
-    private val friendList: MutableSet<Friend> = mutableSetOf()
-
+    private val friendList: MutableMap<String, MutableList<Friend>> = mutableMapOf()
 
     fun getBestFriendsForTopic(numFriends: Int, topic: String): List<Friend> {
-        val friends = friendList.sortedByDescending { it.getInterestInUser(topic) }
+        if(friendList[topic] == null){
+            return listOf()
+        }
+        val friends = friendList[topic]!!.sortedByDescending { it.score }
         var numberFriends = min(friends.size, numFriends)
         for (i in 0 until (min(friends.size, numFriends))) {
-            if (friends[i].getInterestInUser(topic) == 0f) {
+            if (friends[i].score == 0) {
                 numberFriends = i - 1
                 break
             }
@@ -27,17 +29,23 @@ class FriendList {
     }
 
     fun getBestFriendsForTopicExcept(numFriends: Int, topic: String, excluded: Node): List<Friend> {
+        if(friendList[topic] == null){
+            return listOf()
+        }
+        // Get best friends for this topic
+        val friends = friendList[topic]!!.sortedByDescending { it.score }
+
         // Exclude previous propagator
         val fList = mutableSetOf<Friend>()
-        for (i in friendList)
-            if (i.user != excluded.user)
+        for(i in friends){
+            if(i.user != excluded.user){
                 fList.add(i)
-        // Get best friends for this topic
-        val friends = fList.sortedByDescending { it.getInterestInUser(topic) }
+            }
+        }
 
         var numberFriends = min(friends.size, numFriends)
         for (i in 0 until (min(friends.size, numFriends))) {
-            if (friends[i].getInterestInUser(topic) == 0f) {
+            if (friends[i].score == 0) {
                 numberFriends = i - 1
                 break
             }
@@ -53,20 +61,20 @@ class FriendList {
     }
 
     fun addFriendMessage(queryHit: QueryHit, topic: String, me: Peer) {
-        var alreadyHasFriend = false
-        for (i in friendList) {
-            if (i.user.username == queryHit.source.user.username) {
-                alreadyHasFriend = true
-                println("Peer " + me.user.username + " | updated " + queryHit.source.user.username + "'s interest in topic " + topic)
-                i.addTopicInterest(topic)
-                break
+        if(friendList[topic] != null){
+            val auxFriend = Friend.create(queryHit.source)
+            if(friendList[topic]!!.contains(auxFriend)){
+                val index = friendList[topic]!!.indexOf(auxFriend)
+                friendList[topic]!![index].score++
+            }
+            else{
+                friendList[topic]!!.add(auxFriend)
             }
         }
-        if (!alreadyHasFriend) {
-            println("Peer " + me.user.username + " | added " + queryHit.source.user.username + " as a friend in topic " + topic)
-            val friend = Friend.create(queryHit.source)
-            friend.addTopicInterest(topic)
-            friendList.add(friend)
+        else{
+            friendList[topic] = mutableListOf()
+            val auxFriend = Friend.create(queryHit.source)
+            friendList[topic]!!.add(auxFriend)
         }
     }
 
