@@ -6,7 +6,7 @@ import javax.swing.*
 
 class Login(private val gui: GUI) : JPanel(), ActionListener {
     private val peers = gui.peers
-    
+
     private var userLabel = JLabel("Username")
     private var passwordLabel = JLabel("Password")
     private var userTextField = JTextField()
@@ -64,7 +64,6 @@ class Login(private val gui: GUI) : JPanel(), ActionListener {
 
                 if (peer != null)
                     gui.replacePanel(Timeline(gui, peer))
-                
                 else
                     println("No such user")
             }

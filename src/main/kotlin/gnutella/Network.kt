@@ -30,10 +30,10 @@ fun main() {
     peers[3].storage.addPost(Post(UUID.randomUUID(), "Sapos", peers[3].user))
 
     peers[7].search("4")
-    
+
     Thread.sleep(200)
-    
+
     val gui = GUI(peers)
-    
+
     gui.start()
 }

@@ -7,7 +7,7 @@ class FriendList {
     private val friendList: MutableMap<String, MutableList<Friend>> = mutableMapOf()
 
     fun getBestFriendsForTopic(numFriends: Int, topic: String): List<Friend> {
-        if(friendList[topic] == null){
+        if (friendList[topic] == null) {
             return listOf()
         }
         val friends = friendList[topic]!!.sortedByDescending { it.score }
@@ -29,7 +29,7 @@ class FriendList {
     }
 
     fun getBestFriendsForTopicExcept(numFriends: Int, topic: String, excluded: Node): List<Friend> {
-        if(friendList[topic] == null){
+        if (friendList[topic] == null) {
             return listOf()
         }
         // Get best friends for this topic
@@ -37,8 +37,8 @@ class FriendList {
 
         // Exclude previous propagator
         val fList = mutableSetOf<Friend>()
-        for(i in friends){
-            if(i.user != excluded.user){
+        for (i in friends) {
+            if (i.user != excluded.user) {
                 fList.add(i)
             }
         }
@@ -61,17 +61,15 @@ class FriendList {
     }
 
     fun addFriendMessage(queryHit: QueryHit, topic: String, me: Peer) {
-        if(friendList[topic] != null){
+        if (friendList[topic] != null) {
             val auxFriend = Friend.create(queryHit.source)
-            if(friendList[topic]!!.contains(auxFriend)){
+            if (friendList[topic]!!.contains(auxFriend)) {
                 val index = friendList[topic]!!.indexOf(auxFriend)
                 friendList[topic]!![index].score++
-            }
-            else{
+            } else {
                 friendList[topic]!!.add(auxFriend)
             }
-        }
-        else{
+        } else {
             friendList[topic] = mutableListOf()
             val auxFriend = Friend.create(queryHit.source)
             friendList[topic]!!.add(auxFriend)

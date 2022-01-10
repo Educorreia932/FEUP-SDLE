@@ -39,17 +39,17 @@ fun main() {
                         peers[username]?.search(args[2])
                     }
                     "POST" -> {
-                        if(peers[username] == null){
+                        if (peers[username] == null) {
                             println("Peer $username needs to connect before posting. [ '$it' ]")
                             return@forEachLine
                         }
                         peers[username]!!.storage.addPost(Post(UUID.randomUUID(), "Rãs", peers[username]!!.user))
                     }
-                    "FOLLOW" ->{
-                        if(args.size != 4){
+                    "FOLLOW" -> {
+                        if (args.size != 4) {
                             println("$action can needs to have 4 args; has ${args.size} args instead. [ \'$it' ]")
                         }
-                        if(peers[username] == null){
+                        if (peers[username] == null) {
                             println("Peer $username needs to connect before following someone. [ '$it' ]")
                             return@forEachLine
                         }
