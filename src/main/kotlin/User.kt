@@ -21,6 +21,12 @@ class User(
         savePostsToFile()
     }
 
+    // Deletes all user's posts.
+    fun clearPosts() {
+        posts.clear()
+        savePostsToFile()
+    }
+
     // Saves all user's posts to file.
     private fun savePostsToFile() {
         try {
