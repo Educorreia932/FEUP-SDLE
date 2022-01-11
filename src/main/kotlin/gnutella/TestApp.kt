@@ -1,7 +1,7 @@
 package gnutella
 
-import Post
-import User
+import social.Post
+import social.User
 import gnutella.peer.Peer
 import gui.GUI
 import org.graphstream.graph.Graph

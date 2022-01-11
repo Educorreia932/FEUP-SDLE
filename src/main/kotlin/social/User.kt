@@ -1,3 +1,5 @@
+package social
+
 import java.io.*
 import java.util.*
 
@@ -5,7 +7,6 @@ class User(
     val username: String,
     @Transient
     val following: MutableSet<User> = mutableSetOf()
-
 ) : Serializable {
     private var posts = ArrayList<Post>()
 
@@ -17,6 +18,7 @@ class User(
     // Create post and save it to file.
     fun createPost(content: String) {
         val post = Post(UUID.randomUUID(), content, author = this)
+        
         posts.add(post)
         savePostsToFile()
     }
@@ -80,7 +82,7 @@ class User(
     }
 
     override fun toString(): String {
-        return "User $username"
+        return "social.User $username"
     }
 
     override fun equals(other: Any?): Boolean {

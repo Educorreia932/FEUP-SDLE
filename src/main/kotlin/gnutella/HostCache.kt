@@ -1,6 +1,6 @@
 package gnutella
 
-import User
+import social.User
 import gnutella.messages.ConnectTo
 import gnutella.messages.Message
 import gnutella.messages.RequestConnect

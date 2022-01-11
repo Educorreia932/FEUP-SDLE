@@ -1,6 +1,6 @@
 package gnutella.handlers
 
-import User
+import social.User
 import gnutella.messages.Query
 import gnutella.messages.QueryHit
 import gnutella.peer.Peer

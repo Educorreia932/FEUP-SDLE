@@ -1,8 +1,8 @@
 package gnutella.peer
 
-import Digest
-import Post
-import User
+import social.Digest
+import social.Post
+import social.User
 import java.util.*
 
 class Storage {

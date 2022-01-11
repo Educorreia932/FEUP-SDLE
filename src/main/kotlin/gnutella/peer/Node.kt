@@ -1,6 +1,6 @@
 package gnutella.peer
 
-import User
+import social.User
 import java.io.Serializable
 import java.net.InetAddress
 

@@ -1,7 +1,7 @@
 package gnutella.peer
 
-import Post
-import User
+import social.Post
+import social.User
 import gnutella.Constants
 import gnutella.messages.*
 import org.graphstream.graph.Graph
@@ -79,8 +79,10 @@ class Peer(
                 ping()
             },
             0,
-            ThreadLocalRandom.current()
-                .nextLong(Constants.MIN_PING_INTERVAL.toLong(), Constants.MAX_PING_INTERVAL.toLong()),
+            ThreadLocalRandom.current().nextLong(
+                Constants.MIN_PING_INTERVAL.toLong(),
+                Constants.MAX_PING_INTERVAL.toLong()
+            ),
             TimeUnit.SECONDS
         )
 

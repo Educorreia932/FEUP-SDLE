@@ -1,6 +1,6 @@
 package gnutella.messages
 
-import Post
+import social.Post
 import gnutella.peer.Node
 import java.util.*
 

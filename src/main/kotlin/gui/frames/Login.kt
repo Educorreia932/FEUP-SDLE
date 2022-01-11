@@ -1,11 +1,10 @@
-package gui
+package gui.frames
 
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.*
 
-class Login(private val gui: GUI) : JPanel(), ActionListener {
-    private val peers = gui.peers
+class Login() : JFrame(), ActionListener {
 
     private var userLabel = JLabel("Username")
     private var passwordLabel = JLabel("Password")
@@ -60,12 +59,6 @@ class Login(private val gui: GUI) : JPanel(), ActionListener {
             loginButton -> {
                 val username = userTextField.text
 
-                val peer = peers.find { it.user.username == username }
-
-                if (peer != null)
-                    gui.replacePanel(Timeline(gui, peer))
-                else
-                    println("No such user")
             }
 
             resetButton -> {

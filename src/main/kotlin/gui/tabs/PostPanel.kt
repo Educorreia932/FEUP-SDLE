@@ -1,6 +1,6 @@
-package gui
+package gui.tabs
 
-import Post
+import social.Post
 import java.awt.*
 import java.net.URL
 import java.util.*
@@ -10,24 +10,25 @@ import javax.swing.*
 
 class PostPanel(post: Post) : JPanel() {
     init {
-        layout = GridBagLayout()
-
         val right = JPanel()
         val left = JPanel()
 
         left.layout = BoxLayout(left, BoxLayout.PAGE_AXIS)
         right.layout = BoxLayout(right, BoxLayout.PAGE_AXIS)
 
-        val panel = JPanel()
+        val header = JPanel()
+        
+        header.layout = FlowLayout(FlowLayout.LEFT, 1, 0)
 
         // Name 
         val name = Label("Eduardo Correia")
-        val font = Font("Courier", Font.BOLD, 12)
 
         name.font = font.deriveFont(font.style or Font.BOLD)
 
         // Username
-        val username = Label(post.author.username)
+        val username = Label("@${post.author.username}")
+        
+        username.foreground = Color.decode("#777777")
 
         // Content
         val content = JTextArea(post.content)
@@ -37,8 +38,10 @@ class PostPanel(post: Post) : JPanel() {
         // Date
         val date = Label(Date().toString())
 
+        date.foreground = Color.decode("#777777")
+
         // Avatar 
-        val path = "https://avatars.dicebear.com/api/initials/${username.text}.png"
+        val path = "https://avatars.dicebear.com/api/initials/${post.author.username}.png"
         val imageIcon = ImageIcon(ImageIO.read(URL(path)).getScaledInstance(75, 75, Image.SCALE_DEFAULT))
         val avatar = JLabel(imageIcon)
 
@@ -47,11 +50,11 @@ class PostPanel(post: Post) : JPanel() {
         val followButton = JButton("Follow")
 
         // Add components
-        panel.add(name)
-        panel.add(username)
-        panel.add(date)
+        header.add(name)
+        header.add(username)
 
-        right.add(panel)
+        right.add(header)
+        right.add(date)
         right.add(content)
 
         val constraints = GridBagConstraints()
@@ -60,7 +63,7 @@ class PostPanel(post: Post) : JPanel() {
 
         left.add(avatar)
         left.add(followButton)
-        
+
         add(left, constraints)
         add(right, constraints)
     }
