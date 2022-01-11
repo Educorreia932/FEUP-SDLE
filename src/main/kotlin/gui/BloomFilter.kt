@@ -59,5 +59,9 @@ class BloomFilter(var sizeBloomFilter: Int, var numExpectedElements: Int = 10000
         return false
     }
 
-   
+    // Computes probability of BloomFilter returning
+    // that an element exists when it doesn't exist.
+    fun falsePositiveProbability(): Double  {
+        return (1 - exp(-numHashFunctions * numExpectedElements / sizeBloomFilter.toDouble())).pow(numHashFunctions.toDouble())
+    }
 }
