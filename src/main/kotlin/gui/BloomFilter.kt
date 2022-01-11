@@ -1,11 +1,9 @@
 package gui
 
 import java.util.*
-import kotlin.math.log10
-import kotlin.math.round
-import kotlin.math.roundToInt
 import java.math.BigInteger
 import java.security.MessageDigest
+import kotlin.math.*
 
 class BloomFilter(var sizeBloomFilter: Int, var numExpectedElements: Int = 100000) {
 
@@ -23,7 +21,12 @@ class BloomFilter(var sizeBloomFilter: Int, var numExpectedElements: Int = 10000
     // Hashes the passed string with the passed hashing algorithm.
     private fun hash(input: String, hash: String): Int {
         val md = MessageDigest.getInstance(hash)
-        return BigInteger(1, md.digest(input.toByteArray())).toString(16).padStart(32, '0').toInt()
+        var x = BigInteger(1, md.digest(input.toByteArray())).toInt() / sizeBloomFilter
+        return if (x > 0) {
+            x
+        } else {
+            -x
+        }
     }
 
     // Appends a number for each input in the hash function.
@@ -38,7 +41,10 @@ class BloomFilter(var sizeBloomFilter: Int, var numExpectedElements: Int = 10000
     // by iterating through all the hash functions.
     fun add(input: String) {
         for (i in 0..numHashFunctions) {
-            bloomFilter[hash(input, i, hash)] = 1
+            println("Size: " + bloomFilter.size())
+            var x = hash(input, i, hash)
+            println("X: $x")
+            bloomFilter.set(x)
         }
     }
 
@@ -52,4 +58,6 @@ class BloomFilter(var sizeBloomFilter: Int, var numExpectedElements: Int = 10000
         }
         return false
     }
+
+   
 }
