@@ -22,7 +22,7 @@ class QueryHitHandler(
             if (peer.user.isFollowing(user)) {
                 //peer.addFriendMessage(queryHit, peer)
                 // Select only the wanted posts (by removing the ones we already have)
-                val wanted = queryHit.digest - peer.storage.digest(user)
+                val wanted = queryHit.digest - peer.user.storage.digest(user)
 
                 // There are wanted posts
                 if (wanted.postIDs.isNotEmpty()) {

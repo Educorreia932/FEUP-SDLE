@@ -11,6 +11,6 @@ class SendHandler(
         println("Posts received: ${send.posts}")
 
         for (post in send.posts)
-            peer.storage.addPost(post)
+            peer.user.storage.addPost(post)
     }
 }

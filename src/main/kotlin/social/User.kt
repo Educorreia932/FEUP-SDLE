@@ -1,14 +1,16 @@
 package social
 
+import gnutella.social.Storage
 import java.io.*
 import java.util.*
 
 class User(
     val username: String,
     @Transient
-    val following: MutableSet<User> = mutableSetOf()
+    val following: MutableSet<User> = mutableSetOf(),
 ) : Serializable {
-    private var posts = ArrayList<Post>()
+    @Transient
+    val storage: Storage = Storage()
 
     init {
         // Checks if there are posts from current user to be loaded.
@@ -18,8 +20,8 @@ class User(
     // Create post and save it to file.
     fun createPost(content: String) {
         val post = Post(UUID.randomUUID(), content, author = this)
-        
-        posts.add(post)
+
+        storage.addPost(post)
         savePostsToFile()
     }
 
@@ -31,7 +33,7 @@ class User(
             val fileOut = FileOutputStream(filePath)
             val out = ObjectOutputStream(fileOut)
 
-            out.writeObject(this.posts)
+            out.writeObject(this.storage.posts)
             out.close()
             fileOut.close()
             println("Serialized data is saved")
@@ -53,7 +55,7 @@ class User(
             val fileIn = FileInputStream(filePath)
             val objIn = ObjectInputStream(fileIn)
 
-            this.posts = objIn.readObject() as ArrayList<Post>
+//            storage.posts = objIn.readObject() as ArrayList<Post>
 
             objIn.close()
             fileIn.close()
@@ -79,6 +81,10 @@ class User(
 
     fun unfollow(user: User) {
         following.remove(user)
+    }
+    
+    fun timeline(): List<Post> {
+        return storage.timeline(this)
     }
 
     override fun toString(): String {

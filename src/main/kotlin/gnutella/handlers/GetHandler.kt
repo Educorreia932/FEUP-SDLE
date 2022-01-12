@@ -9,7 +9,7 @@ class GetHandler(
     private val get: Get
 ) : MessageHandler(get) {
     override fun run() {
-        val posts = peer.storage.retrievePosts(get.digest)
+        val posts = peer.user.storage.retrievePosts(get.digest)
         val send = Send(get.ID, peer, posts!!)
 
         peer.sendMessageTo(send, get.source)

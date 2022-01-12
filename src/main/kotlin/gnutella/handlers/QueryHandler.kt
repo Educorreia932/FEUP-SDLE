@@ -33,8 +33,8 @@ class QueryHandler(
         query.propagator = peer
 
         // Send QueryHit back if node had the desired data
-        if (User(query.keyword) in peer.storage.posts) {
-            val response = QueryHit(query.ID, peer, peer.storage.digest(User(query.keyword)))
+        if (User(query.keyword) in peer.user.storage.posts) {
+            val response = QueryHit(query.ID, peer, peer.user.storage.digest(User(query.keyword)))
 
             peer.sendMessageTo(response, prevPropagator)
         }

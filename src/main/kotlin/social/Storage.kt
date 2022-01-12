@@ -1,4 +1,4 @@
-package gnutella.peer
+package gnutella.social
 
 import social.Digest
 import social.Post
@@ -6,7 +6,7 @@ import social.User
 import java.util.*
 
 class Storage {
-    val posts = mutableMapOf<User, MutableList<Post>>()
+    var posts = mutableMapOf<User, MutableList<Post>>()
 
     fun addPost(post: Post) {
         if (post.author !in posts)
@@ -29,5 +29,9 @@ class Storage {
         return posts[digest.user]?.filter { it.ID in digest.postIDs }
     }
 
-    fun timeline(user: User): List<Post> = posts.filter { it.key in user.following || it.key == user }.values.flatten()
+    fun timeline(user: User): List<Post> =
+        posts.filter { it.key in user.following || it.key == user }
+            .values
+            .flatten()
+            .sortedByDescending { it.date }
 }

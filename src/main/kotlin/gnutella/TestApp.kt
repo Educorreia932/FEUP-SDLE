@@ -43,7 +43,7 @@ fun main() {
                             println("Peer $username needs to connect before posting. [ '$it' ]")
                             return@forEachLine
                         }
-                        peers[username]!!.storage.addPost(Post(UUID.randomUUID(), "Rãs", peers[username]!!.user))
+                        peers[username]!!.user.createPost("Rãs")
                     }
                     "FOLLOW" -> {
                         if (args.size != 4) {
