@@ -1,6 +1,5 @@
-package gui.tabs
+package gnutella.gui.components
 
-import gnutella.gui.tabs.PostList
 import gnutella.peer.Peer
 import java.awt.Color
 import java.awt.Dimension
@@ -8,7 +7,7 @@ import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import javax.swing.*
 
-class PostForm(val postList: PostList, val peer: Peer) : JPanel() {
+class PostForm(private val postList: PostList, val peer: Peer) : JPanel() {
     val content = JTextArea()
 
     init {
@@ -17,6 +16,8 @@ class PostForm(val postList: PostList, val peer: Peer) : JPanel() {
         background = Color.WHITE
 
         val buttons = JPanel()
+
+        buttons.background = Color.WHITE
 
         clearContent()
 

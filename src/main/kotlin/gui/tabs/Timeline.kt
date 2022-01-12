@@ -1,6 +1,7 @@
 package gui.tabs
 
-import gnutella.gui.tabs.PostList
+import gnutella.gui.components.PostForm
+import gnutella.gui.components.PostList
 import gnutella.peer.Peer
 import javax.swing.*
 

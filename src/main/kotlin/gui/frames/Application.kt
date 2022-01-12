@@ -4,9 +4,7 @@ import gnutella.peer.Peer
 import gui.tabs.Profile
 import gui.tabs.Search
 import gui.tabs.Timeline
-import java.awt.BorderLayout
 import java.awt.GridLayout
-import java.awt.Panel
 import javax.swing.JFrame
 import javax.swing.JTabbedPane
 

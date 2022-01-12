@@ -1,4 +1,4 @@
-package gui.tabs
+package gnutella.gui.components
 
 import social.Post
 import java.awt.*

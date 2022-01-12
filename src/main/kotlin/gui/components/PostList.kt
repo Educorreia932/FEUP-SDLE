@@ -1,7 +1,6 @@
-package gnutella.gui.tabs
+package gnutella.gui.components
 
 import gnutella.peer.Peer
-import gui.tabs.PostPanel
 import social.Post
 import javax.swing.BoxLayout
 import javax.swing.JPanel
