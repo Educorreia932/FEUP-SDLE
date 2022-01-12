@@ -1,7 +1,6 @@
 package gui.tabs
 
 import gnutella.gui.tabs.PostList
-import social.Post
 import gnutella.peer.Peer
 import javax.swing.*
 
@@ -12,8 +11,8 @@ class Timeline(val peer: Peer) : JPanel() {
     init {
         panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
 
-        val postForm = PostForm(peer)
         val postList = PostList(peer)
+        val postForm = PostForm(postList, peer)
 
         panel.add(postForm)
         panel.add(postList)

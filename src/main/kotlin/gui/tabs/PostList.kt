@@ -22,8 +22,13 @@ class PostList(val peer: Peer): JPanel() {
         add(PostPanel(post))
     }
 
-    private fun refresh() {
+    fun refresh() {
+        removeAll()
+        
         for (post in peer.timeline())
             addPost(post)
+        
+        revalidate()
+        repaint()
     }
 }

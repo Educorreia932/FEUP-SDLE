@@ -1,5 +1,6 @@
 package gui.tabs
 
+import gnutella.gui.tabs.PostList
 import gnutella.peer.Peer
 import java.awt.Color
 import java.awt.Dimension
@@ -7,7 +8,7 @@ import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import javax.swing.*
 
-class PostForm(val peer: Peer) : JPanel() {
+class PostForm(val postList: PostList, val peer: Peer) : JPanel() {
     val content = JTextArea()
 
     init {
@@ -15,7 +16,9 @@ class PostForm(val peer: Peer) : JPanel() {
         preferredSize = Dimension(800, 100)
         background = Color.WHITE
 
-        resetContent()
+        val buttons = JPanel()
+
+        clearContent()
 
         content.font = content.font.deriveFont(20f)
 
@@ -27,7 +30,7 @@ class PostForm(val peer: Peer) : JPanel() {
 
             override fun focusLost(e: FocusEvent) {
                 if (content.text == "")
-                    resetContent()
+                    clearContent()
             }
         })
 
@@ -37,18 +40,29 @@ class PostForm(val peer: Peer) : JPanel() {
             if (content.text != "") {
                 peer.user.createPost(content.text)
 
-                resetContent()
+                clearContent()
+                postList.refresh()
             }
         }
-        
-        submit.alignmentX = CENTER_ALIGNMENT
+
         submit.foreground = Color.decode("#1DA1F2")
 
+        val refresh = JButton("Refresh")
+
+        refresh.addActionListener {
+            postList.refresh()
+        }
+
+        buttons.add(refresh)
+        buttons.add(submit)
+
+        buttons.alignmentX = CENTER_ALIGNMENT
+
         add(content)
-        add(submit)
+        add(buttons)
     }
 
-    fun resetContent() {
+    fun clearContent() {
         content.text = "What's happening?"
         content.foreground = Color.GRAY
     }

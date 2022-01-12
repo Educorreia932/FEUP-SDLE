@@ -2,6 +2,8 @@ package gui.tabs
 
 import social.Post
 import java.awt.*
+import java.awt.geom.RoundRectangle2D
+import java.awt.image.BufferedImage
 import java.net.URL
 import java.util.*
 import javax.imageio.ImageIO
@@ -17,7 +19,7 @@ class PostPanel(post: Post) : JPanel() {
         right.layout = BoxLayout(right, BoxLayout.PAGE_AXIS)
 
         val header = JPanel()
-        
+
         header.layout = FlowLayout(FlowLayout.LEFT, 1, 0)
 
         // Name 
@@ -27,7 +29,7 @@ class PostPanel(post: Post) : JPanel() {
 
         // Username
         val username = Label("@${post.author.username}")
-        
+
         username.foreground = Color.decode("#777777")
 
         // Content
@@ -59,9 +61,10 @@ class PostPanel(post: Post) : JPanel() {
 
         val constraints = GridBagConstraints()
 
-        constraints.anchor = GridBagConstraints.PAGE_START
+        constraints.anchor = GridBagConstraints.NORTH
 
         left.add(avatar)
+        left.add(Box.createRigidArea(Dimension(0, 5)))
         left.add(followButton)
 
         add(left, constraints)
