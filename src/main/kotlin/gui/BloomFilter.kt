@@ -8,14 +8,13 @@ import kotlin.math.*
 class BloomFilter(var sizeBloomFilter: Int, var numExpectedElements: Int = 100000) {
 
     var bloomFilter = BitSet()
-    var numHashFunctions = 0
-    var hash = "MD5"
+    var numHashFunctions = 0 // Optimal number of hashes to apply.
+    val hash = "MD5" // Hash algorithm to apply.
 
     init {
         bloomFilter = BitSet(sizeBloomFilter)
         bloomFilter.clear()
-        // Compute optimal number of hash functions.
-        numHashFunctions = ((sizeBloomFilter.toDouble() / numExpectedElements).roundToInt() * log10(2.0)).toInt()
+        numHashFunctions = optimalNumberHashFunctions()
     }
 
     // Hashes the passed string with the passed hashing algorithm.
@@ -63,5 +62,10 @@ class BloomFilter(var sizeBloomFilter: Int, var numExpectedElements: Int = 10000
     // that an element exists when it doesn't exist.
     fun falsePositiveProbability(): Double  {
         return (1 - exp(-numHashFunctions * numExpectedElements / sizeBloomFilter.toDouble())).pow(numHashFunctions.toDouble())
+    }
+
+    // Compute optimal number of hash functions.
+    private fun optimalNumberHashFunctions(): Int {
+        return ((sizeBloomFilter.toDouble() / numExpectedElements).roundToInt() * log10(2.0)).toInt()
     }
 }
