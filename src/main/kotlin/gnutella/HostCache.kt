@@ -9,8 +9,11 @@ import gnutella.peer.Node
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.net.ServerSocket
+import java.net.Socket
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 class HostCache {
@@ -57,7 +60,50 @@ class HostCache {
                 }
             }
         }
+
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
+            { randomCheckAlive() },
+            5,
+            1,
+            TimeUnit.SECONDS
+        )
+
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
+            { println(peers.size) },
+            6,
+            3,
+            TimeUnit.SECONDS
+        )
     }
+
+    private fun randomCheckAlive() {
+        for (node in takeNRandomNeighbours(Constants.maxNeighbours)) {
+            var alive = true
+            for (i in 0..5) {
+                alive = try {
+                    val socket = Socket(
+                        node.address, node.port
+                    )
+//                    socket.use {
+//                        val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+//                        objectOutputStream.close()
+//                    }
+                    socket.close()
+                    true
+                } catch (_: Exception) {
+                    false
+                }
+
+                if (alive)
+                    break
+            }
+
+            if (!alive){
+                peers.remove(node) // Assume dead
+            }
+        }
+    }
+
 
     private fun takeNRandomNeighbours(n: Int): Set<Node> {
         val ret = mutableSetOf<Node>()

@@ -3,10 +3,11 @@ package gnutella
 import Post
 import User
 import gnutella.peer.Peer
-import gui.GUI
 import org.graphstream.graph.Graph
 import org.graphstream.graph.implementations.SingleGraph
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 fun main() {
     System.setProperty("org.graphstream.ui", "swing")
@@ -15,9 +16,9 @@ fun main() {
     val graph: Graph = SingleGraph("Network")
     HostCache()
 
-//    graph.display()
+    graph.display()
 
-    for (i in 1..20) {
+    for (i in 1..50) {
         val peer = Peer(User(i.toString()), graph = graph)
         peer.connect()
         peers.add(peer)
@@ -31,9 +32,17 @@ fun main() {
 
     peers[7].search("4")
 
+    Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
+        {
+            val node = peers.random()
+            node.stop()
+            peers.remove(node)
+        }, 7, 5, TimeUnit.SECONDS
+    )
+
     Thread.sleep(200)
 
-    val gui = GUI(peers)
+//    val gui = GUI(peers)
 
-    gui.start()
+//    gui.start()
 }

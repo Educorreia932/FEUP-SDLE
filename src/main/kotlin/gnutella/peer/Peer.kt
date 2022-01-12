@@ -36,6 +36,12 @@ class Peer(
     @Transient
     val sentQueryIDs = mutableSetOf<UUID>()
 
+    @Transient
+    val pinger = Executors.newScheduledThreadPool(1)
+
+    @Transient
+    val postSearcher = Executors.newScheduledThreadPool(1)
+
     init {
         val node = graph.addNode(port.toString())
 
@@ -74,7 +80,7 @@ class Peer(
         }
 
 
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
+        pinger.scheduleAtFixedRate(
             {
                 ping()
             },
@@ -85,7 +91,7 @@ class Peer(
         )
 
         // Search followers for posts every x milliseconds
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
+        postSearcher.scheduleAtFixedRate(
             { searchAllFollowers() },
             Constants.INITIAL_SEARCH_FOLLOWERS_TIME_MILIS.toLong(),
             Constants.SEARCH_FOLLOWERS_INTERVAL_MILLIS.toLong(),
@@ -168,6 +174,13 @@ class Peer(
 
     fun addFriendMessage(queryHit: QueryHit, me: Peer) {
         routingTable.friends.addFriendMessage(queryHit, queryHit.digest.user.username, me)
+    }
+
+    fun stop() {
+        pinger.shutdownNow()
+        postSearcher.shutdownNow()
+        messageBroker.stop()
+        graph.removeNode(port.toString())
     }
 
     companion object {
