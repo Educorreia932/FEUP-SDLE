@@ -3,7 +3,6 @@ package gnutella
 import Post
 import User
 import gnutella.peer.Peer
-import gui.BloomFilter
 import gui.GUI
 import org.graphstream.graph.Graph
 import org.graphstream.graph.implementations.SingleGraph
