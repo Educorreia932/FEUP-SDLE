@@ -30,7 +30,6 @@ public class DiscoverHandler(
             return
         }
 
-        println("peer " + peer.user.username + "Previosu prop: " + previousPropagator)
         // Forward ping to neighbours
         peer.forwardMessage(discover, previousPropagator)
     }

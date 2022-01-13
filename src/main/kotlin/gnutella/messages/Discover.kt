@@ -14,4 +14,8 @@ class Discover(
     override fun cloneThis(): Message {
         return Discover(ID, source, propagator, keywordString, timeToLive, hops)
     }
+
+    override fun toString(): String {
+        return "Discover"
+    }
 }

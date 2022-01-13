@@ -83,8 +83,6 @@ class RoutingTable(
 
     fun forwardMessage(message: Message, propagator: Node) {
         for (neighbour in neighbours) {
-            println(neighbour.user.username + " " + propagator.user.username)
-            println(neighbour != propagator)
             if (neighbour != propagator) peer.sendMessageTo(message, neighbour)
         }
     }
