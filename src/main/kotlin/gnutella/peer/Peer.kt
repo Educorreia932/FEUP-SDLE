@@ -112,6 +112,18 @@ class Peer(
         routingTable.forwardMessage(message)
     }
 
+    fun discover(searchString: String){
+        val message = Discover(
+            UUID.randomUUID(),
+            this,
+            this,
+            searchString,
+            Constants.TTL,
+            0
+        )
+        routingTable.forwardMessage(message)
+    }
+
     private fun searchAllFollowers() {
         for (f in user.following) {
             println("Peer " + user.username + " | Searching for follower " + f.username + ".")

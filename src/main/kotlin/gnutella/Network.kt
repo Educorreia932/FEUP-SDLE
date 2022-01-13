@@ -32,8 +32,12 @@ fun main() {
     peers[7].search("4")
 
     Thread.sleep(200)
+    peers[5].storage.addPost(Post(UUID.randomUUID(), "bruh aaa", peers[5].user))
+    peers[5].storage.addPost(Post(UUID.randomUUID(), "bruh bbb", peers[6].user))
 
     val gui = GUI(peers)
 
     gui.start()
+    Thread.sleep(5000)
+    peers[4].discover("bruh")
 }

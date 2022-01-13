@@ -85,6 +85,7 @@ class MessageBroker(
                     is Send -> SendHandler(peer, message).run()
                     is AddNeighbour -> AddNeighbourHandler(peer, message).run()
                     is RemoveNeighbour -> RemoveNeighbourHandler(peer, message).run()
+                    is Discover -> DiscoverHandler(peer, message).run()
                 }
             }
         }
