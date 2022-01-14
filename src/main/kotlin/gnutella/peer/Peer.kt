@@ -41,6 +41,9 @@ class Peer(
     @Transient
     val postSearcher = Executors.newScheduledThreadPool(1)
 
+    @Transient
+    var hasReachedMaxNeighbours = false
+
     init {
         val node = graph.addNode(port.toString())
 
@@ -100,11 +103,20 @@ class Peer(
         )
     }
 
-    private fun ping() {
-        val message = Ping(UUID.randomUUID(), this, this, Constants.TTL, 0)
+    private fun ping(TTL: Int){
+        val message = Ping(UUID.randomUUID(), this, this, TTL, 0)
 
         cache.addPing(message)
         routingTable.forwardMessage(message, routingTable.neighbours.take(routingTable.neighbours.size / 2).toSet())
+    }
+
+    private fun ping() {
+        if((hasReachedMaxNeighbours && !hasSatisfactoryNeighbours()) || (!hasReachedMaxNeighbours && !hasMaxNeighbours())){
+            ping(Constants.TTL)
+        }
+        else{
+            ping(1)
+        }
     }
 
     fun search(username: String) {
@@ -179,6 +191,10 @@ class Peer(
 
     fun hasMaxNeighbours(): Boolean {
         return routingTable.neighbours.size == Constants.maxNeighbours
+    }
+
+    fun hasSatisfactoryNeighbours(): Boolean {
+        return routingTable.neighbours.size >= Constants.MIN_SATISFACTORY_NEIGHBOURS
     }
 
     fun timeline(): List<Post> {

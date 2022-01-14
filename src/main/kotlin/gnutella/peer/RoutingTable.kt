@@ -23,6 +23,9 @@ class RoutingTable(
 
         if (neighbour.user.username != peer.user.username && neighbour !in neighbours) {
             val added = neighbours.add(neighbour)
+            if(neighbours.size == Constants.maxNeighbours){
+                peer.hasReachedMaxNeighbours = true
+            }
 
             if (added && notify)
                 peer.sendMessageTo(AddNeighbour(UUID.randomUUID(), this.peer), neighbour)

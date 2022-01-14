@@ -8,6 +8,7 @@ class Constants {
         const val HOST_CACHE_PORT = 55555
         val HOST_CACHE_ADDRESS: InetAddress = InetAddress.getByName("127.0.0.1")
         const val maxNeighbours = 3
+        const val MIN_SATISFACTORY_NEIGHBOURS = 3
         const val MAX_FRIENDS_TO_MESSAGE = 5 // Send querries to (up to) this many friends
         const val INITIAL_SEARCH_FOLLOWERS_TIME_MILIS = 15000
         const val SEARCH_FOLLOWERS_INTERVAL_MILLIS = 25000
