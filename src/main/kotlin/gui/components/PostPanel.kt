@@ -8,7 +8,9 @@ import java.util.*
 import javax.imageio.ImageIO
 import javax.swing.*
 
-class PostPanel(user: User, post: Post) : JPanel() {
+class PostPanel(user: User, post: Post, postList: PostList) : JPanel() {
+    val followButton = JButton()
+
     init {
         val right = JPanel()
         val left = JPanel()
@@ -49,7 +51,17 @@ class PostPanel(user: User, post: Post) : JPanel() {
 
         // Follow button 
         val followText = if (user.isFollowing(post.author)) "Following" else "Follow"
-        val followButton = JButton(followText)
+        followButton.text = followText
+
+        followButton.addActionListener {
+            if (user.isFollowing(post.author))
+                user.unfollow(post.author)
+            else
+                user.follow(post.author)
+
+            for (postPanel in postList.posts)
+                postPanel.followButton.text = if (user.isFollowing(post.author)) "Following" else "Follow"
+        }
 
         // Add components
         header.add(name)
@@ -65,7 +77,7 @@ class PostPanel(user: User, post: Post) : JPanel() {
 
         left.add(avatar)
         left.add(Box.createRigidArea(Dimension(0, 5)))
-        
+
         if (user != post.author)
             left.add(followButton)
 

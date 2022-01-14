@@ -7,26 +7,32 @@ import javax.swing.JPanel
 import javax.swing.JSeparator
 import javax.swing.SwingConstants
 
-class PostList(val peer: Peer): JPanel() {
+class PostList(val peer: Peer) : JPanel() {
+    val posts = mutableListOf<PostPanel>()
+
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
-        
+
         refresh()
     }
 
     private fun addPost(post: Post) {
         val separator = JSeparator(SwingConstants.HORIZONTAL)
+        val postPanel = PostPanel(peer.user, post, this)
 
+        posts.add(postPanel)
+        
         add(separator)
-        add(PostPanel(peer.user, post))
+        add(postPanel)
     }
 
     fun refresh() {
+        posts.clear()
         removeAll()
-        
+
         for (post in peer.timeline())
             addPost(post)
-        
+
         revalidate()
         repaint()
     }
