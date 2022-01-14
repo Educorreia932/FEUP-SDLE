@@ -68,12 +68,12 @@ class HostCache {
             TimeUnit.SECONDS
         )
 
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
-            { println(peers.size) },
-            6,
-            3,
-            TimeUnit.SECONDS
-        )
+//        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
+//            { println(peers.size) },
+//            6,
+//            3,
+//            TimeUnit.SECONDS
+//        )
     }
 
     private fun randomCheckAlive() {

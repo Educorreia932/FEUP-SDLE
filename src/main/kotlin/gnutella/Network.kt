@@ -32,13 +32,13 @@ fun main() {
 
     peers[7].search("4")
 
-    Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
-        {
-            val node = peers.random()
-            node.stop()
-            peers.remove(node)
-        }, 7, 5, TimeUnit.SECONDS
-    )
+//    Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
+//        {
+//            val node = peers.random()
+//            node.stop()
+//            peers.remove(node)
+//        }, 7, 5, TimeUnit.SECONDS
+//    )
 
     Thread.sleep(200)
 
