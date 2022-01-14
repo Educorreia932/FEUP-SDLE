@@ -1,7 +1,7 @@
 package gnutella
 
-import Post
-import User
+import social.Post
+import social.User
 import gnutella.peer.Peer
 import gui.GUI
 import org.graphstream.graph.Graph
@@ -43,7 +43,7 @@ fun main() {
                             println("Peer $username needs to connect before posting. [ '$it' ]")
                             return@forEachLine
                         }
-                        peers[username]!!.storage.addPost(Post(UUID.randomUUID(), "Rãs", peers[username]!!.user))
+                        peers[username]!!.user.createPost("Rãs")
                     }
                     "FOLLOW" -> {
                         if (args.size != 4) {

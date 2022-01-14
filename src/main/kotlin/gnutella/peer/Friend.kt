@@ -1,6 +1,6 @@
 package gnutella.peer
 
-import User
+import social.User
 import java.net.InetAddress
 
 class Friend(

@@ -1,6 +1,6 @@
 package gnutella.peer
 
-import User
+import social.User
 import java.io.Serializable
 import java.net.InetAddress
 
@@ -17,10 +17,12 @@ abstract class Node(
         if (this === other)
             return true
 
-        if (javaClass != other?.javaClass)
+        try{
+            other as Node
+        }
+        catch(e: Exception){
             return false
-
-        other as Node
+        }
 
         return user.username == other.user.username
     }

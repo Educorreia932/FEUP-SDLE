@@ -11,18 +11,15 @@ class RoutingTable(
     val peer: Peer, private val graph: Graph
 ) {
     val neighbours = mutableSetOf<Neighbour>()
-    val friends =
-        FriendList()//mutableMapOf<String, Map<Neighbour, Float>>() // Topic -> (Friends -> Relationship score)
-
+    val friends = FriendList()
 
     fun addNeighbour(peer: Peer, notify: Boolean) {
         addNeighbour(Neighbour(peer), notify)
     }
 
     fun addNeighbour(neighbour: Neighbour, notify: Boolean) {
-        if (neighbours.size == Constants.maxNeighbours) {
+        if (neighbours.size == Constants.maxNeighbours)
             return
-        }
 
         if (neighbour.user.username != peer.user.username && neighbour !in neighbours) {
             val added = neighbours.add(neighbour)
@@ -30,9 +27,20 @@ class RoutingTable(
             if (added && notify)
                 peer.sendMessageTo(AddNeighbour(UUID.randomUUID(), this.peer), neighbour)
 
-            graph.addEdge(
-                "${peer.port}-${neighbour.port}", peer.port.toString(), neighbour.port.toString(), true
-            )
+            val edgeID = listOf(peer.port, neighbour.port).sorted().toString()
+
+            try {
+                graph.addEdge(
+                    edgeID,
+                    peer.port.toString(),
+                    neighbour.port.toString(),
+                    false
+                )
+            }
+
+            // If there's already an edge, don't add another 
+            catch (_: Exception) {
+            }
         }
     }
 
@@ -82,6 +90,8 @@ class RoutingTable(
     }
 
     fun forwardMessage(message: Message, propagator: Node) {
-        for (neighbour in neighbours) if (neighbour != propagator) peer.sendMessageTo(message, neighbour)
+        for (neighbour in neighbours) {
+            if (neighbour != propagator) peer.sendMessageTo(message, neighbour)
+        }
     }
 }

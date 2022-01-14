@@ -27,10 +27,10 @@ class MessageBroker(
                     socket = serverSocket.accept()
 
                     thread {
-
                         socket.use {
                             try {
                                 val objectInputStream = ObjectInputStream(socket.getInputStream())
+
                                 objectInputStream.use {
                                     val message = objectInputStream.readObject() as Message
 
@@ -63,6 +63,7 @@ class MessageBroker(
 
                         socket.use {
                             val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+
                             objectOutputStream.use {
                                 println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
 
@@ -94,6 +95,7 @@ class MessageBroker(
                     is Send -> SendHandler(peer, message).run()
                     is AddNeighbour -> AddNeighbourHandler(peer, message).run()
                     is RemoveNeighbour -> RemoveNeighbourHandler(peer, message).run()
+                    is Discover -> DiscoverHandler(peer, message).run()
                 }
             }
         }

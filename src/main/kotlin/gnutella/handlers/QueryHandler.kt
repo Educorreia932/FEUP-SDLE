@@ -1,6 +1,6 @@
 package gnutella.handlers
 
-import User
+import social.User
 import gnutella.messages.Query
 import gnutella.messages.QueryHit
 import gnutella.peer.Peer
@@ -33,8 +33,8 @@ class QueryHandler(
         query.propagator = peer
 
         // Send QueryHit back if node had the desired data
-        if (User(query.keyword) in peer.storage.posts) {
-            val response = QueryHit(query.ID, peer, peer.storage.digest(User(query.keyword)))
+        if (User(query.keyword) in peer.user.storage.posts) {
+            val response = QueryHit(query.ID, peer, peer.user.storage.digest(User(query.keyword)))
 
             peer.sendMessageTo(response, prevPropagator)
         }
