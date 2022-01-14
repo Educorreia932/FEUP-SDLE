@@ -42,7 +42,7 @@ class Peer(
     val postSearcher = Executors.newScheduledThreadPool(1)
 
     @Transient
-    var hasReachedMaxNeighbours = false
+    var wantsToReachMaxNeighbours = true
 
     init {
         val node = graph.addNode(port.toString())
@@ -111,7 +111,7 @@ class Peer(
     }
 
     private fun ping() {
-        if((hasReachedMaxNeighbours && !hasSatisfactoryNeighbours()) || (!hasReachedMaxNeighbours && !hasMaxNeighbours())){
+        if((!wantsToReachMaxNeighbours && !hasSatisfactoryNeighbours()) || (wantsToReachMaxNeighbours && !hasMaxNeighbours())){
             ping(Constants.TTL)
         }
         else{

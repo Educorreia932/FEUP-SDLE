@@ -24,7 +24,7 @@ class RoutingTable(
         if (neighbour.user.username != peer.user.username && neighbour !in neighbours) {
             val added = neighbours.add(neighbour)
             if(neighbours.size == Constants.maxNeighbours){
-                peer.hasReachedMaxNeighbours = true
+                peer.wantsToReachMaxNeighbours = false
             }
 
             if (added && notify)
@@ -49,6 +49,9 @@ class RoutingTable(
 
     fun removeNeighbour(neighbour: Neighbour) {
         neighbours.remove(neighbour)
+        if(peer.wantsToReachMaxNeighbours && !peer.hasSatisfactoryNeighbours())
+            peer.wantsToReachMaxNeighbours = true
+
         try {
             graph.removeEdge(
                 "${peer.port}-${neighbour.port}"
