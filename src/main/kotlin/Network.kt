@@ -50,5 +50,5 @@ fun main() {
 
     gui.start()
     Thread.sleep(5000)
-    peers[4].discover("bruh")
+    peers[4].discover("user:4 bruh")
 }

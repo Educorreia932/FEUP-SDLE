@@ -8,10 +8,9 @@ class SendHandler(
     private val send: Send
 ) : MessageHandler(send) {
     override fun run() {
-        println("Posts received: ${send.posts}")
 
         if(send.isSearch){
-            peer.user.storage.replaceSearchPosts(send.posts)
+            peer.user.storage.addSearchPosts(send.posts)
         }
         else
             for (post in send.posts)

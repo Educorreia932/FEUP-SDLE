@@ -21,7 +21,7 @@ class DiscoverHandler(
         val posts = peer.user.storage.findMatchingPosts(discover.keywordString)
         
         if (posts.size > 0) {
-            val response = Send(UUID.randomUUID(), peer, posts, true)
+            val response = Send(UUID.randomUUID(), peer, posts.toList(), true)
             peer.sendMessageTo(response, discover.source)
         }
 
