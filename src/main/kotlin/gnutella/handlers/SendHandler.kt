@@ -11,10 +11,10 @@ class SendHandler(
         println("Posts received: ${send.posts}")
 
         if(send.isSearch){
-            peer.storage.replaceSearchPosts(send.posts)
+            peer.user.storage.replaceSearchPosts(send.posts)
         }
         else
             for (post in send.posts)
-                peer.storage.addPost(post)
+                peer.user.storage.addPost(post)
     }
 }

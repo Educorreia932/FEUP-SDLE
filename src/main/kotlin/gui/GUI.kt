@@ -2,32 +2,18 @@ package gui
 
 import com.formdev.flatlaf.FlatLightLaf
 import gnutella.peer.Peer
+import gui.frames.Application
 import java.awt.EventQueue
-import javax.swing.JFrame
-import javax.swing.JPanel
-import javax.swing.WindowConstants.EXIT_ON_CLOSE
+import javax.swing.UIManager
 
-class GUI(val peers: List<Peer>) {
-    val frame = JFrame("Tulicreme")
-
+class GUI(private val peers: List<Peer>) {
     private fun createAndShowGUI() {
         FlatLightLaf.setup()
 
-        val login = Login(this)
-        val timeline = Timeline(this, peers[7])
+        UIManager.put("Component.focusWidth", 1)
+        UIManager.put("Button.arc", 999)
 
-        frame.contentPane.add(timeline)
-
-        frame.setBounds(10, 10, 800, 600)
-        frame.defaultCloseOperation = EXIT_ON_CLOSE
-        frame.isResizable = false
-        frame.isVisible = true
-    }
-
-    fun replacePanel(panel: JPanel) {
-        frame.contentPane.removeAll()
-        frame.contentPane.add(panel)
-        frame.revalidate()
+        Application(peers[7])
     }
 
     fun start() {

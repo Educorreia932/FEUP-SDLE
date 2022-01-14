@@ -1,24 +1,27 @@
-package gnutella.peer
+package gnutella.social
 
-import Digest
-import Post
-import User
+import social.Digest
+import social.Post
+import social.User
 import java.util.*
 
 class Storage {
-    val posts = mutableMapOf<User, MutableList<Post>>()
+    var posts = mutableMapOf<User, MutableList<Post>>()
     private val searchPosts = mutableListOf<Post>()
 
-    fun replaceSearchPosts(postList: List<Post>){
+    fun replaceSearchPosts(postList: List<Post>) {
         searchPosts.removeAll(searchPosts)
+
         println("Received posts: ")
-        for (p in postList){
+
+        for (p in postList) {
             searchPosts.add(p)
+
             println("Post: $p")
         }
     }
 
-    fun getSearchPosts(): MutableList<Post>{
+    fun getSearchPosts(): MutableList<Post> {
         return searchPosts
     }
 
@@ -43,22 +46,30 @@ class Storage {
         return posts[digest.user]?.filter { it.ID in digest.postIDs }
     }
 
-    fun timeline(user: User): List<Post> = posts.filter { it.key in user.following || it.key == user }.values.flatten()
+    fun timeline(user: User): List<Post> =
+        posts.filter { it.key in user.following || it.key == user }
+            .values
+            .flatten()
+            .sortedByDescending { it.date }
 
-    fun findMatchingPosts(keywordString: String): MutableList<Post>{
+    fun findMatchingPosts(keywordString: String): MutableList<Post> {
         val keywords = keywordString.split(" ")
         val results = mutableListOf<Post>()
-        for(u in posts.values){
-            for(p in u){
+        
+        for (u in posts.values) {
+            for (p in u) {
                 val list = p.content.split(" ")
-                for(w in list){
-                    if(w in keywords){
+                
+                for (w in list) {
+                    if (w in keywords) {
                         results.add(p)
+                        
                         break
                     }
                 }
             }
         }
+        
         return results
     }
 }
