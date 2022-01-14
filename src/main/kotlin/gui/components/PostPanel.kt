@@ -1,16 +1,14 @@
 package gnutella.gui.components
 
 import social.Post
+import social.User
 import java.awt.*
-import java.awt.geom.RoundRectangle2D
-import java.awt.image.BufferedImage
 import java.net.URL
 import java.util.*
 import javax.imageio.ImageIO
 import javax.swing.*
 
-
-class PostPanel(post: Post) : JPanel() {
+class PostPanel(user: User, post: Post) : JPanel() {
     init {
         val right = JPanel()
         val left = JPanel()
@@ -49,7 +47,9 @@ class PostPanel(post: Post) : JPanel() {
 
         avatar.preferredSize = Dimension(75, 75)
 
-        val followButton = JButton("Follow")
+        // Follow button 
+        val followText = if (user.isFollowing(post.author)) "Following" else "Follow"
+        val followButton = JButton(followText)
 
         // Add components
         header.add(name)
@@ -65,7 +65,9 @@ class PostPanel(post: Post) : JPanel() {
 
         left.add(avatar)
         left.add(Box.createRigidArea(Dimension(0, 5)))
-        left.add(followButton)
+        
+        if (user != post.author)
+            left.add(followButton)
 
         add(left, constraints)
         add(right, constraints)

@@ -18,7 +18,7 @@ class PostList(val peer: Peer): JPanel() {
         val separator = JSeparator(SwingConstants.HORIZONTAL)
 
         add(separator)
-        add(PostPanel(post))
+        add(PostPanel(peer.user, post))
     }
 
     fun refresh() {
