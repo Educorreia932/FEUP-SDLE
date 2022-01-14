@@ -14,34 +14,44 @@ class MessageBroker(
 ) {
     private val inbox = LinkedBlockingQueue<Message>()
     private val outbox = LinkedBlockingQueue<Message>()
+    private var stop = false
 
     init {
         // Receive messages
         thread {
             val serverSocket = ServerSocket(peer.port)
+            serverSocket.soTimeout = 1000
+            while (!stop) {
+                val socket: Socket
+                try {
+                    socket = serverSocket.accept()
 
-            while (true) {
-                val socket = serverSocket.accept()
-                
-                thread {
-                    socket.use {
-                        val objectInputStream = ObjectInputStream(socket.getInputStream())
-                        
-                        objectInputStream.use {
-                            val message = objectInputStream.readObject() as Message
+                    thread {
+                        socket.use {
+                            try {
+                                val objectInputStream = ObjectInputStream(socket.getInputStream())
 
-                            println("Peer ${peer.user.username} | Received message $message")
+                                objectInputStream.use {
+                                    val message = objectInputStream.readObject() as Message
 
-                            inbox.put(message)
+                                    println("Peer ${peer.user.username} | Received message $message")
+
+                                    inbox.put(message)
+
+                                }
+                            } catch (_: Exception) {
+                            }
                         }
                     }
+                } catch (_: Exception) {
                 }
             }
+            serverSocket.close()
         }
 
         // Send messages
         thread {
-            while (true) {
+            while (!stop) {
                 val message = outbox.take()
                 var sent = true
 
@@ -53,7 +63,7 @@ class MessageBroker(
 
                         socket.use {
                             val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
-                            
+
                             objectOutputStream.use {
                                 println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
 
@@ -66,8 +76,7 @@ class MessageBroker(
                         sent = false
                     }
 
-                    if (sent)
-                        break
+                    if (sent) break
                     else // Assume the peer as dead
                         peer.removeNeighbour(Neighbour(message.destination!!))
                 }
@@ -76,7 +85,7 @@ class MessageBroker(
 
         // Process messages
         thread {
-            while (true) {
+            while (!stop) {
                 when (val message = inbox.take()) {
                     is Ping -> PingHandler(peer, message).run()
                     is Pong -> PongHandler(peer, message).run()
@@ -90,6 +99,10 @@ class MessageBroker(
                 }
             }
         }
+    }
+
+    fun stop() {
+        stop = true
     }
 
     fun putMessage(message: Message) {
