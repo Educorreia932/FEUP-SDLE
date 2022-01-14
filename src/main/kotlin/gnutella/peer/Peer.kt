@@ -128,7 +128,7 @@ class Peer(
             Constants.TTL,
             0
         )
-        storage.emptySearchPosts()
+        user.storage.emptySearchPosts()
         routingTable.forwardMessage(message)
     }
 
