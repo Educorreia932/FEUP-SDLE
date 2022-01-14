@@ -22,17 +22,17 @@ class MessageBroker(
 
             while (true) {
                 val socket = serverSocket.accept()
+                
                 thread {
-
                     socket.use {
                         val objectInputStream = ObjectInputStream(socket.getInputStream())
+                        
                         objectInputStream.use {
                             val message = objectInputStream.readObject() as Message
 
                             println("Peer ${peer.user.username} | Received message $message")
 
                             inbox.put(message)
-
                         }
                     }
                 }
@@ -53,6 +53,7 @@ class MessageBroker(
 
                         socket.use {
                             val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+                            
                             objectOutputStream.use {
                                 println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
 

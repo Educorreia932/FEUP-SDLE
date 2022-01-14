@@ -1,6 +1,6 @@
 package gnutella.messages
 
-import Digest
+import social.Digest
 import gnutella.peer.Node
 import java.util.*
 

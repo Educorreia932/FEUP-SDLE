@@ -1,8 +1,8 @@
-package gnutella.peer
+package gnutella.social
 
-import Digest
-import Post
-import User
+import social.Digest
+import social.Post
+import social.User
 import java.util.*
 
 class Storage {
@@ -44,12 +44,17 @@ class Storage {
         return posts[digest.user]?.filter { it.ID in digest.postIDs }
     }
 
-    fun timeline(user: User): List<Post> = posts.filter { it.key in user.following || it.key == user }.values.flatten()
+    fun timeline(user: User): List<Post> =
+        posts.filter { it.key in user.following || it.key == user }
+            .values
+            .flatten()
+            .sortedByDescending { it.date }
 
     fun findMatchingPosts(keywordString: String): MutableSet<Post>{
         val keywords = keywordString.split(" ").toMutableList()
         val results = mutableSetOf<Post>()
 
+        // Match users
         for(i in keywords){
             if(i.slice(0..4) == "user:"){
                 val strLength = i.length
@@ -60,18 +65,21 @@ class Storage {
             }
         }
 
-
+        // Match posts
         for(u in posts.values){
             for(p in u){
                 val list = p.content.split(" ")
-                for(w in list){
-                    if(w in keywords){
+                
+                for (w in list) {
+                    if (w in keywords) {
                         results.add(p)
+                        
                         break
                     }
                 }
             }
         }
+        
         return results
     }
 }

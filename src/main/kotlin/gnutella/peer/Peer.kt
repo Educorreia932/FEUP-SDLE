@@ -1,9 +1,10 @@
 package gnutella.peer
 
-import Post
-import User
+import social.Post
+import social.User
 import gnutella.Constants
 import gnutella.messages.*
+import gnutella.social.Storage
 import org.graphstream.graph.Graph
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -19,7 +20,8 @@ import java.util.concurrent.TimeUnit
  * Representation of a Gnutella node
  */
 class Peer(
-    user: User, address: String = "127.0.0.1", port: Int = freePort(), @Transient val graph: Graph
+    user: User, address: String = "127.0.0.1", port: Int = freePort(),
+    @Transient val graph: Graph
 ) : Node(user, InetAddress.getByName(address), port) {
     @Transient
     private val routingTable = RoutingTable(this, graph)
@@ -29,9 +31,6 @@ class Peer(
 
     @Transient
     val cache = Cache(this)
-
-    @Transient
-    val storage = Storage()
 
     @Transient
     val sentQueryIDs = mutableSetOf<UUID>()
@@ -79,8 +78,10 @@ class Peer(
                 ping()
             },
             0,
-            ThreadLocalRandom.current()
-                .nextLong(Constants.MIN_PING_INTERVAL.toLong(), Constants.MAX_PING_INTERVAL.toLong()),
+            ThreadLocalRandom.current().nextLong(
+                Constants.MIN_PING_INTERVAL.toLong(),
+                Constants.MAX_PING_INTERVAL.toLong()
+            ),
             TimeUnit.SECONDS
         )
 
@@ -175,7 +176,7 @@ class Peer(
     }
 
     fun timeline(): List<Post> {
-        return storage.timeline(user)
+        return user.timeline()
 
     }
 

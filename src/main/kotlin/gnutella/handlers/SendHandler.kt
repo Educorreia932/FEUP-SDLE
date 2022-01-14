@@ -10,10 +10,10 @@ class SendHandler(
     override fun run() {
 
         if(send.isSearch){
-            peer.storage.addSearchPosts(send.posts)
+            peer.user.storage.addSearchPosts(send.posts)
         }
         else
             for (post in send.posts)
-                peer.storage.addPost(post)
+                peer.user.storage.addPost(post)
     }
 }

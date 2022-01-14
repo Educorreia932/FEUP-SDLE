@@ -1,3 +1,5 @@
+package social
+
 import java.io.Serializable
 import java.util.*
 
