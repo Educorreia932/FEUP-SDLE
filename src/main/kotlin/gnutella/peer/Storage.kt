@@ -7,18 +7,19 @@ import java.util.*
 
 class Storage {
     val posts = mutableMapOf<User, MutableList<Post>>()
-    private val searchPosts = mutableListOf<Post>()
+    private val searchPosts = mutableSetOf<Post>()
 
-    fun replaceSearchPosts(postList: List<Post>){
+    fun emptySearchPosts(){
         searchPosts.removeAll(searchPosts)
-        println("Received posts: ")
+    }
+
+    fun addSearchPosts(postList: List<Post>){
         for (p in postList){
             searchPosts.add(p)
-            println("Post: $p")
         }
     }
 
-    fun getSearchPosts(): MutableList<Post>{
+    fun getSearchPosts(): MutableSet<Post>{
         return searchPosts
     }
 
@@ -45,9 +46,21 @@ class Storage {
 
     fun timeline(user: User): List<Post> = posts.filter { it.key in user.following || it.key == user }.values.flatten()
 
-    fun findMatchingPosts(keywordString: String): MutableList<Post>{
-        val keywords = keywordString.split(" ")
-        val results = mutableListOf<Post>()
+    fun findMatchingPosts(keywordString: String): MutableSet<Post>{
+        val keywords = keywordString.split(" ").toMutableList()
+        val results = mutableSetOf<Post>()
+
+        for(i in keywords){
+            if(i.slice(0..4) == "user:"){
+                val strLength = i.length
+                if(posts[User(i.slice(5 until strLength))] != null){
+                    results.addAll(posts[User(i.slice(5 until strLength))]!!)
+                }
+                keywords.remove(i)
+            }
+        }
+
+
         for(u in posts.values){
             for(p in u){
                 val list = p.content.split(" ")
