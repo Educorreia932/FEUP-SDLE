@@ -1,4 +1,4 @@
-package gnutella.gui.components
+package gui.components
 
 import gnutella.peer.Peer
 import java.awt.Color
@@ -7,7 +7,7 @@ import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import javax.swing.*
 
-class PostForm(private val postList: PostList, val peer: Peer) : JPanel() {
+class PostForm(private val postList: PostList, val peer: Peer, val search: Boolean = false) : JPanel() {
     val content = JTextArea()
 
     init {
@@ -35,11 +35,15 @@ class PostForm(private val postList: PostList, val peer: Peer) : JPanel() {
             }
         })
 
-        val submit = JButton("Submit")
+        val submit = if (search) JButton("Search") else JButton("Submit")
 
         submit.addActionListener {
             if (content.text != "") {
-                peer.user.createPost(content.text)
+                if (search) 
+                    peer.user.searchPosts(content.text)
+                
+                else 
+                    peer.user.createPost(content.text)
 
                 clearContent()
                 postList.refresh()
@@ -64,7 +68,12 @@ class PostForm(private val postList: PostList, val peer: Peer) : JPanel() {
     }
 
     fun clearContent() {
-        content.text = "What's happening?"
+        if (search)
+            content.text = "What do you want to find?"
+        
+        else
+            content.text = "What's happening?"
+        
         content.foreground = Color.GRAY
     }
 }

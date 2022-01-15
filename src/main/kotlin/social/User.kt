@@ -1,10 +1,10 @@
 package social
 
-import gnutella.social.Storage
 import java.io.*
 import java.util.*
 
 class User(
+//    val name: String,
     val username: String,
     @Transient
     val following: MutableSet<User> = mutableSetOf(),
@@ -30,6 +30,10 @@ class User(
         storage.posts.clear()
         
         savePostsToFile()
+    }
+    
+    fun searchPosts(keyword: String): MutableSet<Post> {
+        return storage.findMatchingPosts(keyword)
     }
 
     // Saves all user's posts to file.

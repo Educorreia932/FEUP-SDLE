@@ -1,5 +1,4 @@
-package gnutella
-
+import gnutella.HostCache
 import social.User
 import gnutella.peer.Peer
 import gui.GUI
@@ -16,9 +15,9 @@ fun main() {
     val graph: Graph = SingleGraph("Network")
     HostCache()
 
-    graph.display()
+//    graph.display()
 
-    for (i in 1..50) {
+    for (i in 1..10) {
         val peer = Peer(User(i.toString()), graph = graph)
 
         peer.connect()

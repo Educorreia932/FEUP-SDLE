@@ -24,4 +24,8 @@ data class Post(
 
         return ID == other.ID
     }
+
+    override fun hashCode(): Int {
+        return ID.hashCode()
+    }
 }

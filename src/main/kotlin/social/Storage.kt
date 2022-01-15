@@ -1,26 +1,19 @@
-package gnutella.social
+package social
 
-import social.Digest
-import social.Post
-import social.User
 import java.util.*
 
 class Storage {
     val posts = mutableMapOf<User, MutableList<Post>>()
-    private val searchPosts = mutableSetOf<Post>()
+    val searchPosts = mutableSetOf<Post>()
 
-    fun emptySearchPosts(){
+    fun emptySearchPosts() {
         searchPosts.removeAll(searchPosts)
     }
 
-    fun addSearchPosts(postList: List<Post>){
-        for (p in postList){
+    fun addSearchPosts(postList: List<Post>) {
+        for (p in postList) {
             searchPosts.add(p)
         }
-    }
-
-    fun getSearchPosts(): MutableSet<Post>{
-        return searchPosts
     }
 
     fun addPost(post: Post) {
@@ -50,36 +43,39 @@ class Storage {
             .flatten()
             .sortedByDescending { it.date }
 
-    fun findMatchingPosts(keywordString: String): MutableSet<Post>{
+    fun findMatchingPosts(keywordString: String): MutableSet<Post> {
         val keywords = keywordString.split(" ").toMutableList()
         val results = mutableSetOf<Post>()
 
-        // Match users
-        for(i in keywords){
-            if(i.slice(0..4) == "user:"){
-                val strLength = i.length
-                if(posts[User(i.slice(5 until strLength))] != null){
-                    results.addAll(posts[User(i.slice(5 until strLength))]!!)
-                }
-                keywords.remove(i)
-            }
-        }
+//        // Match users
+//        for (i in keywords) {
+//            if (i.slice(0..4) == "user:") {
+//                val strLength = i.length
+//                
+//                if (posts[User(i.slice(5 until strLength))] != null)
+//                    results.addAll(posts[User(i.slice(5 until strLength))]!!)
+//                
+//                keywords.remove(i)
+//            }
+//        }
 
         // Match posts
-        for(u in posts.values){
-            for(p in u){
+        for (u in posts.values) {
+            for (p in u) {
                 val list = p.content.split(" ")
-                
+
                 for (w in list) {
                     if (w in keywords) {
                         results.add(p)
-                        
+
                         break
                     }
                 }
             }
         }
         
+        print("Search results: ${results}")
+
         return results
     }
 }

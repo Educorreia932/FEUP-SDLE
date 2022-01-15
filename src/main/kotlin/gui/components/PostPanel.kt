@@ -1,6 +1,5 @@
 package gui.components
 
-import gnutella.gui.components.PostList
 import social.Post
 import social.User
 import java.awt.*
@@ -57,6 +56,7 @@ class PostPanel(user: User, post: Post, postList: PostList) : JPanel() {
         followButton.addActionListener {
             if (user.isFollowing(post.author))
                 user.unfollow(post.author)
+            
             else
                 user.follow(post.author)
 
@@ -77,7 +77,7 @@ class PostPanel(user: User, post: Post, postList: PostList) : JPanel() {
         constraints.anchor = GridBagConstraints.NORTH
 
         left.add(avatar)
-        left.add(Box.createRigidArea(Dimension(0, 5)))
+        left.add(Box.createRigidArea(Dimension(0, 5))) // Vertical spacing
 
         if (user != post.author)
             left.add(followButton)

@@ -4,7 +4,6 @@ import social.Post
 import social.User
 import gnutella.Constants
 import gnutella.messages.*
-import gnutella.social.Storage
 import org.graphstream.graph.Graph
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream

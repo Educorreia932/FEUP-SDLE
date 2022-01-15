@@ -1,8 +1,8 @@
 package gui.tabs
 
-import gnutella.gui.components.PostForm
-import gnutella.gui.components.PostList
+import gui.components.PostForm
 import gnutella.peer.Peer
+import gui.components.PostList
 import javax.swing.*
 
 class Timeline(val peer: Peer) : JPanel() {
