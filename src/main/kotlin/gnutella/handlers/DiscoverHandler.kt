@@ -1,36 +1,37 @@
-package gnutella.handlers;
+package gnutella.handlers
 
 import gnutella.messages.Discover
 import gnutella.messages.Send
-import gnutella.peer.Peer;
+import gnutella.peer.Peer
 import java.util.*
 
 class DiscoverHandler(
-    private val peer: Peer,
-    private var discover: Discover,
+	private val peer: Peer,
+	private var discover: Discover,
 ) : MessageHandler(discover) {
-    override fun run() {
-        discover = discover.cloneThis() as Discover
-        discover.hops++
-        discover.timeToLive--
-
-        val previousPropagator = discover.propagator
-        discover.propagator = peer
-
-        // Get Posts
-        val posts = peer.user.storage.findMatchingPosts(discover.keywordString)
+	override fun run() {
+		discover = discover.cloneThis()
         
-        if (posts.size > 0) {
-            val response = Send(UUID.randomUUID(), peer, posts.toList(), true)
-            peer.sendMessageTo(response, discover.source)
-        }
+		discover.hops++
+		discover.timeToLive--
 
-        if (discover.timeToLive == 0) {
-            return
-        }
+		val previousPropagator = discover.propagator
+		discover.propagator = peer
 
-        // Forward ping to neighbours
-        peer.forwardMessage(discover, previousPropagator)
-    }
+		// Get Posts
+		val posts = peer.user.storage.findMatchingPosts(discover.keyword)
+		println("send post" + posts)
 
+		if (posts.isNotEmpty()) {
+			val response = Send(UUID.randomUUID(), peer, posts.toList(), true)
+
+			peer.sendMessageTo(response, discover.source)
+		}
+
+		if (discover.timeToLive == 0)
+			return
+
+		// Forward ping to neighbours
+		peer.forwardMessage(discover, previousPropagator)
+	}
 }

@@ -3,45 +3,50 @@ package social
 import java.util.*
 
 class Storage {
-    val posts = mutableMapOf<User, MutableList<Post>>()
-    val searchPosts = mutableSetOf<Post>()
+	val posts = mutableMapOf<User, MutableSet<Post>>()
+	val searchPosts = mutableSetOf<Post>()
 
-    fun emptySearchPosts() {
-        searchPosts.clear()
-    }
+	fun emptySearchPosts() {
+		searchPosts.clear()
+	}
 
-    fun addSearchPosts(postList: List<Post>) {
-        for (p in postList)
-            searchPosts.add(p)
-    }
+	fun addSearchPosts(postList: List<Post>) {
+		for (p in postList)
+			searchPosts.add(p)
+	}
 
-    fun addPost(post: Post) {
-        if (post.author !in posts)
-            posts[post.author] = mutableListOf()
+	fun addPost(post: Post) {
+		if (post.author !in posts.keys)
+			posts[post.author] = mutableSetOf()
 
-        posts[post.author]?.add(post)
-    }
+		posts[post.author]?.add(post)
+	}
 
-    fun digest(user: User): Digest {
-        val postIDs = mutableSetOf<UUID>()
+	fun addPosts(postList: List<Post>) {
+		for (post in postList)
+			addPost(post)
+	}
 
-        if (user in posts)
-            for (post in posts[user]!!)
-                postIDs.add(post.ID)
+	fun digest(user: User): Digest {
+		val postIDs = mutableSetOf<UUID>()
 
-        return Digest(user, postIDs)
-    }
+		if (user in posts)
+			for (post in posts[user]!!)
+				postIDs.add(post.ID)
 
-    fun retrievePosts(digest: Digest): List<Post>? = posts[digest.user]?.filter { it.ID in digest.postIDs }
+		return Digest(user, postIDs)
+	}
 
-    fun timeline(user: User): List<Post> =
-        posts.filter { it.key in user.following || it.key == user }
-            .values
-            .flatten()
-            .sortedByDescending { it.date }
+	fun retrievePosts(digest: Digest): List<Post>? = posts[digest.user]?.filter { it.ID in digest.postIDs }
 
-    fun findMatchingPosts(keyword: String): List<Post> =
-        posts.values
-            .flatten()
-            .filter { keyword in it.content }
+	fun timeline(user: User): List<Post> =
+		posts.filter { it.key in user.following || it.key == user }
+			.values
+			.flatten()
+			.sortedByDescending { it.date }
+
+	fun findMatchingPosts(keyword: String): List<Post> = posts
+		.values
+		.flatten()
+		.filter { keyword in it.content }
 }

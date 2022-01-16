@@ -11,104 +11,111 @@ import java.util.concurrent.LinkedBlockingQueue
 import kotlin.concurrent.thread
 
 class MessageBroker(
-    private val peer: Peer,
+	private val peer: Peer,
 ) {
-    private val inbox = LinkedBlockingQueue<Message>()
-    private val outbox = LinkedBlockingQueue<Message>()
-    private var stop = false
+	private val inbox = LinkedBlockingQueue<Message>()
+	private val outbox = LinkedBlockingQueue<Message>()
+	private var stop = false
 
-    init {
-        // Receive messages
-        thread {
-            val serverSocket = ServerSocket(peer.port)
-            serverSocket.soTimeout = 1000
-            while (!stop) {
-                val socket: Socket
-                try {
-                    socket = serverSocket.accept()
+	init {
+		// Receive messages
+		thread {
+			val serverSocket = ServerSocket(peer.port)
+			serverSocket.soTimeout = 1000
+			while (!stop) {
+				val socket: Socket
+				try {
+					socket = serverSocket.accept()
 
-                    thread {
-                        socket.use {
-                            try {
-                                val objectInputStream = ObjectInputStream(socket.getInputStream())
+					thread {
+						socket.use {
+							try {
+								val objectInputStream = ObjectInputStream(socket.getInputStream())
 
-                                objectInputStream.use {
-                                    val message = objectInputStream.readObject() as Message
+								objectInputStream.use {
+									val message = objectInputStream.readObject() as Message
 
-                                    if (Constants.LOGGING)
-                                        println("Peer ${peer.user.username} | Received message $message")
+									if (Constants.LOGGING)
+										println("Peer ${peer.user.username} | Received message $message")
 
-                                    inbox.put(message)
+									inbox.put(message)
 
-                                }
-                            } catch (_: Exception) {
-                            }
-                        }
-                    }
-                } catch (_: Exception) {
-                }
-            }
-            serverSocket.close()
-        }
+								}
+							}
+							catch (_: Exception) {
+							}
+						}
+					}
+				}
+				catch (_: Exception) {
+				}
+			}
+			serverSocket.close()
+		}
 
-        // Send messages
-        thread {
-            while (!stop) {
-                val message = outbox.take()
-                var sent = true
+		// Send messages
+		thread {
+			while (!stop) {
+				val message = outbox.take()
+				var sent = true
 
-                for (i in 0..5) {
-                    try {
-                        val socket = Socket(
-                            message.destination!!.address, message.destination!!.port
-                        )
+				for (i in 0..5) {
+					try {
+						val socket = Socket(
+							message.destination!!.address, message.destination!!.port
+						)
 
-                        socket.use {
-                            val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+						socket.use {
+							val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
 
-                            objectOutputStream.use {
-                                if (Constants.LOGGING)
-                                    println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
+							objectOutputStream.use {
+								if (Constants.LOGGING)
+									println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
 
-                                objectOutputStream.writeObject(message)
-                            }
-                        }
+								objectOutputStream.writeObject(message)
+							}
+						}
 
-                    } catch (e: Exception) {
-                        println("FAILED....Retrying")
-                        sent = false
-                    }
+					}
+					catch (e: Exception) {
+						if (Constants.LOGGING)
+							println("FAILED....Retrying")
 
-                    if (sent) break
-                    else // Assume the peer as dead
-                        peer.removeNeighbour(Neighbour(message.destination!!))
-                }
-            }
-        }
+						sent = false
+					}
 
-        // Process messages
-        thread {
-            while (!stop) {
-                when (val message = inbox.take()) {
-                    is Ping -> PingHandler(peer, message).run()
-                    is Pong -> PongHandler(peer, message).run()
-                    is Query -> QueryHandler(peer, message).run()
-                    is QueryHit -> QueryHitHandler(peer, message).run()
-                    is Get -> GetHandler(peer, message).run()
-                    is Send -> SendHandler(peer, message).run()
-                    is AddNeighbour -> AddNeighbourHandler(peer, message).run()
-                    is RemoveNeighbour -> RemoveNeighbourHandler(peer, message).run()
-                    is Discover -> DiscoverHandler(peer, message).run()
-                }
-            }
-        }
-    }
+					if (sent) 
+                        break
+                    
+					else // Assume the peer is dead
+						peer.removeNeighbour(Neighbour(message.destination!!))
+				}
+			}
+		}
 
-    fun stop() {
-        stop = true
-    }
+		// Process messages
+		thread {
+			while (!stop) {
+				when (val message = inbox.take()) {
+					is Ping -> PingHandler(peer, message).run()
+					is Pong -> PongHandler(peer, message).run()
+					is Query -> QueryHandler(peer, message).run()
+					is QueryHit -> QueryHitHandler(peer, message).run()
+					is Get -> GetHandler(peer, message).run()
+					is Send -> SendHandler(peer, message).run()
+					is AddNeighbour -> AddNeighbourHandler(peer, message).run()
+					is RemoveNeighbour -> RemoveNeighbourHandler(peer, message).run()
+					is Discover -> DiscoverHandler(peer, message).run()
+				}
+			}
+		}
+	}
 
-    fun putMessage(message: Message) {
-        outbox.put(message)
-    }
+	fun stop() {
+		stop = true
+	}
+
+	fun putMessage(message: Message) {
+		outbox.put(message)
+	}
 }

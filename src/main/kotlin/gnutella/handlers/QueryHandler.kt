@@ -11,7 +11,6 @@ class QueryHandler(
     private var query: Query,
 ) : MessageHandler(query) {
     override fun run() {
-
         // Duplicate query received. Ignore.
         if (query in peer.cache) {
             if (Constants.LOGGING)
