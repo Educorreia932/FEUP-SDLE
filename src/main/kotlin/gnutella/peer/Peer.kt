@@ -189,16 +189,11 @@ class Peer(
     }
 
     fun hasMaxNeighbours(): Boolean {
-        return routingTable.neighbours.size == Constants.maxNeighbours
+        return routingTable.neighbours.size == Constants.MAX_NEIGHBOURS
     }
 
     fun hasSatisfactoryNeighbours(): Boolean {
-        return routingTable.neighbours.size >= Constants.MIN_SATISFACTORY_NEIGHBOURS
-    }
-
-    fun timeline(): List<Post> {
-        return user.timeline()
-
+        return routingTable.neighbours.size >= Constants.MIN_NEIGHBOURS
     }
 
     fun addFriendMessage(queryHit: QueryHit, me: Peer) {

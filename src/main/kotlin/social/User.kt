@@ -1,5 +1,6 @@
 package social
 
+import gnutella.Constants
 import java.io.*
 import java.util.*
 
@@ -28,11 +29,11 @@ class User(
     // Deletes all user's posts.
     fun clearPosts() {
         storage.posts.clear()
-        
+
         savePostsToFile()
     }
-    
-    fun searchPosts(keyword: String): MutableSet<Post> {
+
+    fun searchPosts(keyword: String): List<Post> {
         return storage.findMatchingPosts(keyword)
     }
 
@@ -47,7 +48,9 @@ class User(
             out.writeObject(this.storage.posts)
             out.close()
             fileOut.close()
-            println("Serialized data is saved")
+
+            if (Constants.LOGGING)
+                println("Serialized data is saved")
         } catch (i: IOException) {
             i.printStackTrace()
         }

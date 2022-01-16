@@ -77,7 +77,7 @@ class HostCache {
     }
 
     private fun randomCheckAlive() {
-        for (node in takeNRandomNeighbours(Constants.maxNeighbours)) {
+        for (node in takeNRandomNeighbours(Constants.MAX_NEIGHBOURS)) {
             var alive = true
             for (i in 0..5) {
                 alive = try {

@@ -1,5 +1,6 @@
 package gnutella.handlers
 
+import gnutella.Constants
 import gnutella.messages.Ping
 import gnutella.messages.Pong
 import gnutella.peer.Peer
@@ -10,7 +11,6 @@ class PingHandler(
     private var ping: Ping,
 ) : MessageHandler(ping) {
     override fun run() {
-
         if (peer.hasNoNeighbours()) peer.addNeighbour(ping.source as Peer, true)
 
         // Duplicate ping received. Ignore.
@@ -27,7 +27,9 @@ class PingHandler(
         ping.timeToLive--
 
         if (ping.timeToLive == 0) {
-            println("No time to live and/or num hops left in this message. Not propagating.")
+            if (Constants.LOGGING)
+                println("No time to live and/or num hops left in this message. Not propagating.")
+            
             return
         }
 

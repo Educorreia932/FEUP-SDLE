@@ -60,7 +60,7 @@ class PostPanel(user: User, post: Post, postList: PostList) : JPanel() {
             else
                 user.follow(post.author)
 
-            for (postPanel in postList.posts)
+            for (postPanel in postList.postPanels)
                 postPanel.followButton.text = if (user.isFollowing(post.author)) "Following" else "Follow"
         }
 

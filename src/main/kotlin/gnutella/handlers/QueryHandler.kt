@@ -1,5 +1,6 @@
 package gnutella.handlers
 
+import gnutella.Constants
 import social.User
 import gnutella.messages.Query
 import gnutella.messages.QueryHit
@@ -13,7 +14,8 @@ class QueryHandler(
 
         // Duplicate query received. Ignore.
         if (query in peer.cache) {
-            println("Peer ${peer.user.username} | Received duplicate query.")
+            if (Constants.LOGGING)
+                println("Peer ${peer.user.username} | Received duplicate query.")
 
             return
         }
@@ -26,7 +28,8 @@ class QueryHandler(
         query.hops++
         query.timeToLive--
 
-        println("Peer ${peer.user.username} propagating")
+        if (Constants.LOGGING)
+            println("Peer ${peer.user.username} propagating")
 
         // We're the propagator now
         val prevPropagator = query.propagator
@@ -44,7 +47,9 @@ class QueryHandler(
             return
         }
 
-        println("Peer " + peer.user.username + " | 's Previous propagator is " + prevPropagator.user.username)
+        if (Constants.LOGGING)
+            println("Peer " + peer.user.username + "'s Previous propagator is " + prevPropagator.user.username)
+
         peer.forwardMessage(query, prevPropagator)
     }
 }

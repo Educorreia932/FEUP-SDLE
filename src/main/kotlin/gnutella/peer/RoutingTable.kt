@@ -18,12 +18,12 @@ class RoutingTable(
     }
 
     fun addNeighbour(neighbour: Neighbour, notify: Boolean) {
-        if (neighbours.size == Constants.maxNeighbours)
+        if (neighbours.size == Constants.MAX_NEIGHBOURS)
             return
 
         if (neighbour.user.username != peer.user.username && neighbour !in neighbours) {
             val added = neighbours.add(neighbour)
-            if(neighbours.size == Constants.maxNeighbours){
+            if(neighbours.size == Constants.MAX_NEIGHBOURS){
                 peer.wantsToReachMaxNeighbours = false
             }
 

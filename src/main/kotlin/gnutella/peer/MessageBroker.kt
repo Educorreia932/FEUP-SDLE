@@ -1,5 +1,6 @@
 package gnutella.peer
 
+import gnutella.Constants
 import gnutella.handlers.*
 import gnutella.messages.*
 import java.io.ObjectInputStream
@@ -34,7 +35,8 @@ class MessageBroker(
                                 objectInputStream.use {
                                     val message = objectInputStream.readObject() as Message
 
-                                    println("Peer ${peer.user.username} | Received message $message")
+                                    if (Constants.LOGGING)
+                                        println("Peer ${peer.user.username} | Received message $message")
 
                                     inbox.put(message)
 
@@ -65,7 +67,8 @@ class MessageBroker(
                             val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
 
                             objectOutputStream.use {
-                                println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
+                                if (Constants.LOGGING)
+                                    println("Peer ${peer.user.username} | Sent $message to Peer ${message.destination?.user?.username}")
 
                                 objectOutputStream.writeObject(message)
                             }

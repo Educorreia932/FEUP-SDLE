@@ -17,14 +17,12 @@ abstract class Node(
         if (this === other)
             return true
 
-        try{
-            other as Node
-        }
-        catch(e: Exception){
+        if (javaClass != other?.javaClass)
             return false
-        }
 
-        return user.username == other.user.username
+        other as Node
+
+        return user == other.user
     }
 
     override fun hashCode(): Int {

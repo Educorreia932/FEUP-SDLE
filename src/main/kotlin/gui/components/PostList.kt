@@ -7,8 +7,8 @@ import javax.swing.JPanel
 import javax.swing.JSeparator
 import javax.swing.SwingConstants
 
-class PostList(val peer: Peer, val search: Boolean = false) : JPanel() {
-    val posts = mutableListOf<PostPanel>()
+class PostList(val peer: Peer, private val search: Boolean = false) : JPanel() {
+    val postPanels = mutableListOf<PostPanel>()
 
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -20,23 +20,22 @@ class PostList(val peer: Peer, val search: Boolean = false) : JPanel() {
         val separator = JSeparator(SwingConstants.HORIZONTAL)
         val postPanel = PostPanel(peer.user, post, this)
 
-        posts.add(postPanel)
+        postPanels.add(postPanel)
 
         add(separator)
         add(postPanel)
     }
 
     fun refresh() {
-        posts.clear()
+        postPanels.clear()
         removeAll()
 
-        if (search)
-            for (post in peer.user.storage.searchPosts)
-                addPost(post)
-        
-        else
-            for (post in peer.timeline())
-                addPost(post)
+        println("Refresh: ${peer.user.storage.searchPosts}")
+
+        val posts = if (search) peer.user.storage.searchPosts else peer.user.timeline()
+
+        for (post in posts)
+            addPost(post)
 
         revalidate()
         repaint()

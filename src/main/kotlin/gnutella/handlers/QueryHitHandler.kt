@@ -1,5 +1,6 @@
 package gnutella.handlers
 
+import gnutella.Constants
 import social.User
 import gnutella.messages.Get
 import gnutella.messages.QueryHit
@@ -36,15 +37,19 @@ class QueryHitHandler(
             }*/
 
             if (peer.sentQueryIDs.contains(queryHit.ID)) {
-                println("Peer ${peer.user.username} | Received a QueryHit response to it's previous query (MsgID = $queryHit.ID)")
+                if (Constants.LOGGING)
+                    println("Peer ${peer.user.username} | Received a QueryHit response to it's previous query (MsgID = $queryHit.ID)")
                 return
             }
 
-            println("Peer ${peer.user.username} | Received known queryHit")
+            if (Constants.LOGGING)
+                println("Peer ${peer.user.username} | Received known queryHit")
 
             peer.sendMessageTo(QueryHit(query.ID, queryHit.source, queryHit.digest), query.propagator)
-        } else {
-            println("Peer ${peer.user.username} | Received unknown $queryHit")
+        }
+        else {
+            if (Constants.LOGGING)
+                println("Peer ${peer.user.username} | Received unknown $queryHit")
         }
     }
 }
