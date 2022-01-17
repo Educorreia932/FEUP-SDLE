@@ -45,7 +45,7 @@ fun main() {
 	peers[5].user.createPost("bruh aaa")
 	peers[5].user.createPost("bruh bbb")
 
-	val gui = GUI(peers)
+	val gui = GUI(peers, graph)
 
 	gui.start()
 	Thread.sleep(5000)

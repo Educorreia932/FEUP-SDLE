@@ -66,11 +66,6 @@ fun main() {
     }
 
     Thread.sleep(200)
-
-    val gui = GUI(peers.values.toList())
-
-
-    gui.start()
 }
 /*
 PEER 1 CONNECT
