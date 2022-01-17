@@ -30,8 +30,6 @@ class PostList(val peer: Peer, private val search: Boolean = false) : JPanel() {
         postPanels.clear()
         removeAll()
 
-        println("Refresh: ${peer.user.storage.searchPosts}")
-
         val posts = if (search) peer.user.storage.searchPosts else peer.user.timeline()
 
         for (post in posts)

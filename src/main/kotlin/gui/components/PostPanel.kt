@@ -23,7 +23,7 @@ class PostPanel(user: User, post: Post, postList: PostList) : JPanel() {
         header.layout = FlowLayout(FlowLayout.LEFT, 1, 0)
 
         // Name 
-        val name = Label("Eduardo Correia")
+        val name = Label("${post.author.name}")
 
         name.font = font.deriveFont(font.style or Font.BOLD)
 

@@ -5,13 +5,13 @@ import java.io.*
 import java.util.*
 
 class User(
-//    val name: String,
 	val username: String,
 	@Transient
 	val following: MutableSet<User> = mutableSetOf(),
 ) : Serializable {
 	@Transient
 	val storage: Storage = Storage()
+	val name: String = "User $username"
 
 	init {
 		// Checks if there are posts from current user to be loaded.
@@ -70,13 +70,11 @@ class User(
 			objIn.close()
 			fileIn.close()
 		}
-        
 		catch (i: IOException) {
 			i.printStackTrace()
 
 			return
 		}
-        
 		catch (c: ClassNotFoundException) {
 			println("Class not found")
 			c.printStackTrace()
