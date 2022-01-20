@@ -6,12 +6,12 @@ import java.util.*
 
 class User(
 	val username: String,
+	val name: String = "",
 	@Transient
 	val following: MutableSet<User> = mutableSetOf(),
 ) : Serializable {
 	@Transient
 	val storage: Storage = Storage()
-	val name: String = "User $username"
 
 	init {
 		// Checks if there are posts from current user to be loaded.

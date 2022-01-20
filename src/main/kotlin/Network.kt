@@ -11,27 +11,39 @@ import java.util.concurrent.TimeUnit
 fun main() {
 	System.setProperty("org.graphstream.ui", "swing")
 
-	val peers = mutableListOf<Peer>()
 	val graph: Graph = SingleGraph("Network")
+	graph.setAttribute(
+		"ui.stylesheet", 
+		"""
+			node {
+				size: 15px, 15px;
+				shape: circle;
+				fill-color: green;
+				stroke-mode: plain;
+				stroke-color: yellow;
+			}
+		""".trimIndent()
+	);
+
 	HostCache()
 
-//    graph.display()
+//	graph.display()
 
-	for (i in 1..10) {
-		val peer = Peer(User(i.toString()), graph = graph)
+	val A = Peer(User("dferreira", "David Ferreira"), graph = graph)
+	val B = Peer(User("ecorreia", "Eduardo Correia"), graph = graph)
+	val C = Peer(User( "jcardoso", "João Cardoso"), graph = graph)
+	val D = Peer(User( "rfontao", "Ricardo Fontão"), graph = graph)
 
-		peer.connect()
-		peers.add(peer)
-	}
+	A.connect()
+	B.connect()
+	C.connect()
+	D.connect()
+	
+	A.user.follow(B.user)
+	C.user.follow(A.user)
 
-	peers[7].user.follow(peers[3].user)
-
-	peers[3].user.createPost("Sapos")
-	peers[3].user.createPost("Rãs")
-	peers[3].user.createPost("Sapinhos")
-
-	peers[7].search("4")
-
+	val peers = mutableListOf(A, B, C, D)
+	
 //    Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
 //        {
 //            val node = peers.random()
@@ -41,9 +53,6 @@ fun main() {
 //    )
 
 	Thread.sleep(200)
-
-	peers[5].user.createPost("bruh aaa")
-	peers[5].user.createPost("bruh bbb")
 
 	val gui = GUI(peers, graph)
 
