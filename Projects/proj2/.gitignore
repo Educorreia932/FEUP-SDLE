@@ -1,0 +1,13 @@
+.idea/
+build/
+
+# Gradle
+.gradle/
+gradle/
+gradlew.bat
+gradlew
+
+.DS_store
+
+posts/*
+!posts/.keep
