@@ -210,7 +210,7 @@ class Peer(
 		pinger.shutdownNow()
 		postSearcher.shutdownNow()
 		messageBroker.stop()
-		graph.removeNode(port.toString())
+//		graph.removeNode(port.toString())
 	}
 
 	companion object {

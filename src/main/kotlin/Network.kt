@@ -44,18 +44,9 @@ fun main() {
 
 	val peers = mutableListOf(A, B, C, D)
 	
-//    Executors.newScheduledThreadPool(1).scheduleAtFixedRate(
-//        {
-//            val node = peers.random()
-//            node.stop()
-//            peers.remove(node)
-//        }, 7, 5, TimeUnit.SECONDS
-//    )
-
 	Thread.sleep(200)
 
 	val gui = GUI(peers, graph)
 
 	gui.start()
-	Thread.sleep(5000)
 }

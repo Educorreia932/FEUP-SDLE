@@ -9,7 +9,7 @@ import javax.swing.JTabbedPane
 
 class Application(val peer: Peer) : JFrame() {
     init {
-        title = "Tulicreme | Application"
+        title = "Tulicreme | ${peer.user.name}"
         layout = GridLayout()
 
         val tabbedPane = JTabbedPane()
