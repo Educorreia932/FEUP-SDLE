@@ -20,7 +20,6 @@ class DiscoverHandler(
 
 		// Get Posts
 		val posts = peer.user.storage.findMatchingPosts(discover.keyword)
-		println("send post" + posts)
 
 		if (posts.isNotEmpty()) {
 			val response = Send(UUID.randomUUID(), peer, posts.toList(), true)

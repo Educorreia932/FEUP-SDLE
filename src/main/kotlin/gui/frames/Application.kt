@@ -1,7 +1,6 @@
 package gui.frames
 
 import gnutella.peer.Peer
-import gui.tabs.Profile
 import gui.tabs.Search
 import gui.tabs.Timeline
 import java.awt.GridLayout
@@ -11,14 +10,12 @@ import javax.swing.JTabbedPane
 class Application(val peer: Peer) : JFrame() {
     init {
         title = "Tulicreme | Application"
-        defaultCloseOperation = EXIT_ON_CLOSE
         layout = GridLayout()
 
         val tabbedPane = JTabbedPane()
 
         tabbedPane.addTab("Timeline", Timeline(peer))
         tabbedPane.addTab("Search", Search(peer))
-        tabbedPane.addTab("Profile", Profile(peer))
 
         add(tabbedPane)
 
